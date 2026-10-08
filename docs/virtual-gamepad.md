@@ -108,9 +108,9 @@ drives bytes 11/12 with its calibrated L/R travel instead of ZL/ZR
 (`BUTTON_L1`/`BUTTON_R1`).
 
 ZL and Z (the ZR bit) move to the stick-click bits, `BUTTON_THUMBL`/`BUTTON_THUMBR`, which this
-controller has no use for (`AnalogTriggerMapper`). They can't stay on `BUTTON_L2`/`BUTTON_R2`: handheld
-firmware can derive those keys from the trigger axes. Retroid Pocket Nova, Android 13, L2/R2 setting
-"Both", 2026-10-08: pulling R fired Dolphin's `Button R2`, and pressing Z fired nothing.
+controller has no use for (`AnalogTriggerMapper`). They can't stay on `BUTTON_L2`/`BUTTON_R2`, which
+can follow the trigger axes instead. Retroid Pocket Nova, Android 13, 2026-10-08: pulling R fired
+Dolphin's `Button R2`, and pressing Z fired nothing. The Nova's L2/R2 setting wasn't the cause.
 
 For such a player, Dolphin setup adds ``Triggers/L-Analog = `Axis 23+` `` and
 ``Triggers/R-Analog = `Axis 22+` ``. Dolphin names Android axes by number, and a trigger has only a `+`

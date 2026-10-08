@@ -117,17 +117,20 @@ object DolphinGcpadConfig {
         }
         val device = "Device = Android/$deviceId/Joy-Con Virtual Gamepad $index"
         val analogTriggers = if (player.hasAnalogTriggers) ANALOG_TRIGGER_LINES else emptyList()
-        return (listOf(device) + lines(side, mappingFor(PlayerBody(player.player, side))) + analogTriggers)
+        val buttonsAndSticks = lines(side, player.hasAnalogTriggers, mappingFor(PlayerBody(player.player, side)))
+        return (listOf(device) + buttonsAndSticks + analogTriggers)
             .joinToString("\n", postfix = "\n")
     }
 
-    private fun lines(side: JoyconSide, mapping: Map<String, String>): List<String> {
+    private fun lines(side: JoyconSide, analogTriggers: Boolean, mapping: Map<String, String>): List<String> {
         val buttonLines = mapping.toSourceMap<GameCubeButton>().mapNotNull { (target, sources) ->
-            expressionFor(side, sources)?.let { expression -> "${DOLPHIN_KEYS.getValue(target)} = $expression" }
+            expressionFor(side, analogTriggers, sources)?.let { expression ->
+                "${DOLPHIN_KEYS.getValue(target)} = $expression"
+            }
         }
         val stickLines = mapping.toStickDirectionMap<GameCubeStick>().flatMap { (target, directions) ->
             directions.mapNotNull { (direction, sources) ->
-                expressionFor(side, sources)?.let { expression ->
+                expressionFor(side, analogTriggers, sources)?.let { expression ->
                     "${STICK_PREFIXES.getValue(target)}/${DolphinControls.DIRECTIONS.getValue(direction)} = $expression"
                 }
             }
@@ -135,13 +138,14 @@ object DolphinGcpadConfig {
         return buttonLines + stickLines
     }
 
-    private fun expressionFor(side: JoyconSide, sources: List<MappingSource>): String? =
-        sources.mapNotNull { specFor(side, it) }
+    private fun expressionFor(side: JoyconSide, analogTriggers: Boolean, sources: List<MappingSource>): String? =
+        sources.mapNotNull { specFor(side, analogTriggers, it) }
             .takeIf { it.isNotEmpty() }
             ?.joinToString(" | ") { "`$it`" }
 
-    private fun specFor(side: JoyconSide, source: MappingSource): String? = when (source) {
-        is MappingSource.Button -> source.button.emittedFor(side)?.let { ANDROID_NAMES[it] ?: HAT_NAMES[it] }
+    private fun specFor(side: JoyconSide, analogTriggers: Boolean, source: MappingSource): String? = when (source) {
+        is MappingSource.Button ->
+            source.button.emittedFor(side, analogTriggers)?.let { ANDROID_NAMES[it] ?: HAT_NAMES[it] }
         is MappingSource.Stick -> tiltSpec(source.emittedStick(side), source.direction)
     }
 

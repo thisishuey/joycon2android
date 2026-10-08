@@ -172,4 +172,13 @@ class DolphinGcpadConfigTest {
         assertTrue(result.contains("Device = Foo"))
         assertTrue(result.contains("[GCPad1]"))
     }
+
+    @Test
+    fun `a gamecube controller's Z binds to the stick click it travels on`() {
+        val gameCube = joycon(Side.PRO).copy(model = ControllerModel.GAMECUBE)
+        val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube)))
+
+        assertTrue(result.contains("Buttons/Z = `Button R3`"))
+        assertFalse(result.contains("Button R2"))
+    }
 }

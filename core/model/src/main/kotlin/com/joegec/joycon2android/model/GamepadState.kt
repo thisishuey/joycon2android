@@ -17,7 +17,11 @@ data class GamepadState(
 
         private fun GamepadState.withTriggers(state: PlayerState): GamepadState =
             if (state.hasAnalogTriggers) {
-                copy(leftTrigger = state.leftInput.triggerLeft, rightTrigger = state.leftInput.triggerRight)
+                copy(
+                    pressed = AnalogTriggerMapper.remapButtons(pressed),
+                    leftTrigger = state.leftInput.triggerLeft,
+                    rightTrigger = state.leftInput.triggerRight,
+                )
             } else {
                 copy(leftTrigger = pulledBy(JoyconButton.ZL), rightTrigger = pulledBy(JoyconButton.ZR))
             }

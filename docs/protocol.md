@@ -172,10 +172,24 @@ Retroid Pocket Nova, 2026-10-07:
 
 ## SPI reads
 
-The controller keeps its factory data in SPI flash. The app wants two fields. The GameCube
-controller's [trigger zeros](#analog-triggers) are 2 bytes at `0x013140`, read only for that model.
-The other is the **shell accent
-colour**, 3 bytes RGB at `0x01301F` — the per-side colour (coral right, blue left) the UI paints each
+The controller keeps its factory data in SPI flash. `FactoryCalibrationReads` picks what a model
+needs at connect:
+
+| Field | Address | Length | Read for |
+|---|---|---|---|
+| Main stick calibration | `0x0130A8` | 9 | every model: a Joy-Con's only stick, a two-stick controller's left |
+| Right stick calibration | `0x0130E8` | 9 | Pro, GameCube and unrecognised controllers |
+| [Trigger zeros](#analog-triggers) | `0x013140` | 2 | the GameCube controller |
+| Shell accent colour | `0x01301F` | 3 | every model, inside the DeviceInfo read below |
+
+**Stick calibration** is three X/Y pairs, each packed in 3 bytes as two 12-bit values (X = `b0 |
+(b1 & 0x0F) << 8`, Y = `b1 >> 4 | b2 << 4`): the centre, the span above it, the span below it. All
+`FF` means unset. Layout and addresses are from the Linux `hid-nintendo` Switch 2 driver (v16) and
+SDL's `SDL_hidapi_switch2.c`, both USB; the same flash serves BLE. A user calibration made on a
+Switch 2 lives at `0x1FC040` (magic `B2 A1`, then the same 9 bytes); the app doesn't read it, and
+sources disagree on the right stick's address.
+
+The **shell accent colour** is the per-side colour (coral right, blue left) the UI paints each
 controller with. Not the body colour at `0x013019`: that is the near-black shell, the same on both
 Joy-Cons.
 
@@ -226,12 +240,17 @@ Treating 2048 as centre and half-span leaves full deflection at ~60% with a 4–
 `StickCalibrator` runs where packets are parsed, so the live display, gamepad and DSU all see
 corrected values:
 
+- **The factory calibration wins** once its [flash read](#spi-reads) answers, about a second after
+  connecting: it sets the centre and each direction's span. Everything below is the fallback for a
+  controller whose flash is unset or unread, and for the first packets before the reply.
 - **Centre** is learned from the first still window (30 samples), then frozen: a stick held at full
   deflection is perfectly still too.
 - **Each direction scales by its own span**, the centre/below/above triple the factory calibration
   stores. Spans are seeded just under the smallest travel measured (~1180 LSB), so full tilt works
-  from the first packet, and only ever widen. The NSO GameCube controller's C-stick travels less,
-  1022–1204 from centre on three units (2026-10-07), so its spans are seeded at 1000.
+  from the first packet, and only ever widen, factory spans included. The NSO GameCube controller's
+  C-stick travels less, 1022–1204 from centre on three units (2026-10-07), so its spans are seeded
+  at 1000.
+- Changing a controller's type resets the calibrator; the factory values are applied again.
 
 ## Android BLE gotchas
 

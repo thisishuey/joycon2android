@@ -10,7 +10,10 @@ class InputCalibrator(private val model: ControllerModel) {
         else StickCalibrator()
     private val triggers = TriggerCalibrator()
 
-    fun setTriggerZeros(left: Int?, right: Int?) = triggers.setFactoryZeros(left, right)
+    fun useFactory(factory: FactoryCalibration) {
+        sticks.useFactory(factory.mainStick, factory.rightStick)
+        triggers.setFactoryZeros(factory.triggerZeroLeft, factory.triggerZeroRight)
+    }
 
     // Bytes 0x3C/0x3D carry nothing meaningful on a controller without analog triggers.
     fun calibrate(input: JoyconInput): JoyconInput {

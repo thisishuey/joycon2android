@@ -29,7 +29,8 @@ class InputCalibratorTest {
 
     @Test
     fun `a gamecube controller's triggers are calibrated`() {
-        val calibrator = InputCalibrator(ControllerModel.GAMECUBE).apply { setTriggerZeros(33, 32) }
+        val calibrator = InputCalibrator(ControllerModel.GAMECUBE)
+            .apply { useFactory(FactoryCalibration(triggerZeroLeft = 33, triggerZeroRight = 32)) }
         assertEquals(255, calibrator.calibrate(JoyconInput(triggerLeft = 180)).triggerLeft)
     }
 }

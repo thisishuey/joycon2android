@@ -86,7 +86,7 @@ class JoyconConnection(
     private val mainHandler = Handler(Looper.getMainLooper())
     private val opQueue = GattOpQueue()
     @Volatile private var calibrator = InputCalibrator(model)
-    private var triggerZeros: Pair<Int?, Int?>? = null
+    private var factory = FactoryCalibration()
     private var gatt: BluetoothGatt? = null
     private var writeChar: BluetoothGattCharacteristic? = null
     private var notifyChar: BluetoothGattCharacteristic? = null
@@ -200,9 +200,7 @@ class JoyconConnection(
             enqueueInitWrite(g, INIT_CMD_1)
             enqueueInitWrite(g, INIT_CMD_2)
             enqueueInitWrite(g, SpiReadCommand.build(DEVICE_INFO_ADDRESS, DEVICE_INFO_LENGTH))
-            if (model.hasAnalogTriggers) {
-                enqueueInitWrite(g, SpiReadCommand.build(SpiTriggerZeros.ADDRESS, SpiTriggerZeros.LENGTH))
-            }
+            FactoryCalibrationReads.commands(model).forEach { enqueueInitWrite(g, it) }
 
             opQueue.enqueue {
                 initComplete = true
@@ -248,7 +246,7 @@ class JoyconConnection(
     fun overrideType(side: Side?) {
         typeOverride = side
         this.side = side ?: model.defaultSide
-        calibrator = InputCalibrator(model).apply { triggerZeros?.let { setTriggerZeros(it.first, it.second) } }
+        calibrator = InputCalibrator(model).apply { useFactory(factory) }
     }
 
     fun setHighPriority(enabled: Boolean) {
@@ -303,9 +301,9 @@ class JoyconConnection(
             }
             CMD_RESPONSE_CHAR -> {
                 Log.d(TAG, "[$side] Cmd response: ${data.joinToString(" ") { "%02X".format(it) }}")
-                SpiTriggerZeros.parse(data)?.let { zeros ->
-                    triggerZeros = zeros
-                    calibrator.setTriggerZeros(zeros.first, zeros.second)
+                FactoryCalibrationReads.update(factory, data)?.let {
+                    factory = it
+                    calibrator.useFactory(it)
                 }
                 SpiColorParser.parseAccentColor(data)?.let { color ->
                     Log.i(TAG, "[$side] Accent color: #${"%06X".format(color)}")

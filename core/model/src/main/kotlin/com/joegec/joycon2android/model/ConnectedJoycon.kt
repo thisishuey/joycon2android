@@ -4,6 +4,7 @@ data class ConnectedJoycon(
     val address: String,
     val side: Side,
     val model: ControllerModel = ControllerModel.UNKNOWN,
+    val typeOverride: Side? = null,
     val deviceName: String,
     val connectionState: JoyconConnectionState = JoyconConnectionState(),
     val input: JoyconInput = JoyconInput(),

@@ -27,6 +27,7 @@ import java.util.UUID
 class JoyconConnection(
     private val context: Context,
     val model: ControllerModel,
+    typeOverride: Side?,
     val deviceName: String,
     private val onDisconnected: (() -> Unit)? = null,
 ) {
@@ -69,7 +70,10 @@ class JoyconConnection(
         private const val INIT_GAP_MS = 500L
     }
 
-    val side: Side = model.defaultSide
+    @Volatile var typeOverride: Side? = typeOverride
+        private set
+    @Volatile var side: Side = typeOverride ?: model.defaultSide
+        private set
 
     private val _connectionState = MutableStateFlow(
         JoyconConnectionState(connecting = true, deviceName = deviceName)
@@ -81,7 +85,8 @@ class JoyconConnection(
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private val opQueue = GattOpQueue()
-    private val calibrator = InputCalibrator(model)
+    @Volatile private var calibrator = InputCalibrator(model)
+    private var triggerZeros: Pair<Int?, Int?>? = null
     private var gatt: BluetoothGatt? = null
     private var writeChar: BluetoothGattCharacteristic? = null
     private var notifyChar: BluetoothGattCharacteristic? = null
@@ -239,6 +244,13 @@ class JoyconConnection(
         }
     }
 
+    // A new side reads the sticks from other offsets, so their learned centres no longer apply.
+    fun overrideType(side: Side?) {
+        typeOverride = side
+        this.side = side ?: model.defaultSide
+        calibrator = InputCalibrator(model).apply { triggerZeros?.let { setTriggerZeros(it.first, it.second) } }
+    }
+
     fun setHighPriority(enabled: Boolean) {
         highPriority = enabled
         if (initComplete) gatt?.let(::requestPriority)
@@ -291,7 +303,10 @@ class JoyconConnection(
             }
             CMD_RESPONSE_CHAR -> {
                 Log.d(TAG, "[$side] Cmd response: ${data.joinToString(" ") { "%02X".format(it) }}")
-                SpiTriggerZeros.parse(data)?.let { (left, right) -> calibrator.setTriggerZeros(left, right) }
+                SpiTriggerZeros.parse(data)?.let { zeros ->
+                    triggerZeros = zeros
+                    calibrator.setTriggerZeros(zeros.first, zeros.second)
+                }
                 SpiColorParser.parseAccentColor(data)?.let { color ->
                     Log.i(TAG, "[$side] Accent color: #${"%06X".format(color)}")
                     _connectionState.value = _connectionState.value.copy(accentColor = color)

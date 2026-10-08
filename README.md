@@ -55,7 +55,11 @@ as an ordinary gamepad.
 
 1. Hold **SYNC** on the controller and tap **Scan**.
 2. Assign each controller to a player — from the app, or with the Switch combos: **L** on one Joy-Con
-   and **R** on another for a pair, **SL + SR** for a sideways Joy-Con, **L + R** on a Pro Controller.
+   and **R** on another for a pair, **SL + SR** for a sideways Joy-Con, **L + R** on a Pro Controller
+   or GameCube controller.
+3. If a controller shows as the wrong type, pick the right one under **Controller type** on its card
+   before assigning it. The choice is remembered for that controller; **Auto** goes back to what it
+   reports.
 
 ### 3. Turn on the virtual gamepad
 
@@ -228,6 +232,7 @@ shoulder buttons.
 | "Shizuku is not running" | Open Shizuku and start it |
 | "Shizuku permission denied" | Shizuku → Apps → allow Joycon2Android |
 | Controller not found | Hold SYNC again and move closer |
+| Controller shows as the wrong type (stick turned sideways, no right stick) | Set **Controller type** on its card, then assign it |
 | Controller stops responding | Press SYNC and reconnect; wait a moment if it stays silent |
 | Gamepad doesn't show up in games | Check `adb shell getevent -p` lists "Joy-Con Virtual Gamepad" |
 | No DSUClient device in the emulator | Check the server address, restart the emulator and open a mapping screen; `adb logcat -s DsuServer` shows whether it's connecting |

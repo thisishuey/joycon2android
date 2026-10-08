@@ -7,16 +7,20 @@ import com.joegec.joycon2android.connection.data.R
 import com.joegec.joycon2android.model.ConnectedJoycon
 import com.joegec.joycon2android.model.ControllerModel
 import com.joegec.joycon2android.model.PlayerNumber
+import com.joegec.joycon2android.model.Side
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class Joycon2Manager(
     private val context: Context,
     private val scope: CoroutineScope,
+    private val typePreferences: ControllerTypePreferences,
 ) : ControllerRepository, ConnectionPriorityRepository {
 
     companion object {
@@ -26,6 +30,7 @@ class Joycon2Manager(
     private val scanner = BleScanner(context)
     private val pool = ConnectionPool(context)
     private val connectionJobs = mutableMapOf<String, Job>()
+    private val typeOverrides = typePreferences.overrides.stateIn(scope, SharingStarted.Eagerly, emptyMap())
 
     @Volatile
     private var highPriority = false
@@ -85,6 +90,13 @@ class Joycon2Manager(
         if (player != null) connection.setPlayerLed(player) else connection.clearPlayerLed()
     }
 
+    override fun setControllerType(address: String, side: Side?) {
+        scope.launch { typePreferences.set(address, side) }
+        val connection = pool.get(address) ?: return
+        connection.overrideType(side)
+        rebuildControllers()
+    }
+
     override fun setHighPriority(enabled: Boolean) {
         highPriority = enabled
         pool.setHighPriority(enabled)
@@ -116,6 +128,7 @@ class Joycon2Manager(
                 address = address,
                 side = connection.side,
                 model = connection.model,
+                typeOverride = connection.typeOverride,
                 deviceName = connection.deviceName,
                 connectionState = connection.connectionState.value,
                 input = connection.input.value,
@@ -131,7 +144,8 @@ class Joycon2Manager(
             return
         }
 
-        pool.connect(result, model, name, highPriority) ?: return
+        val typeOverride = typeOverrides.value[result.device.address]
+        pool.connect(result, model, typeOverride, name, highPriority) ?: return
         onPoolChanged()
     }
 

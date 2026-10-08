@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.le.ScanResult
 import android.content.Context
 import com.joegec.joycon2android.model.ControllerModel
+import com.joegec.joycon2android.model.Side
 import java.util.concurrent.ConcurrentHashMap
 
 /** Thread-safe: BLE callbacks arrive on binder threads. */
@@ -19,9 +20,15 @@ class ConnectionPool(private val context: Context) {
     val size: Int get() = connections.size
 
     /** Null for an address already in the pool (a duplicate scan result). */
-    fun connect(result: ScanResult, model: ControllerModel, name: String, highPriority: Boolean): JoyconConnection? {
+    fun connect(
+        result: ScanResult,
+        model: ControllerModel,
+        typeOverride: Side?,
+        name: String,
+        highPriority: Boolean,
+    ): JoyconConnection? {
         val address = result.device.address
-        val connection = JoyconConnection(context, model, name) {
+        val connection = JoyconConnection(context, model, typeOverride, name) {
             connections.remove(address)
             onPoolChanged?.invoke()
         }

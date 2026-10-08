@@ -467,16 +467,10 @@ PR, and drop the `isLoggable` gate, the `logRawPacket` hook and the patch's
 | Output | A plain-text file in app-specific storage (no permission needed), shared through a `FileProvider` and the share sheet |
 | Optional | A developer toggle for the init mask `0xFF` vs `0x27` (Q5 A/B) |
 
-**Architecture.** This is a new capability, so it gets a new `capture` feature (Recipe B in
-`docs/adding-a-feature.md`). Raw packets originate in `:feature:connection:data`, and features
-can't see each other, so:
-- put a raw-packet type in `:core:model`;
-- give `ControllerRepository` a way to observe raw packets, or to register a listener;
-- wire it to the capture feature in `:app`.
-
-Constraint: nothing per packet may be allocated or copied while capture is off. It sits on the
-input hot path, at ~67 Hz per controller. Only the SPI read needs a new connection capability
-(something like `readSpi(address, address, length)`).
+**Built** on the `controller-capture` branch (see its `docs/capture.md`): a
+`capture` feature (domain/data/presentation), fed by a `ControllerTrafficSource` in `:core:model`
+that `Joycon2Manager` implements through `TrafficRelay`, and wired in `:app`. Nothing is copied
+or allocated per packet unless a recording is running. The init-mask A/B toggle was left out.
 
 **Docs:** a short `docs/` page for the format and how to read a capture, linked from
 `docs/README.md`. If upstream wants it, add a README troubleshooting line telling players how to

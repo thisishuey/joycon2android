@@ -67,7 +67,37 @@ Sticks (raw 12-bit):
 
 **C-stick vs `StickCalibrator`:** its spans are seeded at 1150 and only widen, so on this unit the
 C-stick tops out at ~92% up and ~95% left. Seed the C-stick lower (≈1000), or read the factory stick
-calibration (`0x0130E8`, Q4). Check the other two controllers first.
+calibration (`0x0130E8`, Q4). The three-controller capture below confirms it on every unit.
+
+### Three controllers, 2026-10-07
+
+All three of the user's controllers connected at once on the same Nova, through all 16 steps on
+each: [captures/gc-three-20261007.txt](captures/gc-three-20261007.txt). Balanced priority (gamepad
+off).
+
+| | `…5E:6A:A6` | `…5E:C7:8D` | `…60:07:95` |
+|---|---|---|---|
+| Flash zero L / R (`0x013140`) | 33 / 32 | 35 / 32 | 31 / 31 |
+| Rest L / R | 35 / 30 | 36 / 31–32 | 32 / 33–34 |
+| First stop L (sweep max) | 192–196 | 188 | 185 |
+| First stop R (sweep max) | 182–186 | 178 | 170–179 |
+| Click range seen (bit set, pressing) | 227–240 | 221–242 | 209–236 |
+| Main stick smallest half-span | 1181 | 1149 | 1233 |
+| C-stick smallest half-span | **1022** (up) | **1093** (up) | **1074** (up) |
+| Rate, all three streaming | 21–34, mean 32.0 | 24–34, mean 30.9 | 26–34, mean 32.3 |
+
+- **Every unit: same bits (`0xCF72CF00` over the guide), same layout, no stray bytes.**
+- **Trigger zero:** rest sits within −2..+3 of the flash zero, so flash zero plus a ~5-count dead
+  zone covers all three.
+- **Trigger full:** the first stop ranges 170–196 across units and sides, so a fixed saturation point
+  must be ≤ 170 to reach full on every trigger, or learn it per trigger. The click needs the bit.
+- **C-stick up travel is 1022–1093 on every unit**, below the 1150 seed: lower the C-stick seed.
+- **Three links at balanced priority held up:** ~31–32 packets/s each, no disconnects, worst second
+  21/s. High priority with three is still untested.
+- **Address stability:** `3C:A9:AB:5E:6A:A6` matches the first capture, 26 minutes earlier. All three
+  share the `3C:A9:AB` prefix and its top two bits are `00`. A non-resolvable private address would
+  be random in every byte, so these look like public, vendor-assigned addresses, which don't change.
+  Keying a type override by address (Q7) should hold.
 
 ## Corrections to the handoff report and patch
 
@@ -476,13 +506,14 @@ four; three exercises the same multi-link behaviour):
 1. ~~Triggers at rest, sweep, first and second stop, and where the click bit sets (Q1, Q4).~~ Done
    for one controller, 2026-10-07.
 2. ~~No bits outside the Q2 table.~~ Done: none.
-3. `Adv` log: `73 20` at bytes 5–6 (done). The controller address staying the same across two SYNC
-   sessions is still open (Q7): `3C:A9:AB:5E:6A:A6` in the first capture.
+3. ~~`Adv` log `73 20`, and the address stable across sessions (Q7).~~ Done: same address in both
+   captures, with a shared vendor prefix that marks it as a public address.
 4. ~~SPI `0x013140` reply versus the sampled rest values (Q4).~~ Done: zeros 33/32, rest within a
    few counts.
 5. Optional A/B: init mask `0xFF` vs `0x27` (Q5).
 6. A Pro Controller's `0x3C`/`0x3D` stay flat, if one is available (Q1).
-7. Several controllers: packets per second each, connect failures; granted intervals need btsnoop
+7. Several controllers: ~~packets per second each, connect failures~~ (three at balanced priority:
+   ~31–32/s each, no failures). High priority and the granted intervals (btsnoop) are still open
    (Q6).
 8. Dolphin: `Axis 23+` detected, partial trigger travel works, pulling R doesn't fire Z on the
    target handheld (Q3).

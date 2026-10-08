@@ -25,6 +25,7 @@ import com.joegec.joycon2android.model.JoyconButton.SrLeft
 import com.joegec.joycon2android.model.JoyconButton.SrRight
 import com.joegec.joycon2android.model.JoyconButton.Up
 import com.joegec.joycon2android.model.JoyconButton.X
+import com.joegec.joycon2android.model.JoyconButton.ZR
 import com.joegec.joycon2android.model.JoyconButton.Y
 
 object GameCubeMapping : MappingPreset {
@@ -39,7 +40,7 @@ object GameCubeMapping : MappingPreset {
             GameCubeButton.B to B,
             GameCubeButton.X to X,
             GameCubeButton.Y to Y,
-            GameCubeButton.Z to R,
+            GameCubeButton.Z to ZR,
             GameCubeButton.Start to Plus,
             GameCubeButton.TriggerL to L,
             GameCubeButton.TriggerR to R,

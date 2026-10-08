@@ -101,10 +101,21 @@ class DolphinGcpadConfigTest {
     }
 
     @Test
-    fun `pro controllers are skipped`() {
-        val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = joycon(Side.PRO))))
+    fun `a pro controller is configured as a full controller with both sticks`() {
+        val pro = joycon(Side.PRO)
+        val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = pro, right = pro)))
 
-        assertFalse(result.contains("[GCPad1]"))
+        assertTrue(result.contains("[GCPad1]"))
+        assertTrue(result.contains("Buttons/Z = `Button R2`"))
+        assertTrue(result.contains("C-Stick/Up = `Axis 14-`"))
+    }
+
+    @Test
+    fun `core config includes a pro controller's port`() {
+        val pro = joycon(Side.PRO)
+        val result = DolphinGcpadConfig.mergeCore(null, listOf(PlayerState(PlayerNumber.P2, left = pro, right = pro)))
+
+        assertTrue(result.contains("SIDevice1 = 6"))
     }
 
     @Test

@@ -77,7 +77,7 @@ object DolphinGcpadConfig {
 
     fun mergeCore(existing: String?, players: List<PlayerState>): String {
         val siDevices = players
-            .filter { it.hasController && !it.hasPro && it.player.index in 1..4 }
+            .filter { it.hasController && it.player.index in 1..4 }
             .associate { "SIDevice${it.player.index - 1}" to STANDARD_CONTROLLER }
         return IniEditor.setKeys(existing, "[Core]", siDevices)
     }
@@ -104,8 +104,7 @@ object DolphinGcpadConfig {
         mappingFor: (PlayerBody) -> Map<String, String>,
     ): String? {
         val side = when {
-            player.hasPro -> return null
-            player.hasFullController -> JoyconSide.DUAL
+            player.hasPro || player.hasFullController -> JoyconSide.DUAL
             player.right != null -> JoyconSide.RIGHT
             player.left != null -> JoyconSide.LEFT
             else -> return null

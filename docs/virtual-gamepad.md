@@ -23,7 +23,7 @@ Emulators address it by enumeration rank instead: with P1, P2 and P4, P4 is the 
 
 ## Report layout
 
-14 bytes:
+15 bytes:
 
 | Bytes | Content |
 |---|---|
@@ -33,6 +33,7 @@ Emulators address it by enumeration rank instead: with P1, P2 and P4, P4 is the 
 | 11 | left trigger / brake — ZL as 0 or 255, or analog L travel ([below](#analog-triggers)) |
 | 12 | right trigger / accelerator — ZR as 0 or 255, or analog R travel |
 | 13 | overflow buttons, in a trailing vendor-defined collection: bit 0 GR, bit 1 C |
+| 14 | Android keys, in a trailing Consumer Control collection: bit 0 Home, bit 1 Back, bit 2 Screenshot ([below](#android-keys)) |
 
 ## Buttons and keycodes
 
@@ -67,6 +68,25 @@ shift:
 - **D-pad** is the hat (`AXIS_HAT_X` 15, `AXIS_HAT_Y` 16). Sticks are axes 0/1 (left) and 11/14
   (right). Eden's config uses numeric keycodes; Dolphin's uses names (`Button L2` = ZL,
   `Select` = −, …).
+
+## Android keys
+
+The settings panel's **Android buttons** binds a controller button to Android's Home, Back or
+Screenshot, for every player. `ReportMapper` takes a bound button out of the gamepad bits and sets its
+key in byte 14 instead (`AndroidKeyBindings`).
+
+| Key | HID usage | Linux | Android |
+|---|---|---|---|
+| Home | Consumer `0x223` AC Home | `KEY_HOMEPAGE` | `HOME` |
+| Back | Consumer `0x224` AC Back | `KEY_BACK` | `BACK` |
+| Screenshot | Keyboard `0x46` Print Screen | `KEY_SYSRQ` | `SYSRQ`, which the window manager takes as a screenshot |
+
+- **Only buttons `SidewaysMapper` never moves can be bound** (Home, Capture, C, GL, GR, −, +), so
+  a button's id is the same in the player's input and in the report.
+- **Android handles `HOME` itself** and never passes it to the app in front, so a bound Home always
+  leaves the game.
+- **Emulator configs keep their bindings to a bound button.** It never arrives while bound, and
+  unbinding it needs no new Set up.
 
 ## Sideways Joy-Cons
 

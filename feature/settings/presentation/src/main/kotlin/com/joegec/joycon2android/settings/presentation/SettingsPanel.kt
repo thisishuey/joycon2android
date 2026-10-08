@@ -12,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import com.joegec.joycon2android.model.AndroidKey
 import com.joegec.joycon2android.model.ConnectionViewMode
+import com.joegec.joycon2android.model.JoyconButton
 import com.joegec.joycon2android.ui.components.SettingSwitch
 import com.joegec.joycon2android.ui.theme.Dimens
 import com.joegec.joycon2android.ui.theme.TextDim
@@ -24,6 +26,7 @@ fun SettingsPanel(
     onFasterUpdatesToggle: (Boolean) -> Unit,
     onBlockDeviceMotionToggle: (Boolean) -> Unit,
     onVersionTapped: () -> Unit,
+    onBindAndroidKey: (AndroidKey, JoyconButton?) -> Unit,
     modifier: Modifier = Modifier,
     developerSection: (@Composable () -> Unit)? = null,
 ) {
@@ -60,6 +63,7 @@ fun SettingsPanel(
                 else stringResource(R.string.settings_block_device_motion_needs_shizuku),
             )
         }
+        SettingsSection { AndroidKeysSetting(state.androidKeys, onBindAndroidKey) }
         developerSection?.let { SettingsSection { it() } }
         VersionLine(state.version, onVersionTapped)
     }

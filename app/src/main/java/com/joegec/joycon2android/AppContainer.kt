@@ -57,6 +57,7 @@ import com.joegec.joycon2android.emulator.EmulatorLauncher
 import com.joegec.joycon2android.emulator.EmulatorSetup
 import com.joegec.joycon2android.emulator.dolphinGamepadIds
 import com.joegec.joycon2android.emulator.edenGamepads
+import com.joegec.joycon2android.model.AndroidKeyBindings
 import com.joegec.joycon2android.session.AssignControllerUseCase
 import com.joegec.joycon2android.session.ObserveSessionUseCase
 import com.joegec.joycon2android.session.SessionCoordinator
@@ -68,6 +69,10 @@ import com.joegec.joycon2android.dsu.DsuServer
 import com.joegec.joycon2android.dsu.EnableDsuUseCase
 import com.joegec.joycon2android.dsu.ObserveDsuStatusUseCase
 import com.joegec.joycon2android.dsu.PushDsuPadDataUseCase
+import com.joegec.joycon2android.settings.AndroidKeyBindingsDataStore
+import com.joegec.joycon2android.settings.AndroidKeyBindingsRepository
+import com.joegec.joycon2android.settings.BindAndroidKeyUseCase
+import com.joegec.joycon2android.settings.ObserveAndroidKeyBindingsUseCase
 import com.joegec.joycon2android.settings.ObserveOutputSettingsUseCase
 import com.joegec.joycon2android.settings.OutputSettingsDataStore
 import com.joegec.joycon2android.settings.OutputSettingsRepository
@@ -100,8 +105,10 @@ import com.joegec.joycon2android.update.installedAppVersion
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import java.io.File
 
 /** Composition root: docs/architecture.md#composition-root--appcontainer */
@@ -180,13 +187,18 @@ class AppContainer(context: Context) {
     val nextCaptureStep = NextCaptureStepUseCase(captureRepository)
     val stopCapture = StopCaptureUseCase(captureRepository)
 
+    private val androidKeyBindings: AndroidKeyBindingsRepository = AndroidKeyBindingsDataStore(appContext)
+    val observeAndroidKeyBindings = ObserveAndroidKeyBindingsUseCase(androidKeyBindings)
+    val bindAndroidKey = BindAndroidKeyUseCase(androidKeyBindings)
+    private val androidKeys = observeAndroidKeyBindings().stateIn(scope, SharingStarted.Eagerly, AndroidKeyBindings())
+
     // --- Assignment ---
     val assignmentRepository: AssignmentRepository = PlayerAssignmentManager()
 
     // --- Gamepad + privileged access ---
     private val privilegedAccess = PrivilegedAccess()
     private val gamepadRepository: GamepadRepository =
-        GamepadOutput(scope, GamepadManager(scope, appContext), privilegedAccess::acquire)
+        GamepadOutput(scope, GamepadManager(scope, appContext, androidKeys), privilegedAccess::acquire)
 
     val enableGamepad = EnableGamepadUseCase(gamepadRepository)
     val disableGamepad = DisableGamepadUseCase(gamepadRepository)

@@ -1,11 +1,13 @@
 package com.joegec.joycon2android.gamepad
 
+import com.joegec.joycon2android.model.AndroidKey
+import com.joegec.joycon2android.model.AndroidKeyBindings
 import com.joegec.joycon2android.model.JoyconButton
 import com.joegec.joycon2android.model.PlayerState
 
 object ReportMapper {
 
-    private const val REPORT_SIZE = 14
+    private const val REPORT_SIZE = 15
 
     // Each bit's keycode carries the button's own name: docs/virtual-gamepad.md#buttons-and-keycodes
     private val BUTTON_MAP: Map<String, Int> = mapOf(
@@ -32,12 +34,19 @@ object ReportMapper {
         JoyconButton.Chat.id to 1,
     )
 
+    // The trailing system collection's byte: docs/virtual-gamepad.md#android-keys
+    private val ANDROID_KEY_BITS: Map<AndroidKey, Int> = mapOf(
+        AndroidKey.HOME to 0,
+        AndroidKey.BACK to 1,
+        AndroidKey.SCREENSHOT to 2,
+    )
+
     private const val HAT_CENTER = 0x0F
 
-    fun buildReport(state: PlayerState): ByteArray {
+    fun buildReport(state: PlayerState, androidKeys: AndroidKeyBindings = AndroidKeyBindings()): ByteArray {
         val gamepad = state.gamepad
         val report = ByteArray(REPORT_SIZE)
-        val pressed = gamepad.pressed
+        val pressed = androidKeys.gamepadButtons(gamepad.pressed)
 
         // Bytes 0-1: 15 button bits (little-endian) then one padding bit
         val buttons = bits(pressed, BUTTON_MAP)
@@ -60,6 +69,10 @@ object ReportMapper {
         report[12] = gamepad.rightTrigger.toByte()
 
         report[13] = bits(pressed, OVERFLOW_MAP).toByte()
+
+        report[14] = androidKeys.pressedKeys(gamepad.pressed)
+            .fold(0) { acc, key -> acc or (1 shl ANDROID_KEY_BITS.getValue(key)) }
+            .toByte()
 
         return report
     }

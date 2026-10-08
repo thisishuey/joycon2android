@@ -138,7 +138,8 @@ One **ViewModel per feature**, in its presentation module, built in `MainActivit
 - `GamepadViewModel` — gamepad status, Shizuku availability and emulator auto setup.
 - `UpdateViewModel` — the once-per-launch release check and the update prompt.
 - `SettingsViewModel` — the settings that apply to whichever output runs (faster updates, the Eden
-  motion block). The panel's layout choice stays with `Joycon2ViewModel`, which renders it.
+  motion block, Android buttons). The panel's layout choice stays with `Joycon2ViewModel`, which
+  renders it.
 - `CaptureViewModel` — the hidden controller capture: the version-tap reveal and the recording
   steps, shown as a section of the settings panel ([capture.md](capture.md)).
 - `ControllerMappingViewModel` (in `:core:buttonmapping:presentation`) — the button-mapping editor.

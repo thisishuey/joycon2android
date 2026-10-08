@@ -15,7 +15,8 @@ as an ordinary gamepad.
 
 ## Features
 
-- **Joy-Con 2 and Switch 2 Pro Controller** — connect several at once, GL/GR paddles included.
+- **Joy-Con 2, Switch 2 Pro Controller and NSO GameCube controller** — connect several at once, GL/GR
+  paddles included.
 - **Up to 8 players** — each with a sideways Joy-Con, a pair, or a Pro Controller.
 - **A gamepad per player** — every app sees one standard controller per player, so multiplayer just
   works.
@@ -31,7 +32,7 @@ as an ordinary gamepad.
 ### What you need
 
 - Android 7.0 (API 24) or newer, with Bluetooth LE
-- Joy-Con 2 or a Switch 2 Pro Controller
+- Joy-Con 2, a Switch 2 Pro Controller or an NSO GameCube controller
 - [Shizuku](https://shizuku.rikka.app/), for the virtual gamepad and emulator auto setup — DSU motion
   works without it
 

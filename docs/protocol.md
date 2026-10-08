@@ -24,9 +24,10 @@ enables a subscription that never delivers data.
 Manufacturer data for ID `0x0553` carries:
 
 - **Bytes `[5..6]`** — little-endian product ID: `0x2067` left Joy-Con 2, `0x2066` right Joy-Con 2,
-  `0x2069` Switch 2 Pro Controller. The advertisement has no local name, so this is the only type
-  signal before input starts. Left and right are confirmed on hardware; the Pro value is community
-  reverse-engineering.
+  `0x2069` Switch 2 Pro Controller, `0x2073` NSO GameCube controller. The advertisement has no local
+  name, so this is the only type signal before input starts. Left, right and GameCube are confirmed
+  on hardware; the Pro value is community reverse-engineering. `JoyconAdvertisement.model` maps it to
+  a `ControllerModel`; the GameCube controller is held and decoded as a Pro Controller.
 - **Bytes `[10..15]`** — the bonded host's MAC. Holding SYNC zeroes it; a button press on a synced
   controller wakes it into a short reconnect advertisement carrying the address. The scanner only
   accepts a zeroed field, so stray presses on nearby synced Joy-Cons don't flash into the list.

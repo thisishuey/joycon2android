@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.joegec.joycon2android.model.ControllerModel
 import com.joegec.joycon2android.model.JoyconConnectionState
 import com.joegec.joycon2android.model.JoyconInput
 import com.joegec.joycon2android.model.PlayerNumber
@@ -25,7 +26,7 @@ import java.util.UUID
 @SuppressLint("MissingPermission")
 class JoyconConnection(
     private val context: Context,
-    val side: Side,
+    val model: ControllerModel,
     val deviceName: String,
     private val onDisconnected: (() -> Unit)? = null,
 ) {
@@ -70,6 +71,8 @@ class JoyconConnection(
         private const val DESIRED_MTU = 247
         private const val INIT_GAP_MS = 500L
     }
+
+    val side: Side = model.defaultSide
 
     private val _connectionState = MutableStateFlow(
         JoyconConnectionState(connecting = true, deviceName = deviceName)

@@ -5,8 +5,8 @@ import android.bluetooth.le.ScanResult
 import android.content.Context
 import com.joegec.joycon2android.connection.data.R
 import com.joegec.joycon2android.model.ConnectedJoycon
+import com.joegec.joycon2android.model.ControllerModel
 import com.joegec.joycon2android.model.PlayerNumber
-import com.joegec.joycon2android.model.Side
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -115,6 +115,7 @@ class Joycon2Manager(
             ConnectedJoycon(
                 address = address,
                 side = connection.side,
+                model = connection.model,
                 deviceName = connection.deviceName,
                 connectionState = connection.connectionState.value,
                 input = connection.input.value,
@@ -123,14 +124,14 @@ class Joycon2Manager(
         }
     }
 
-    private fun onDeviceFound(result: ScanResult, side: Side, name: String) {
+    private fun onDeviceFound(result: ScanResult, model: ControllerModel, name: String) {
         if (pool.size >= MAX_CONNECTIONS) {
             scanner.stop()
             _scanning.value = false
             return
         }
 
-        pool.connect(result, side, name, highPriority) ?: return
+        pool.connect(result, model, name, highPriority) ?: return
         onPoolChanged()
     }
 

@@ -79,13 +79,15 @@ off).
 |---|---|---|---|
 | Flash zero L / R (`0x013140`) | 33 / 32 | 35 / 32 | 31 / 31 |
 | Rest L / R | 35 / 30 | 36 / 31–32 | 32 / 33–34 |
-| First stop L (sweep max) | 192–196 | 188 | 185 |
-| First stop R (sweep max) | 182–186 | 178 | 170–179 |
+| First stop L (sweep max / held) | 192 / 192–196 | 188 / 180–184 | 185 / 176–181 |
+| First stop R (sweep max / held) | 186 / 182–186 | 178 / 184–188 | 170 / 175–179 |
 | Click range seen (bit set, pressing) | 227–240 | 221–242 | 209–236 |
 | Main stick smallest half-span | 1181 | 1149 | 1233 |
 | C-stick smallest half-span | **1022** (up) | **1093** (up) | **1074** (up) |
 | Rate, all three streaming | 21–34, mean 32.0 | 24–34, mean 30.9 | 26–34, mean 32.3 |
 
+- In the right-trigger first-stop step, `…C7:8D` was clicked through once by accident (190 → 209 →
+  236 with the bit set) before a clean hold at 184–188; the held values above exclude it.
 - **Every unit: same bits (`0xCF72CF00` over the guide), same layout, no stray bytes.**
 - **Trigger zero:** rest sits within −2..+3 of the flash zero, so flash zero plus a ~5-count dead
   zone covers all three.

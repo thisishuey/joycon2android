@@ -93,7 +93,7 @@ the emulator afterwards — it only reads its config when it starts.
 
 | Card | Emulators | What it writes |
 |---|---|---|
-| Virtual Gamepad | Eden, Eden Nightly, Dolphin (GameCube) | buttons and sticks |
+| Virtual Gamepad | Eden, Eden Nightly, Dolphin (GameCube) | buttons and sticks; analog L/R for a GameCube controller |
 | DSU Motion Server | Eden, Eden Nightly, Dolphin (Wii) | buttons, sticks and motion |
 
 The gamepad button beside **Set up** opens the mapping editor, with a card per connected player —

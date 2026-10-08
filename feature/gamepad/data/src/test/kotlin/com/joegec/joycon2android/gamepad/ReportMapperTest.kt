@@ -1,6 +1,7 @@
 package com.joegec.joycon2android.gamepad
 
 import com.joegec.joycon2android.model.ConnectedJoycon
+import com.joegec.joycon2android.model.ControllerModel
 import com.joegec.joycon2android.model.JoyconButton
 import com.joegec.joycon2android.model.JoyconInput
 import com.joegec.joycon2android.model.PlayerNumber
@@ -70,5 +71,16 @@ class ReportMapperTest {
         assertEquals(0x00.toByte(), report(JoyconButton.ZL)[12])
         assertEquals(0xFF.toByte(), report(JoyconButton.ZR)[12])
         assertEquals(0x00.toByte(), report(JoyconButton.ZR)[11])
+    }
+
+    @Test
+    fun `a gamecube controller's analog travel drives the trigger bytes, not ZL or ZR`() {
+        val input = JoyconInput(pressed = setOf(JoyconButton.ZL.id), triggerLeft = 128, triggerRight = 40)
+        val gameCube = ConnectedJoycon(
+            address = "gc", side = Side.PRO, model = ControllerModel.GAMECUBE, deviceName = "Joy-Con 2", input = input,
+        )
+        val report = ReportMapper.buildReport(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube))
+        assertEquals(128.toByte(), report[11])
+        assertEquals(40.toByte(), report[12])
     }
 }

@@ -68,6 +68,12 @@ object DolphinGcpadConfig {
 
     private val STICK_PREFIXES = mapOf(GameCubeStick.MainStick to "Main Stick", GameCubeStick.CStick to "C-Stick")
 
+    // AXIS_BRAKE (23) and AXIS_GAS (22): docs/virtual-gamepad.md#analog-triggers
+    private val ANALOG_TRIGGER_LINES = listOf(
+        "Triggers/L-Analog = `Axis 23+`",
+        "Triggers/R-Analog = `Axis 22+`",
+    )
+
     fun merge(
         existing: String?,
         players: List<PlayerState>,
@@ -110,7 +116,8 @@ object DolphinGcpadConfig {
             else -> return null
         }
         val device = "Device = Android/$deviceId/Joy-Con Virtual Gamepad $index"
-        return (listOf(device) + lines(side, mappingFor(PlayerBody(player.player, side))))
+        val analogTriggers = if (player.hasAnalogTriggers) ANALOG_TRIGGER_LINES else emptyList()
+        return (listOf(device) + lines(side, mappingFor(PlayerBody(player.player, side))) + analogTriggers)
             .joinToString("\n", postfix = "\n")
     }
 

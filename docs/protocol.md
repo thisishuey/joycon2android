@@ -115,8 +115,8 @@ stream.
 | Temperature | 0x2E | int16 | °C = 25 + raw / 127 |
 | Accel X/Y/Z | 0x30–0x35 | int16 ×3 | 4096 = 1 g |
 | Gyro X/Y/Z | 0x36–0x3B | int16 ×3 | 48000 = 360 °/s |
-| Trigger L | 0x3C | uint8 | analog |
-| Trigger R | 0x3D | uint8 | analog |
+| Trigger L | 0x3C | uint8 | analog, GameCube controller only ([below](#analog-triggers)) |
+| Trigger R | 0x3D | uint8 | analog, GameCube controller only |
 
 A left Joy-Con's right-stick bytes are garbage, and a right Joy-Con's left-stick bytes are too.
 
@@ -148,9 +148,33 @@ A left Joy-Con's right-stick bytes are garbage, and a right Joy-Con's left-stick
 The mask's low nibble lights P1–P4 solid (`0x01`, `0x02`, `0x04`, `0x08`), its high nibble flashes
 them (`0x10` … `0x80`). `0xF0`, all flashing, is the controller's default cycling animation.
 
+### Analog triggers
+
+The NSO GameCube controller's L and R travel to a **first stop**, where analog travel ends, then
+click through to a **second stop**, which sets the L/R button bit. Measured on three units with a
+Retroid Pocket Nova, 2026-10-07:
+
+| | Raw |
+|---|---|
+| Factory zero (SPI `0x013140`, byte 0 left, byte 1 right; `0xFF` unset) | 31–35 |
+| Rest | factory zero −2..+4 |
+| First stop | 170–196, differing by side and unit |
+| Second stop, bit set | 209–242 |
+
+- **The click is the bit, never an analog threshold.** In quick presses the bit can show with the
+  analog value at 155, and values up to 220 pass without it.
+- `TriggerCalibrator` maps factory zero plus a 5-count dead zone to 0 and the first stop to 255.
+  Full starts at 170 and widens to a value **held** still for 5 packets without the click, up to 205,
+  so quick presses through to the click don't move it. Without a factory zero, the lowest value seen
+  stands in.
+- Other drivers (Linux, SDL, BlueRetro) scale to ~225–232, the click point, which caps an unclicked
+  trigger at ~80%.
+
 ## SPI reads
 
-The controller keeps its factory data in SPI flash. The app wants one field: the **shell accent
+The controller keeps its factory data in SPI flash. The app wants two fields. The GameCube
+controller's [trigger zeros](#analog-triggers) are 2 bytes at `0x013140`, read only for that model.
+The other is the **shell accent
 colour**, 3 bytes RGB at `0x01301F` — the per-side colour (coral right, blue left) the UI paints each
 controller with. Not the body colour at `0x013019`: that is the near-black shell, the same on both
 Joy-Cons.

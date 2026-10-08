@@ -48,11 +48,8 @@ class JoyconConnection(
             0x00, 0x00, 0xFF.toByte(), 0x00, 0x00, 0x00
         )
 
-        // 0x40 bytes of the DeviceInfo block at 0x013000: docs/protocol.md#spi-reads
-        private val SPI_READ_COLOR_CMD = byteArrayOf(
-            0x02, 0x91.toByte(), 0x00, 0x04, 0x00, 0x08, 0x00, 0x00,
-            0x40, 0x7E, 0x00, 0x00, 0x00, 0x30, 0x01, 0x00
-        )
+        private const val DEVICE_INFO_ADDRESS = 0x013000
+        private const val DEVICE_INFO_LENGTH = 0x40
 
         // Bitmask layout: docs/protocol.md#player-leds
         private fun playerLedCmd(bitmask: Byte): ByteArray {
@@ -84,7 +81,7 @@ class JoyconConnection(
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private val opQueue = GattOpQueue()
-    private val stickCalibrator = StickCalibrator()
+    private val calibrator = InputCalibrator(model)
     private var gatt: BluetoothGatt? = null
     private var writeChar: BluetoothGattCharacteristic? = null
     private var notifyChar: BluetoothGattCharacteristic? = null
@@ -197,7 +194,10 @@ class JoyconConnection(
             }
             enqueueInitWrite(g, INIT_CMD_1)
             enqueueInitWrite(g, INIT_CMD_2)
-            enqueueInitWrite(g, SPI_READ_COLOR_CMD)
+            enqueueInitWrite(g, SpiReadCommand.build(DEVICE_INFO_ADDRESS, DEVICE_INFO_LENGTH))
+            if (model.hasAnalogTriggers) {
+                enqueueInitWrite(g, SpiReadCommand.build(SpiTriggerZeros.ADDRESS, SpiTriggerZeros.LENGTH))
+            }
 
             opQueue.enqueue {
                 initComplete = true
@@ -283,7 +283,7 @@ class JoyconConnection(
     private fun handleCharacteristicChanged(g: BluetoothGatt, uuid: UUID, data: ByteArray) {
         when (uuid) {
             NOTIFY_CHAR -> {
-                PacketParser.parse(data, side)?.let { _input.value = stickCalibrator.calibrate(it) }
+                PacketParser.parse(data, side)?.let { _input.value = calibrator.calibrate(it) }
                 if (!ledSentAfterFirstPacket && initComplete) {
                     ledSentAfterFirstPacket = true
                     mainHandler.post { opQueue.enqueue { sendLedCommand(g) } }
@@ -291,6 +291,7 @@ class JoyconConnection(
             }
             CMD_RESPONSE_CHAR -> {
                 Log.d(TAG, "[$side] Cmd response: ${data.joinToString(" ") { "%02X".format(it) }}")
+                SpiTriggerZeros.parse(data)?.let { (left, right) -> calibrator.setTriggerZeros(left, right) }
                 SpiColorParser.parseAccentColor(data)?.let { color ->
                     Log.i(TAG, "[$side] Accent color: #${"%06X".format(color)}")
                     _connectionState.value = _connectionState.value.copy(accentColor = color)

@@ -5,6 +5,7 @@ import com.joegec.joycon2android.buttonmapping.JoyconSide
 import com.joegec.joycon2android.buttonmapping.PlayerBody
 import com.joegec.joycon2android.buttonmapping.preset.MappingPresets
 import com.joegec.joycon2android.model.ConnectedJoycon
+import com.joegec.joycon2android.model.ControllerModel
 import com.joegec.joycon2android.model.PlayerNumber
 import com.joegec.joycon2android.model.PlayerState
 import com.joegec.joycon2android.model.Side
@@ -108,6 +109,24 @@ class DolphinGcpadConfigTest {
         assertTrue(result.contains("[GCPad1]"))
         assertTrue(result.contains("Buttons/Z = `Button R2`"))
         assertTrue(result.contains("C-Stick/Up = `Axis 14-`"))
+    }
+
+    @Test
+    fun `a gamecube controller's analog triggers bind to the brake and gas axes`() {
+        val gameCube = joycon(Side.PRO).copy(model = ControllerModel.GAMECUBE)
+        val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube)))
+
+        assertTrue(result.contains("Triggers/L-Analog = `Axis 23+`"))
+        assertTrue(result.contains("Triggers/R-Analog = `Axis 22+`"))
+        assertTrue(result.contains("Triggers/L = `Button L1`")) // the click at the second stop
+    }
+
+    @Test
+    fun `controllers with digital triggers bind no analog axis`() {
+        val pro = joycon(Side.PRO)
+        val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = pro, right = pro)))
+
+        assertFalse(result.contains("L-Analog"))
     }
 
     @Test

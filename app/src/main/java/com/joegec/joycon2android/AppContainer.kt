@@ -1,6 +1,17 @@
 package com.joegec.joycon2android
 
 import android.content.Context
+import com.joegec.joycon2android.capture.CaptureFileProvider
+import com.joegec.joycon2android.capture.CaptureFiles
+import com.joegec.joycon2android.capture.CaptureHeader
+import com.joegec.joycon2android.capture.CaptureRecorder
+import com.joegec.joycon2android.capture.CaptureRepository
+import com.joegec.joycon2android.capture.CaptureRevealDataStore
+import com.joegec.joycon2android.capture.NextCaptureStepUseCase
+import com.joegec.joycon2android.capture.ObserveCaptureStatusUseCase
+import com.joegec.joycon2android.capture.RevealCaptureUseCase
+import com.joegec.joycon2android.capture.StartCaptureUseCase
+import com.joegec.joycon2android.capture.StopCaptureUseCase
 import com.joegec.joycon2android.connection.ConnectionPriorityRepository
 import com.joegec.joycon2android.connection.ControllerRepository
 import com.joegec.joycon2android.connection.ControllerTypePreferencesDataStore
@@ -13,6 +24,7 @@ import com.joegec.joycon2android.connection.StartScanUseCase
 import com.joegec.joycon2android.connection.StopScanUseCase
 import com.joegec.joycon2android.connection.ViewModePreferences
 import com.joegec.joycon2android.connection.ViewModePreferencesDataStore
+import com.joegec.joycon2android.model.ControllerTrafficSource
 import com.joegec.joycon2android.buttonmapping.ApplyGlobalLayoutUseCase
 import com.joegec.joycon2android.buttonmapping.ApplyMappingLayoutUseCase
 import com.joegec.joycon2android.buttonmapping.ControllerMappingDataStore
@@ -102,6 +114,7 @@ class AppContainer(context: Context) {
     private val joycon2Manager = Joycon2Manager(appContext, scope, ControllerTypePreferencesDataStore(appContext))
     val controllerRepository: ControllerRepository = joycon2Manager
     private val connectionPriorityRepository: ConnectionPriorityRepository = joycon2Manager
+    private val controllerTrafficSource: ControllerTrafficSource = joycon2Manager
     private val setHighConnectionPriority = SetHighConnectionPriorityUseCase(connectionPriorityRepository)
     val startScan = StartScanUseCase(controllerRepository)
     val stopScan = StopScanUseCase(controllerRepository)
@@ -152,6 +165,20 @@ class AppContainer(context: Context) {
     val observeOutputSettings = ObserveOutputSettingsUseCase(outputSettings)
     val setFasterUpdates = SetFasterUpdatesUseCase(outputSettings)
     val setBlockDeviceMotion = SetBlockDeviceMotionUseCase(outputSettings)
+
+    // --- Controller capture (hidden developer option) ---
+    private val captureRepository: CaptureRepository = CaptureRecorder(
+        source = controllerTrafficSource,
+        directory = CaptureFiles.directory(appContext),
+        header = CaptureHeader(appContext)::lines,
+        shareableUri = { CaptureFileProvider.uriFor(appContext, it) },
+        revealPreferences = CaptureRevealDataStore(appContext),
+    )
+    val observeCaptureStatus = ObserveCaptureStatusUseCase(captureRepository)
+    val revealCapture = RevealCaptureUseCase(captureRepository)
+    val startCapture = StartCaptureUseCase(captureRepository)
+    val nextCaptureStep = NextCaptureStepUseCase(captureRepository)
+    val stopCapture = StopCaptureUseCase(captureRepository)
 
     // --- Assignment ---
     val assignmentRepository: AssignmentRepository = PlayerAssignmentManager()

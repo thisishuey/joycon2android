@@ -1,5 +1,6 @@
 package com.joegec.joycon2android.settings.presentation
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -14,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import com.joegec.joycon2android.model.ConnectionViewMode
 import com.joegec.joycon2android.ui.components.SettingSwitch
 import com.joegec.joycon2android.ui.theme.Dimens
+import com.joegec.joycon2android.ui.theme.TextDim
 
 @Composable
 fun SettingsPanel(
@@ -21,7 +23,9 @@ fun SettingsPanel(
     onViewModeChange: (ConnectionViewMode) -> Unit,
     onFasterUpdatesToggle: (Boolean) -> Unit,
     onBlockDeviceMotionToggle: (Boolean) -> Unit,
+    onVersionTapped: () -> Unit,
     modifier: Modifier = Modifier,
+    developerSection: (@Composable () -> Unit)? = null,
 ) {
     Column(
         modifier
@@ -56,5 +60,18 @@ fun SettingsPanel(
                 else stringResource(R.string.settings_block_device_motion_needs_shizuku),
             )
         }
+        developerSection?.let { SettingsSection { it() } }
+        VersionLine(state.version, onVersionTapped)
     }
+}
+
+// Also the hidden developer-options gesture, so it carries no ripple: docs/capture.md#recording-one
+@Composable
+private fun VersionLine(version: String, onTapped: () -> Unit) {
+    Text(
+        stringResource(R.string.settings_version, version),
+        color = TextDim,
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.clickable(interactionSource = null, indication = null, onClick = onTapped),
+    )
 }

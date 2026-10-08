@@ -14,6 +14,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.joegec.joycon2android.model.ControllerModel
+import com.joegec.joycon2android.model.ControllerTraffic
 import com.joegec.joycon2android.model.JoyconConnectionState
 import com.joegec.joycon2android.model.JoyconInput
 import com.joegec.joycon2android.model.PlayerNumber
@@ -26,9 +27,11 @@ import java.util.UUID
 @SuppressLint("MissingPermission")
 class JoyconConnection(
     private val context: Context,
+    private val address: String,
     val model: ControllerModel,
     typeOverride: Side?,
     val deviceName: String,
+    private val traffic: TrafficRelay,
     private val onDisconnected: (() -> Unit)? = null,
 ) {
     companion object {
@@ -135,6 +138,7 @@ class JoyconConnection(
                         } else null
                     )
                     _input.value = JoyconInput()
+                    traffic.emit { ControllerTraffic.Disconnected(address, status) }
                     onDisconnected?.invoke()
                 }
             }
@@ -142,6 +146,7 @@ class JoyconConnection(
 
         override fun onMtuChanged(g: BluetoothGatt, mtu: Int, status: Int) {
             Log.i(TAG, "[$side] MTU=$mtu. Discovering services.")
+            traffic.emit { ControllerTraffic.Connected(address, mtu) }
             g.discoverServices()
         }
 
@@ -209,6 +214,7 @@ class JoyconConnection(
                 )
                 Log.i(TAG, "[$side] Init sequence complete")
                 if (highPriority) requestPriority(g)
+                traffic.emit { ControllerTraffic.Ready(address) }
                 false // no GATT op — advance immediately
             }
         }
@@ -271,6 +277,14 @@ class JoyconConnection(
         opQueue.enqueue { sendLedCommand(g) }
     }
 
+    /** Dropped until init completes; [ControllerTraffic.Ready] says when to ask. */
+    fun readSpi(spiAddress: Int, length: Int) {
+        if (!initComplete) return
+        val g = gatt ?: return
+        val command = SpiReadCommand.build(spiAddress, length)
+        mainHandler.post { opQueue.enqueue { writeCharacteristic(g, writeChar!!, command) } }
+    }
+
     fun clearPlayerLed() {
         pendingPlayerLed = null
         if (!initComplete) return
@@ -293,7 +307,9 @@ class JoyconConnection(
     private fun handleCharacteristicChanged(g: BluetoothGatt, uuid: UUID, data: ByteArray) {
         when (uuid) {
             NOTIFY_CHAR -> {
-                PacketParser.parse(data, side)?.let { _input.value = calibrator.calibrate(it) }
+                val parsed = PacketParser.parse(data, side)
+                parsed?.let { _input.value = calibrator.calibrate(it) }
+                traffic.emit { ControllerTraffic.Input(address, data.copyOf(), parsed) }
                 if (!ledSentAfterFirstPacket && initComplete) {
                     ledSentAfterFirstPacket = true
                     mainHandler.post { opQueue.enqueue { sendLedCommand(g) } }
@@ -301,6 +317,7 @@ class JoyconConnection(
             }
             CMD_RESPONSE_CHAR -> {
                 Log.d(TAG, "[$side] Cmd response: ${data.joinToString(" ") { "%02X".format(it) }}")
+                traffic.emit { ControllerTraffic.Reply(address, data.copyOf()) }
                 FactoryCalibrationReads.update(factory, data)?.let {
                     factory = it
                     calibrator.useFactory(it)

@@ -17,6 +17,8 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.rememberCoroutineScope
+import com.joegec.joycon2android.capture.presentation.CaptureSection
+import com.joegec.joycon2android.capture.presentation.CaptureViewModel
 import com.joegec.joycon2android.settings.presentation.SettingsPanel
 import com.joegec.joycon2android.settings.presentation.SettingsPanelState
 import com.joegec.joycon2android.settings.presentation.SettingsViewModel
@@ -94,6 +96,14 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+    private val captureViewModel: CaptureViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                val c = (application as JoyconApplication).container
+                CaptureViewModel(c.observeCaptureStatus, c.revealCapture, c.startCapture, c.nextCaptureStep, c.stopCapture)
+            }
+        }
+    }
     private val updateViewModel: UpdateViewModel by viewModels {
         viewModelFactory {
             initializer {
@@ -120,6 +130,11 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    private val appVersion: String by lazy {
+        @Suppress("DEPRECATION")
+        packageManager.getPackageInfo(packageName, 0).versionName.orEmpty()
     }
 
     override fun onResume() {
@@ -258,14 +273,33 @@ class MainActivity : ComponentActivity() {
         val outputSettings by settingsViewModel.outputSettings.collectAsState()
         val viewMode by viewModel.viewMode.collectAsState()
         val shizukuAvailable by gamepadViewModel.shizukuAvailable.collectAsState()
+        val captureStatus by captureViewModel.status.collectAsState()
         EndDrawer(
             drawerState = drawerState,
             drawerContent = {
                 SettingsPanel(
-                    state = SettingsPanelState(viewMode, outputSettings, deviceMotionBlockAvailable = shizukuAvailable),
+                    state = SettingsPanelState(
+                        viewMode,
+                        outputSettings,
+                        deviceMotionBlockAvailable = shizukuAvailable,
+                        version = appVersion,
+                    ),
                     onViewModeChange = viewModel::setViewMode,
                     onFasterUpdatesToggle = settingsViewModel::toggleFasterUpdates,
                     onBlockDeviceMotionToggle = settingsViewModel::toggleBlockDeviceMotion,
+                    onVersionTapped = captureViewModel::onVersionTapped,
+                    developerSection = if (captureStatus.revealed) {
+                        {
+                            CaptureSection(
+                                captureStatus,
+                                onStart = captureViewModel::start,
+                                onNext = captureViewModel::next,
+                                onStop = captureViewModel::stop,
+                            )
+                        }
+                    } else {
+                        null
+                    },
                 )
             },
             containerColor = Background,

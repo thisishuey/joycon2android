@@ -1,0 +1,18 @@
+plugins {
+    id("joycon.android.library.compose")
+}
+
+android {
+    namespace = "com.joegec.joycon2android.capture.presentation"
+}
+
+dependencies {
+    implementation(project(":feature:capture:domain"))
+    implementation(project(":core:designsystem"))
+    implementation(project(":core:model"))
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.material3)
+    testImplementation(libs.junit)
+}

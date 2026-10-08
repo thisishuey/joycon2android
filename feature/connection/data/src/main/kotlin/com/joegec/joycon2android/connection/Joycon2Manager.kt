@@ -6,6 +6,9 @@ import android.content.Context
 import com.joegec.joycon2android.connection.data.R
 import com.joegec.joycon2android.model.ConnectedJoycon
 import com.joegec.joycon2android.model.ControllerModel
+import com.joegec.joycon2android.model.ControllerTraffic
+import com.joegec.joycon2android.model.ControllerTrafficListener
+import com.joegec.joycon2android.model.ControllerTrafficSource
 import com.joegec.joycon2android.model.PlayerNumber
 import com.joegec.joycon2android.model.Side
 import kotlinx.coroutines.CoroutineScope
@@ -21,14 +24,15 @@ class Joycon2Manager(
     private val context: Context,
     private val scope: CoroutineScope,
     private val typePreferences: ControllerTypePreferences,
-) : ControllerRepository, ConnectionPriorityRepository {
+) : ControllerRepository, ConnectionPriorityRepository, ControllerTrafficSource {
 
     companion object {
         private const val MAX_CONNECTIONS = 8
     }
 
     private val scanner = BleScanner(context)
-    private val pool = ConnectionPool(context)
+    private val traffic = TrafficRelay()
+    private val pool = ConnectionPool(context, traffic)
     private val connectionJobs = mutableMapOf<String, Job>()
     private val typeOverrides = typePreferences.overrides.stateIn(scope, SharingStarted.Eagerly, emptyMap())
 
@@ -102,11 +106,25 @@ class Joycon2Manager(
         pool.setHighPriority(enabled)
     }
 
+    override fun setTrafficListener(listener: ControllerTrafficListener?) {
+        traffic.listener = listener
+        if (listener == null) return
+        pool.all.forEach { (address, connection) ->
+            traffic.replayDiscovery(address)
+            if (connection.initComplete) listener.onTraffic(ControllerTraffic.Ready(address))
+        }
+    }
+
+    override fun readSpi(address: String, spiAddress: Int, length: Int) {
+        pool.get(address)?.readSpi(spiAddress, length)
+    }
+
     override fun emitError(message: String) {
         _error.value = message
     }
 
     private fun onPoolChanged() {
+        traffic.retain(pool.addresses)
         syncCollectors()
         rebuildControllers()
     }
@@ -146,8 +164,13 @@ class Joycon2Manager(
 
         val typeOverride = typeOverrides.value[result.device.address]
         pool.connect(result, model, typeOverride, name, highPriority) ?: return
+        val side = typeOverride ?: model.defaultSide
+        traffic.discovered(ControllerTraffic.Discovered(result.device.address, manufacturerData(result), side, name))
         onPoolChanged()
     }
+
+    private fun manufacturerData(result: ScanResult): ByteArray =
+        result.scanRecord?.getManufacturerSpecificData(BleScanner.NINTENDO_MANUFACTURER_ID) ?: ByteArray(0)
 
     private fun onScanFailed(errorCode: Int) {
         _scanning.value = false

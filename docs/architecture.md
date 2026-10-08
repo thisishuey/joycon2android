@@ -3,7 +3,7 @@
 How the app is structured. To add or change a feature, follow [adding-a-feature.md](adding-a-feature.md).
 
 A single-activity Compose app, split into Gradle modules by **feature × layer**. Each feature
-(`connection`, `assignment`, `gamepad`, `dsu`, `update`, `settings`) has up to three modules — `domain`, `data`,
+(`connection`, `assignment`, `gamepad`, `dsu`, `update`, `settings`, `capture`) has up to three modules — `domain`, `data`,
 `presentation` — over shared `:core` modules and a thin `:app` that wires them together. The split
 *enforces* the dependency rules at compile time: presentation and data share only domain, so a
 ViewModel cannot reach a repository implementation.
@@ -25,7 +25,7 @@ ViewModel cannot reach a repository implementation.
 | `:app` | `com.android.application` | every feature module + all `:core` |
 | `:konsist` | `joycon.kotlin.jvm` (test-only) | — (scans the whole project) |
 
-…for each feature `<f>` ∈ { `connection`, `assignment`, `gamepad`, `dsu`, `update`, `settings` }.
+…for each feature `<f>` ∈ { `connection`, `assignment`, `gamepad`, `dsu`, `update`, `settings`, `capture` }.
 
 ¹ `assignment:data` is pure Kotlin (`joycon.kotlin.jvm`) — it has no Android dependencies.
 
@@ -139,6 +139,8 @@ One **ViewModel per feature**, in its presentation module, built in `MainActivit
 - `UpdateViewModel` — the once-per-launch release check and the update prompt.
 - `SettingsViewModel` — the settings that apply to whichever output runs (faster updates, the Eden
   motion block). The panel's layout choice stays with `Joycon2ViewModel`, which renders it.
+- `CaptureViewModel` — the hidden controller capture: the version-tap reveal and the recording
+  steps, shown as a section of the settings panel ([capture.md](capture.md)).
 - `ControllerMappingViewModel` (in `:core:buttonmapping:presentation`) — the button-mapping editor.
 - `Joycon2ViewModel` (in `:app`) — the app-level host: the coordinator's session `uiState`
   (genuinely cross-feature), BLE permissions, scan/assign/disconnect, and the service binding.
@@ -158,6 +160,11 @@ BLE notify ─→ Joycon2Manager (connection/data, ControllerRepository)
                    ├─→ PushDsuPadDataUseCase   ─→ DsuServer    ─→ UDP :26760 ─→ emulators
                    └─→ ObserveSessionUseCase   ─→ Joycon2ViewModel ─→ AppUiState ─→ Compose
 ```
+
+A capture taps the same stream below the coordinator: `Joycon2Manager` is also a
+`ControllerTrafficSource` (`:core:model`), and while a `ControllerTrafficListener` is attached its
+`TrafficRelay` forwards raw advertisements, packets and replies to `CaptureRecorder`. `:app` wires the
+two, so neither feature sees the other.
 
 The gamepad and DSU outputs ride the coordinator's **synchronous** `onState` callback, not a
 conflated `StateFlow`, which would drop motion samples. Hardware detail:

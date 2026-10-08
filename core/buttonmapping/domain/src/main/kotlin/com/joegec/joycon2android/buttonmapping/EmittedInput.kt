@@ -4,20 +4,20 @@ import com.joegec.joycon2android.model.AnalogTriggerMapper
 import com.joegec.joycon2android.model.JoyconButton
 import com.joegec.joycon2android.model.SidewaysMapper
 
-/** What the relay reports for this button after [SidewaysMapper] and [AnalogTriggerMapper]. */
-fun JoyconButton.emittedFor(side: JoyconSide, analogTriggers: Boolean = false): JoyconButton? {
-    val sidewaysId = when (side) {
+/** What the relay reports for this button once [SidewaysMapper] or [AnalogTriggerMapper] has moved it. */
+fun JoyconButton.emittedFor(side: JoyconSide): JoyconButton? {
+    val emittedId = when (side) {
         JoyconSide.DUAL -> id
+        JoyconSide.GAMECUBE -> AnalogTriggerMapper.remapButtons(setOf(id)).first()
         JoyconSide.LEFT -> SidewaysMapper.remapButtonsLeft(setOf(id)).first()
         JoyconSide.RIGHT -> SidewaysMapper.remapButtonsRight(setOf(id)).first()
     }
-    val emittedId = if (analogTriggers) AnalogTriggerMapper.remapButtons(setOf(sidewaysId)).first() else sidewaysId
     return JoyconButton.entries.firstOrNull { it.id == emittedId }
 }
 
 /** A lone Joy-Con's one stick is rotated onto the left-stick axes, whichever side it came from. */
 fun MappingSource.Stick.emittedStick(side: JoyconSide): StickSource =
-    if (side == JoyconSide.DUAL) stick else StickSource.LEFT_STICK
+    if (side.isLone) StickSource.LEFT_STICK else stick
 
 /** The relay reports a lone Joy-Con's up as its rail; off a sideways remote, up is its L/R edge. */
 fun MappingSource.Stick.emittedDirection(side: JoyconSide, sidewaysRemote: Boolean): StickDirection = when {

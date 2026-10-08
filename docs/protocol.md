@@ -177,8 +177,8 @@ needs at connect:
 
 | Field | Address | Length | Read for |
 |---|---|---|---|
-| Main stick calibration | `0x0130A8` | 9 | every model: a Joy-Con's only stick, a two-stick controller's left |
-| Right stick calibration | `0x0130E8` | 9 | Pro, GameCube and unrecognised controllers |
+| Main stick calibration | `0x0130A8` | 9 | the GameCube controller (its main stick) |
+| Right stick calibration | `0x0130E8` | 9 | the GameCube controller (its C-stick) |
 | [Trigger zeros](#analog-triggers) | `0x013140` | 2 | the GameCube controller |
 | Shell accent colour | `0x01301F` | 3 | every model, inside the DeviceInfo read below |
 
@@ -187,7 +187,8 @@ needs at connect:
 `FF` means unset. Layout and addresses are from the Linux `hid-nintendo` Switch 2 driver (v16) and
 SDL's `SDL_hidapi_switch2.c`, both USB; the same flash serves BLE. A user calibration made on a
 Switch 2 lives at `0x1FC040` (magic `B2 A1`, then the same 9 bytes); the app doesn't read it, and
-sources disagree on the right stick's address.
+sources disagree on the right stick's address. Only the GameCube controller's values have been
+checked against its sticks, so Joy-Con 2 and Pro Controllers aren't read and learn theirs instead.
 
 The **shell accent colour** is the per-side colour (coral right, blue left) the UI paints each
 controller with. Not the body colour at `0x013019`: that is the near-black shell, the same on both
@@ -240,9 +241,10 @@ Treating 2048 as centre and half-span leaves full deflection at ~60% with a 4–
 `StickCalibrator` runs where packets are parsed, so the live display, gamepad and DSU all see
 corrected values:
 
-- **The factory calibration wins** once its [flash read](#spi-reads) answers, about a second after
-  connecting: it sets the centre and each direction's span. Everything below is the fallback for a
-  controller whose flash is unset or unread, and for the first packets before the reply.
+- **A GameCube controller's factory calibration wins** once its [flash read](#spi-reads) answers,
+  about a second after connecting: it sets the centre and each direction's span. Everything below is
+  how every other controller calibrates, and the GameCube controller's fallback for unset flash and
+  the first packets before the reply.
 - **Centre** is learned from the first still window (30 samples), then frozen: a stick held at full
   deflection is perfectly still too.
 - **Each direction scales by its own span**, the centre/below/above triple the factory calibration

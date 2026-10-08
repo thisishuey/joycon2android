@@ -103,6 +103,7 @@ the emulator afterwards — it only reads its config when it starts.
 The gamepad button beside **Set up** opens the mapping editor, with a card per connected player —
 tap one to open its bindings. A single Joy-Con is set up as a Pro Controller held sideways, so every
 button works in every game ([why](docs/virtual-gamepad.md#why-theyre-set-up-as-pro-controllers)). A
+GameCube controller has layouts of its own, with Z on its Z button and analog L/R in Dolphin. A
 target can take **several sources** — tick as many as you like, and any of them fires it.
 
 - **Layouts.** Each player picks a layout to start from, which resets their changes. The card reads

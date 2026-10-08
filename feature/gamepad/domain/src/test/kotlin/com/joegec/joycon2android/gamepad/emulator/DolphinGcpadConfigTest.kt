@@ -102,12 +102,20 @@ class DolphinGcpadConfigTest {
     }
 
     @Test
-    fun `a pro controller is configured as a full controller with both sticks`() {
-        val pro = joycon(Side.PRO)
-        val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = pro, right = pro)))
+    fun `pro controllers are skipped`() {
+        val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = joycon(Side.PRO))))
+
+        assertFalse(result.contains("[GCPad1]"))
+    }
+
+    @Test
+    fun `a gamecube controller is configured with both sticks and Z on its Z button`() {
+        val gameCube = joycon(Side.PRO).copy(model = ControllerModel.GAMECUBE)
+        val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube)))
 
         assertTrue(result.contains("[GCPad1]"))
-        assertTrue(result.contains("Buttons/Z = `Button R2`"))
+        assertTrue(result.contains("Buttons/Z = `Button R3`")) // the stick click Z travels on
+        assertTrue(result.contains("Triggers/R = `Button R1`"))
         assertTrue(result.contains("C-Stick/Up = `Axis 14-`"))
     }
 
@@ -123,17 +131,21 @@ class DolphinGcpadConfigTest {
 
     @Test
     fun `controllers with digital triggers bind no analog axis`() {
-        val pro = joycon(Side.PRO)
-        val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = pro, right = pro)))
+        val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = joycon(Side.LEFT), right = joycon(Side.RIGHT))))
 
         assertFalse(result.contains("L-Analog"))
     }
 
     @Test
-    fun `core config includes a pro controller's port`() {
-        val pro = joycon(Side.PRO)
-        val result = DolphinGcpadConfig.mergeCore(null, listOf(PlayerState(PlayerNumber.P2, left = pro, right = pro)))
+    fun `core config includes a gamecube controller's port but not a pro controller's`() {
+        val gameCube = joycon(Side.PRO).copy(model = ControllerModel.GAMECUBE)
+        val players = listOf(
+            PlayerState(PlayerNumber.P1, left = joycon(Side.PRO)),
+            PlayerState(PlayerNumber.P2, left = gameCube, right = gameCube),
+        )
+        val result = DolphinGcpadConfig.mergeCore(null, players)
 
+        assertFalse(result.contains("SIDevice0"))
         assertTrue(result.contains("SIDevice1 = 6"))
     }
 
@@ -171,14 +183,5 @@ class DolphinGcpadConfigTest {
         assertTrue(result.contains("[GCPad4]"))
         assertTrue(result.contains("Device = Foo"))
         assertTrue(result.contains("[GCPad1]"))
-    }
-
-    @Test
-    fun `a gamecube controller's Z binds to the stick click it travels on`() {
-        val gameCube = joycon(Side.PRO).copy(model = ControllerModel.GAMECUBE)
-        val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube)))
-
-        assertTrue(result.contains("Buttons/Z = `Button R3`"))
-        assertFalse(result.contains("Button R2"))
     }
 }

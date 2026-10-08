@@ -1,18 +1,21 @@
 package com.joegec.joycon2android.connection
 
 import com.joegec.joycon2android.model.ControllerModel
-import com.joegec.joycon2android.model.Side
 
 /** docs/protocol.md#spi-reads */
 object FactoryCalibrationReads {
 
-    fun commands(model: ControllerModel): List<ByteArray> = buildList {
-        add(SpiReadCommand.build(SpiStickCalibration.MAIN_ADDRESS, SpiStickCalibration.LENGTH))
-        if (model.defaultSide != Side.LEFT && model.defaultSide != Side.RIGHT) {
-            add(SpiReadCommand.build(SpiStickCalibration.RIGHT_ADDRESS, SpiStickCalibration.LENGTH))
+    // Only the GameCube controller's flash has been checked against its sticks and triggers.
+    fun commands(model: ControllerModel): List<ByteArray> =
+        if (model != ControllerModel.GAMECUBE) {
+            emptyList()
+        } else {
+            listOf(
+                SpiReadCommand.build(SpiStickCalibration.MAIN_ADDRESS, SpiStickCalibration.LENGTH),
+                SpiReadCommand.build(SpiStickCalibration.RIGHT_ADDRESS, SpiStickCalibration.LENGTH),
+                SpiReadCommand.build(SpiTriggerZeros.ADDRESS, SpiTriggerZeros.LENGTH),
+            )
         }
-        if (model.hasAnalogTriggers) add(SpiReadCommand.build(SpiTriggerZeros.ADDRESS, SpiTriggerZeros.LENGTH))
-    }
 
     /** Null when [reply] adds nothing: another read, or flash left unset. */
     fun update(factory: FactoryCalibration, reply: ByteArray): FactoryCalibration? {

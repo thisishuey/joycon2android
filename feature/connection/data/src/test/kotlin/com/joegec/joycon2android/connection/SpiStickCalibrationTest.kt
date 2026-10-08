@@ -29,9 +29,9 @@ class SpiStickCalibrationTest {
     }
 
     @Test
-    fun `a single joy-con reads one stick, a two-stick controller both, a gamecube controller its trigger zeros too`() {
-        assertEquals(1, FactoryCalibrationReads.commands(ControllerModel.JOYCON_RIGHT).size)
-        assertEquals(2, FactoryCalibrationReads.commands(ControllerModel.PRO_CONTROLLER).size)
+    fun `only a gamecube controller reads its flash, both sticks and the trigger zeros`() {
+        assertEquals(0, FactoryCalibrationReads.commands(ControllerModel.JOYCON_RIGHT).size)
+        assertEquals(0, FactoryCalibrationReads.commands(ControllerModel.PRO_CONTROLLER).size)
         assertEquals(3, FactoryCalibrationReads.commands(ControllerModel.GAMECUBE).size)
     }
 

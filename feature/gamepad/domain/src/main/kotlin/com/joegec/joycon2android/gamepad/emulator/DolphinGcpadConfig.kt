@@ -83,7 +83,7 @@ object DolphinGcpadConfig {
 
     fun mergeCore(existing: String?, players: List<PlayerState>): String {
         val siDevices = players
-            .filter { it.hasController && it.player.index in 1..4 }
+            .filter { it.hasController && (!it.hasPro || it.hasGameCube) && it.player.index in 1..4 }
             .associate { "SIDevice${it.player.index - 1}" to STANDARD_CONTROLLER }
         return IniEditor.setKeys(existing, "[Core]", siDevices)
     }
@@ -110,27 +110,26 @@ object DolphinGcpadConfig {
         mappingFor: (PlayerBody) -> Map<String, String>,
     ): String? {
         val side = when {
-            player.hasPro || player.hasFullController -> JoyconSide.DUAL
+            player.hasGameCube -> JoyconSide.GAMECUBE
+            player.hasPro -> return null
+            player.hasFullController -> JoyconSide.DUAL
             player.right != null -> JoyconSide.RIGHT
             player.left != null -> JoyconSide.LEFT
             else -> return null
         }
         val device = "Device = Android/$deviceId/Joy-Con Virtual Gamepad $index"
         val analogTriggers = if (player.hasAnalogTriggers) ANALOG_TRIGGER_LINES else emptyList()
-        val buttonsAndSticks = lines(side, player.hasAnalogTriggers, mappingFor(PlayerBody(player.player, side)))
-        return (listOf(device) + buttonsAndSticks + analogTriggers)
+        return (listOf(device) + lines(side, mappingFor(PlayerBody(player.player, side))) + analogTriggers)
             .joinToString("\n", postfix = "\n")
     }
 
-    private fun lines(side: JoyconSide, analogTriggers: Boolean, mapping: Map<String, String>): List<String> {
+    private fun lines(side: JoyconSide, mapping: Map<String, String>): List<String> {
         val buttonLines = mapping.toSourceMap<GameCubeButton>().mapNotNull { (target, sources) ->
-            expressionFor(side, analogTriggers, sources)?.let { expression ->
-                "${DOLPHIN_KEYS.getValue(target)} = $expression"
-            }
+            expressionFor(side, sources)?.let { expression -> "${DOLPHIN_KEYS.getValue(target)} = $expression" }
         }
         val stickLines = mapping.toStickDirectionMap<GameCubeStick>().flatMap { (target, directions) ->
             directions.mapNotNull { (direction, sources) ->
-                expressionFor(side, analogTriggers, sources)?.let { expression ->
+                expressionFor(side, sources)?.let { expression ->
                     "${STICK_PREFIXES.getValue(target)}/${DolphinControls.DIRECTIONS.getValue(direction)} = $expression"
                 }
             }
@@ -138,14 +137,13 @@ object DolphinGcpadConfig {
         return buttonLines + stickLines
     }
 
-    private fun expressionFor(side: JoyconSide, analogTriggers: Boolean, sources: List<MappingSource>): String? =
-        sources.mapNotNull { specFor(side, analogTriggers, it) }
+    private fun expressionFor(side: JoyconSide, sources: List<MappingSource>): String? =
+        sources.mapNotNull { specFor(side, it) }
             .takeIf { it.isNotEmpty() }
             ?.joinToString(" | ") { "`$it`" }
 
-    private fun specFor(side: JoyconSide, analogTriggers: Boolean, source: MappingSource): String? = when (source) {
-        is MappingSource.Button ->
-            source.button.emittedFor(side, analogTriggers)?.let { ANDROID_NAMES[it] ?: HAT_NAMES[it] }
+    private fun specFor(side: JoyconSide, source: MappingSource): String? = when (source) {
+        is MappingSource.Button -> source.button.emittedFor(side)?.let { ANDROID_NAMES[it] ?: HAT_NAMES[it] }
         is MappingSource.Stick -> tiltSpec(source.emittedStick(side), source.direction)
     }
 

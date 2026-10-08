@@ -10,6 +10,7 @@ data class PlayerState(
     val hasFullController: Boolean get() = left != null && right != null
     val isSideways: Boolean get() = hasController && !hasFullController && !hasPro
     val hasAnalogTriggers: Boolean get() = hasPro && left!!.model.hasAnalogTriggers
+    val hasGameCube: Boolean get() = hasPro && left!!.model == ControllerModel.GAMECUBE
 
     // As the hardware reports it, before any sideways rotation ([gamepad]).
     val pressed: Set<String>

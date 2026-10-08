@@ -416,8 +416,9 @@ An override to PRO on an unrecognised controller won't give it analog triggers. 
 
 ## What the hardware capture must settle
 
-One session with one GameCube controller (handoff "Verification procedure", step 4), then the
-four-controller test:
+Recorded with the [in-app capture tool](#in-app-capture-tool-separate-upstream-pr): one GameCube
+controller through the guided steps, then all three of the user's controllers at once (the goal is
+four; three exercises the same multi-link behaviour):
 
 1. `0x3C`/`0x3D` at rest / half / full per trigger, and the press point of the L/R click bits (Q1).
 2. No bits outside the Q2 table (Minus, GL/GR, `0x00800000`, `0x000000FF`).
@@ -426,19 +427,70 @@ four-controller test:
 4. SPI `0x013140` reply versus the sampled rest values (Q4).
 5. Optional A/B: init mask `0xFF` vs `0x27` (Q5).
 6. A Pro Controller's `0x3C`/`0x3D` stay flat, if one is available (Q1).
-7. Four controllers: granted intervals (btsnoop), notifications per second each, connect failures
+7. Several controllers: packets per second each, connect failures; granted intervals need btsnoop
    (Q6).
 8. Dolphin: `Axis 23+` detected, partial trigger travel works, pulling R doesn't fire Z on the
    target handheld (Q3).
 
+## In-app capture tool (separate upstream PR)
+
+Decided 2026-10-08: the capture is a **hidden developer option in the app**, sent upstream as its own
+PR, independent of the GameCube PR. Test hardware: a Retroid Pocket Nova and three NSO GameCube
+controllers, with no PC attached.
+
+**Why not the patch's capture.** The patch logs under `J2Raw`, gated by `Log.isLoggable`. Turning it
+on needs `adb shell setprop log.tag.J2Raw DEBUG`, which an app can't run, so it is useless on a
+lone handheld. Move `PacketChangeFilter` and `RawPacketFormat` (and their tests) into the capture
+PR, and drop the `isLoggable` gate, the `logRawPacket` hook and the patch's
+"Capturing raw packets" doc section from the GameCube PR.
+
+**What it must do:**
+
+| Requirement | Detail |
+|---|---|
+| Hidden entry | Revealed by a deliberate gesture in the settings drawer, e.g. tapping a version line 7 times (Android's convention); remembered once revealed. The drawer has no version line today (`InstalledAppVersion` in `:feature:update:data` reads it) |
+| Record without adb or Shizuku | Capture needs only BLE, so it works before Shizuku or the virtual gamepad is set up |
+| Header | App version, `Build.MANUFACTURER`/`MODEL`, Android version, start time |
+| Per controller | Address, full manufacturer data (product ID at bytes 5–6), detected side, connect/disconnect events with GATT status |
+| Command replies | Every reply on the command-response characteristic, as hex |
+| Calibration reads | While recording, one SPI read of `0x40` bytes from `0x013140` per controller (covers the trigger zero points at `0x013140` and the unknown block at `0x013160`, Q4), using the existing read form `02 91 00 04 00 08 00 00 40 7E 00 00 40 31 01 00` |
+| Input | Changed-input packets (`PacketChangeFilter`), raw hex plus decoded fields (`RawPacketFormat`) |
+| Rate | Per controller, packets per second over each second, counting every packet rather than only the changed ones (Q6) |
+| Guided steps | A prompt list the user advances: hands off (rest), each button, each stick in four directions and a full circle, each trigger slowly to half, then full, then released. Every line carries the current step |
+| Output | A plain-text file in app-specific storage (no permission needed), shared through a `FileProvider` and the share sheet |
+| Optional | A developer toggle for the init mask `0xFF` vs `0x27` (Q5 A/B) |
+
+**Architecture.** This is a new capability, so it gets a new `capture` feature (Recipe B in
+`docs/adding-a-feature.md`). Raw packets originate in `:feature:connection:data`, and features
+can't see each other, so:
+- put a raw-packet type in `:core:model`;
+- give `ControllerRepository` a way to observe raw packets, or to register a listener;
+- wire it to the capture feature in `:app`.
+
+Constraint: nothing per packet may be allocated or copied while capture is off. It sits on the
+input hot path, at ~67 Hz per controller. Only the SPI read needs a new connection capability
+(something like `readSpi(address, address, length)`).
+
+**Docs:** a short `docs/` page for the format and how to read a capture, linked from
+`docs/README.md`. If upstream wants it, add a README troubleshooting line telling players how to
+send a capture.
+
+**Test build.** Merge the capture branch and the GameCube branch on the fork and build one APK
+from that. Uninstall the official app first, because the signatures differ.
+
 ## Suggested order for the implementation session
 
-1. Apply the patch; install the SDK and build locally (correction 9); fix compile errors.
-2. Un-skip Pro players in `DolphinGcpadConfig` (correction 1) and add a GameCube-controller layout
-   with `Z → ZR` (correction 2). With the patch, this alone gets four GameCube pads into Dolphin with
-   both sticks and digital triggers.
-3. Capture on hardware (list above).
-4. Manual type override (Q7), which closes #27.
-5. Analog triggers: model flag, calibration, `ReportMapper` bytes 11/12, Dolphin `-Analog` lines.
+1. Install the SDK and build locally (correction 9).
+2. **Capture PR**, branched from `main`: the tool above. It doesn't depend on the GameCube changes:
+   the raw bytes are the same whatever side the scanner assigns.
+3. **GameCube PR**, branched from `main`: apply the patch minus its `J2Raw` logging; fix compile
+   errors; un-skip Pro players in `DolphinGcpadConfig` (correction 1); add a GameCube-controller
+   layout with `Z → ZR` (correction 2). This alone gets the GameCube pads into Dolphin with both
+   sticks and digital triggers.
+4. Build a fork APK with both branches merged, then capture on the Nova: first one controller
+   through the guided steps, then all three connected at once (the list above).
+5. Manual type override (Q7), which closes #27.
+6. Analog triggers: model flag, calibration, `ReportMapper` bytes 11/12, Dolphin `-Analog` lines.
    Correct `docs/virtual-gamepad.md`'s trigger aliasing note in the same commit.
-6. Connect gate and scan stop for four controllers (Q6), if the four-controller test shows failures.
+7. Connect gate and scan stop for several controllers (Q6), if the multi-controller capture shows
+   failures.

@@ -67,8 +67,8 @@ notify characteristic, not from a published handle-to-UUID table. Joycon2forMac 
 `BTN_TL2`/`BTN_TR2`. Inferred; HW to confirm `0x3C`/`0x3D` read 0 or constant on a Pro. Gate the
 analog path on the controller model, not on `Side.PRO`.
 
-**HW capture settles:** values at rest / half / full on each trigger of this unit; that the L/R
-digital bits set only at the end of travel; that a Pro Controller's `0x3C`/`0x3D` stay flat.
+**HW capture settles:** each trigger's value at rest, halfway, the first stop and the second stop
+(Q4); at which stop the L/R digital bits set; that a Pro Controller's `0x3C`/`0x3D` stay flat.
 
 ## Q2. Button bits
 
@@ -207,6 +207,12 @@ units are HW.**
    does (a still window at connect).
 3. Full = 232, widening to the highest value seen, as `StickCalibrator` widens stick spans.
    Measured full travel exceeds 232 on some units (guide: L 234, R 240), so clamp at 255.
+   **Open: which stop is full analog.** The trigger has two stops: a first stop where travel meets
+   resistance, and a second at the bottom after pushing through. BlueRetro scales to 195
+   (≈ the RyanCopley app's "bump ~190", the first stop). SDL and the kernel scale to 232
+   (≈ "max ~230", the second stop). The capture's first-stop and second-stop values, and which stop
+   sets the L/R bit, decide it. Dolphin forces analog to 1.0 while the digital input is held (Q3),
+   so if the bit sets at the second stop, 255 at the first stop loses nothing.
 4. Output `(raw − zero) × 255 / (full − zero)`, clamped to 0..255, with a small dead zone above zero.
    NS2-Connect uses 35 raw, and BlueRetro's 30 neutral suggests a few counts of noise.
 
@@ -420,7 +426,8 @@ Recorded with the [in-app capture tool](#in-app-capture-tool-separate-upstream-p
 controller through the guided steps, then all three of the user's controllers at once (the goal is
 four; three exercises the same multi-link behaviour):
 
-1. `0x3C`/`0x3D` at rest / half / full per trigger, and the press point of the L/R click bits (Q1).
+1. `0x3C`/`0x3D` per trigger at rest, halfway, first stop and second stop, and at which stop the
+   L/R click bits set (Q1, Q4).
 2. No bits outside the Q2 table (Minus, GL/GR, `0x00800000`, `0x000000FF`).
 3. `Adv` log: `73 20` at bytes 5–6, and the controller address is the same across two SYNC
    sessions (Q7).
@@ -456,7 +463,7 @@ PR, and drop the `isLoggable` gate, the `logRawPacket` hook and the patch's
 | Calibration reads | While recording, one SPI read of `0x40` bytes from `0x013140` per controller (covers the trigger zero points at `0x013140` and the unknown block at `0x013160`, Q4), using the existing read form `02 91 00 04 00 08 00 00 40 7E 00 00 40 31 01 00` |
 | Input | Changed-input packets (`PacketChangeFilter`), raw hex plus decoded fields (`RawPacketFormat`) |
 | Rate | Per controller, packets per second over each second, counting every packet rather than only the changed ones (Q6) |
-| Guided steps | A prompt list the user advances: hands off (rest), each button, each stick in four directions and a full circle, each trigger slowly to half, then full, then released. Every line carries the current step |
+| Guided steps | A prompt list the user advances: hands off (rest), each button, each stick in four directions and a full circle; then L: halfway, first stop, second stop, released; then the same for R. Every line carries the current step |
 | Output | A plain-text file in app-specific storage (no permission needed), shared through a `FileProvider` and the share sheet |
 | Optional | A developer toggle for the init mask `0xFF` vs `0x27` (Q5 A/B) |
 

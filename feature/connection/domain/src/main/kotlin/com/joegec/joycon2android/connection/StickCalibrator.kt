@@ -7,12 +7,13 @@ class StickCalibrator(
     restWindowSize: Int = DEFAULT_REST_WINDOW,
     maxRestSpreadLsb: Int = DEFAULT_MAX_REST_SPREAD,
     seedHalfSpan: Int = DEFAULT_SEED_HALF_SPAN,
+    rightSeedHalfSpan: Int = seedHalfSpan,
 ) {
 
     private val leftX = Axis(restWindowSize, maxRestSpreadLsb, seedHalfSpan)
     private val leftY = Axis(restWindowSize, maxRestSpreadLsb, seedHalfSpan)
-    private val rightX = Axis(restWindowSize, maxRestSpreadLsb, seedHalfSpan)
-    private val rightY = Axis(restWindowSize, maxRestSpreadLsb, seedHalfSpan)
+    private val rightX = Axis(restWindowSize, maxRestSpreadLsb, rightSeedHalfSpan)
+    private val rightY = Axis(restWindowSize, maxRestSpreadLsb, rightSeedHalfSpan)
 
     fun calibrate(input: JoyconInput): JoyconInput = input.copy(
         stickX = leftX.rescale(input.stickX),

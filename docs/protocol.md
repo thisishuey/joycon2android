@@ -230,7 +230,8 @@ corrected values:
   deflection is perfectly still too.
 - **Each direction scales by its own span**, the centre/below/above triple the factory calibration
   stores. Spans are seeded just under the smallest travel measured (~1180 LSB), so full tilt works
-  from the first packet, and only ever widen.
+  from the first packet, and only ever widen. The NSO GameCube controller's C-stick travels less,
+  1022–1204 from centre on three units (2026-10-07), so its spans are seeded at 1000.
 
 ## Android BLE gotchas
 

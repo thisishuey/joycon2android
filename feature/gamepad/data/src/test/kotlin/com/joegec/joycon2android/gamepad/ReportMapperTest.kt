@@ -1,5 +1,7 @@
 package com.joegec.joycon2android.gamepad
 
+import com.joegec.joycon2android.model.AndroidKey
+import com.joegec.joycon2android.model.AndroidKeyBindings
 import com.joegec.joycon2android.model.ConnectedJoycon
 import com.joegec.joycon2android.model.JoyconButton
 import com.joegec.joycon2android.model.JoyconInput
@@ -12,7 +14,9 @@ import org.junit.Test
 /** The bit is the Android keycode, so a moved button breaks every emulator config the app writes. */
 class ReportMapperTest {
 
-    private fun report(vararg pressed: JoyconButton): ByteArray {
+    private fun report(vararg pressed: JoyconButton): ByteArray = ReportMapper.buildReport(proPlayer(*pressed))
+
+    private fun proPlayer(vararg pressed: JoyconButton): PlayerState {
         val input = JoyconInput(
             packetId = 0,
             buttons = 0,
@@ -26,7 +30,7 @@ class ReportMapperTest {
             batteryVolts = 4f,
         )
         val pro = ConnectedJoycon(address = "pro", side = Side.PRO, deviceName = "Pro", input = input)
-        return ReportMapper.buildReport(PlayerState(PlayerNumber.P1, left = pro))
+        return PlayerState(PlayerNumber.P1, left = pro)
     }
 
     private fun bitOf(button: JoyconButton): Int {
@@ -70,5 +74,27 @@ class ReportMapperTest {
         assertEquals(0x00.toByte(), report(JoyconButton.ZL)[12])
         assertEquals(0xFF.toByte(), report(JoyconButton.ZR)[12])
         assertEquals(0x00.toByte(), report(JoyconButton.ZR)[11])
+    }
+
+    @Test
+    fun `a button bound to an Android key moves from the gamepad to the system byte`() {
+        val keys = AndroidKeyBindings()
+            .bind(AndroidKey.HOME, JoyconButton.Home)
+            .bind(AndroidKey.BACK, JoyconButton.Chat)
+            .bind(AndroidKey.SCREENSHOT, JoyconButton.Capture)
+        val report = ReportMapper.buildReport(proPlayer(JoyconButton.Home, JoyconButton.Chat, JoyconButton.Capture), keys)
+
+        assertEquals(0b111.toByte(), report[14])
+        assertEquals(0.toByte(), report[0])  // Capture, bit 2
+        assertEquals(0.toByte(), report[1])  // Home, bit 12
+        assertEquals(0.toByte(), report[13]) // C, overflow bit 1
+    }
+
+    @Test
+    fun `with nothing bound the system byte stays clear`() {
+        val report = report(JoyconButton.Home, JoyconButton.Chat)
+
+        assertEquals(0.toByte(), report[14])
+        assertEquals(0b10.toByte(), report[13]) // C, overflow bit 1
     }
 }

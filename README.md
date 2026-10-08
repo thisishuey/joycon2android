@@ -84,6 +84,9 @@ The gear at the top right opens the settings panel:
   quicker buttons, at a battery cost. Applies while the virtual gamepad or DSU is on.
 - **Ignore this device's motion in Eden** (on by default, needs Shizuku) — stops Eden mixing this
   device's gyro into Player 1. Lifted when the virtual gamepad and DSU are both off.
+- **Android buttons** (all off by default) — pick a controller button for Android's Home, Back and
+  Screenshot, for every player, while the virtual gamepad is on. A button picked here no longer
+  reaches games, and Home always leaves the game for the home screen.
 
 ### 5. Set up your emulator
 

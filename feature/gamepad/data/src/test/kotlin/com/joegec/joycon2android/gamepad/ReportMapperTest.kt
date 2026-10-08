@@ -83,4 +83,15 @@ class ReportMapperTest {
         assertEquals(128.toByte(), report[11])
         assertEquals(40.toByte(), report[12])
     }
+
+    @Test
+    fun `a gamecube controller's ZL and Z travel on the stick-click bits, clear of L2 and R2`() {
+        val input = JoyconInput(pressed = setOf(JoyconButton.ZL.id, JoyconButton.ZR.id))
+        val gameCube = ConnectedJoycon(
+            address = "gc", side = Side.PRO, model = ControllerModel.GAMECUBE, deviceName = "Joy-Con 2", input = input,
+        )
+        val report = ReportMapper.buildReport(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube))
+        val word = (report[0].toInt() and 0xFF) or ((report[1].toInt() and 0xFF) shl 8)
+        assertEquals((1 shl 13) or (1 shl 14), word) // BUTTON_THUMBL, BUTTON_THUMBR
+    }
 }

@@ -1,15 +1,17 @@
 package com.joegec.joycon2android.buttonmapping
 
+import com.joegec.joycon2android.model.AnalogTriggerMapper
 import com.joegec.joycon2android.model.JoyconButton
 import com.joegec.joycon2android.model.SidewaysMapper
 
-/** What the relay reports for this button once [SidewaysMapper] has rotated a lone Joy-Con. */
-fun JoyconButton.emittedFor(side: JoyconSide): JoyconButton? {
-    val emittedId = when (side) {
+/** What the relay reports for this button after [SidewaysMapper] and [AnalogTriggerMapper]. */
+fun JoyconButton.emittedFor(side: JoyconSide, analogTriggers: Boolean = false): JoyconButton? {
+    val sidewaysId = when (side) {
         JoyconSide.DUAL -> id
         JoyconSide.LEFT -> SidewaysMapper.remapButtonsLeft(setOf(id)).first()
         JoyconSide.RIGHT -> SidewaysMapper.remapButtonsRight(setOf(id)).first()
     }
+    val emittedId = if (analogTriggers) AnalogTriggerMapper.remapButtons(setOf(sidewaysId)).first() else sidewaysId
     return JoyconButton.entries.firstOrNull { it.id == emittedId }
 }
 

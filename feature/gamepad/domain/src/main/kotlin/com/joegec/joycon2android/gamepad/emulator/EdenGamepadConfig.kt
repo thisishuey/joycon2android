@@ -83,7 +83,7 @@ object EdenGamepadConfig {
             val gamepad = gamepads[index] ?: return@forEach
             val type = EdenControls.npadType(player) ?: return@forEach
             val side = sideFor(player) ?: return@forEach
-            val layout = layoutFor(side, mappingFor(PlayerBody(player.player, side)))
+            val layout = layoutFor(side, player.hasAnalogTriggers, mappingFor(PlayerBody(player.player, side)))
             val p = index - 1
             val device = "engine:android,port:${gamepad.port},guid:${gamepad.guid},pad:0"
             val display = "Joy-Con Virtual Gamepad $index ${gamepad.port}"
@@ -114,27 +114,34 @@ object EdenGamepadConfig {
         else -> null
     }
 
-    private fun layoutFor(side: JoyconSide, mapping: Map<String, String>): Layout {
+    private fun layoutFor(side: JoyconSide, analogTriggers: Boolean, mapping: Map<String, String>): Layout {
         val buttons = mapping.toSourceMap<SwitchProButton>().mapNotNull { (target, sources) ->
-            inputFor(side, sources)?.let { EdenControls.BUTTON_KEYS.getValue(target) to it }
+            inputFor(side, analogTriggers, sources)?.let { EdenControls.BUTTON_KEYS.getValue(target) to it }
         }.toMap()
         val sticks = mapping.toStickDirectionMap<SwitchProStick>().mapNotNull { (target, directions) ->
-            stickFor(side, directions)?.let { EdenControls.STICK_KEYS.getValue(target) to it }
+            stickFor(side, analogTriggers, directions)?.let { EdenControls.STICK_KEYS.getValue(target) to it }
         }.toMap()
         return Layout(buttons, sticks)
     }
 
-    private fun stickFor(side: JoyconSide, directions: Map<StickDirection, List<MappingSource>>): Stick? {
+    private fun stickFor(
+        side: JoyconSide,
+        analogTriggers: Boolean,
+        directions: Map<StickDirection, List<MappingSource>>,
+    ): Stick? {
         directions.wholeEmittedStick(side)?.let { return AnalogStick(axesOf(it)) }
-        val inputs = directions.mapNotNull { (direction, sources) -> inputFor(side, sources)?.let { direction to it } }
+        val inputs = directions.mapNotNull { (direction, sources) ->
+            inputFor(side, analogTriggers, sources)?.let { direction to it }
+        }
         return inputs.takeIf { it.isNotEmpty() }?.let { DigitalStick(it.toMap()) }
     }
 
-    private fun inputFor(side: JoyconSide, sources: List<MappingSource>): Input? =
-        sources.firstNotNullOfOrNull { inputFor(side, it) }
+    private fun inputFor(side: JoyconSide, analogTriggers: Boolean, sources: List<MappingSource>): Input? =
+        sources.firstNotNullOfOrNull { inputFor(side, analogTriggers, it) }
 
-    private fun inputFor(side: JoyconSide, source: MappingSource): Input? = when (source) {
-        is MappingSource.Button -> source.button.emittedFor(side)?.let { KEY_CODES[it]?.let(::Key) ?: HAT_AXES[it] }
+    private fun inputFor(side: JoyconSide, analogTriggers: Boolean, source: MappingSource): Input? = when (source) {
+        is MappingSource.Button ->
+            source.button.emittedFor(side, analogTriggers)?.let { KEY_CODES[it]?.let(::Key) ?: HAT_AXES[it] }
         is MappingSource.Stick -> tiltOf(source.emittedStick(side), source.direction)
     }
 

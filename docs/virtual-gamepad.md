@@ -53,6 +53,7 @@ shift:
 | R | 7 | 103 `BUTTON_R1` | | | |
 
 - **Capture and GL** take `BUTTON_C` / `BUTTON_Z`, the two slots with no Switch equivalent.
+- **ZL and ZR take the stick clicks** on a controller with analog triggers ([below](#analog-triggers)).
 - **GR and C overflow.** One gamepad collection carries 15 buttons — a 16th lands on `0x13F`, which
   no key layout names — and the Switch 2 controllers have 17. For a Button usage outside a
   pointer/joystick/gamepad collection Linux falls back to `BTN_MISC + n - 1`, which key layouts name
@@ -103,16 +104,18 @@ Motion is turned too, but for DSU only — see [dsu-motion.md](dsu-motion.md#sid
 
 A controller with analog triggers (`ControllerModel.hasAnalogTriggers`, the NSO GameCube controller)
 drives bytes 11/12 with its calibrated L/R travel instead of ZL/ZR
-([calibration](protocol.md#analog-triggers)). ZL and Z (the ZR bit) keep their buttons (`BUTTON_L2`,
-`BUTTON_R2`), and the click at the bottom stays on L/R (`BUTTON_L1`/`BUTTON_R1`).
+([calibration](protocol.md#analog-triggers)). The click at the bottom stays on L/R
+(`BUTTON_L1`/`BUTTON_R1`).
+
+ZL and Z (the ZR bit) move to the stick-click bits, `BUTTON_THUMBL`/`BUTTON_THUMBR`, which this
+controller has no use for (`AnalogTriggerMapper`). They can't stay on `BUTTON_L2`/`BUTTON_R2`: below
+Dolphin, those keys follow the trigger axes. Retroid Pocket Nova, Android 13, 2026-10-08: pulling R
+fired Dolphin's `Button R2`, and pressing Z fired nothing in Dolphin or Chrome's Gamepad API.
 
 For such a player, Dolphin setup adds ``Triggers/L-Analog = `Axis 23+` `` and
 ``Triggers/R-Analog = `Axis 22+` ``. Dolphin names Android axes by number, and a trigger has only a `+`
 half. Those two ids exist on every Android version the app supports. `Triggers/L`/`R` stay on the
 click: while it is held, Dolphin reports the analog value as full.
-
-On firmware that re-publishes pads, an `R2` synthesised from analog R travel would collide with Z's
-`BUTTON_R2`. Untested.
 
 ## Emulator config
 

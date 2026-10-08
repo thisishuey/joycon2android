@@ -67,7 +67,7 @@ notify characteristic, not from a published handle-to-UUID table. Joycon2forMac 
 `BTN_TL2`/`BTN_TR2`. Inferred; HW to confirm `0x3C`/`0x3D` read 0 or constant on a Pro. Gate the
 analog path on the controller model, not on `Side.PRO`.
 
-**HW capture settles:** each trigger's value at rest, halfway, the first stop and the second stop
+**HW capture settles:** each trigger's value at rest, across a slow sweep, at the first stop and at the second stop
 (Q4); at which stop the L/R digital bits set; that a Pro Controller's `0x3C`/`0x3D` stay flat.
 
 ## Q2. Button bits
@@ -426,8 +426,8 @@ Recorded with the [in-app capture tool](#in-app-capture-tool-separate-upstream-p
 controller through the guided steps, then all three of the user's controllers at once (the goal is
 four; three exercises the same multi-link behaviour):
 
-1. `0x3C`/`0x3D` per trigger at rest, halfway, first stop and second stop, and at which stop the
-   L/R click bits set (Q1, Q4).
+1. `0x3C`/`0x3D` per trigger at rest, across a slow sweep, held at the first stop and held at the
+   second stop, and at which stop the L/R click bits set (Q1, Q4).
 2. No bits outside the Q2 table (Minus, GL/GR, `0x00800000`, `0x000000FF`).
 3. `Adv` log: `73 20` at bytes 5–6, and the controller address is the same across two SYNC
    sessions (Q7).
@@ -463,7 +463,7 @@ PR, and drop the `isLoggable` gate, the `logRawPacket` hook and the patch's
 | Calibration reads | While recording, one SPI read of `0x40` bytes from `0x013140` per controller (covers the trigger zero points at `0x013140` and the unknown block at `0x013160`, Q4), using the existing read form `02 91 00 04 00 08 00 00 40 7E 00 00 40 31 01 00` |
 | Input | Changed-input packets (`PacketChangeFilter`), raw hex plus decoded fields (`RawPacketFormat`) |
 | Rate | Per controller, packets per second over each second, counting every packet rather than only the changed ones (Q6) |
-| Guided steps | A prompt list the user advances: hands off (rest), each button, each stick in four directions and a full circle; then L: halfway, first stop, second stop, released; then the same for R. Every line carries the current step |
+| Guided steps | A prompt list the user advances: hands off (rest), each button, each stick in four directions and a full circle; then L: a slow press from rest to the bottom and back (~3 s each way, logging every value the change filter passes), hold at the first stop (~2 s), hold at the second stop (~2 s), release; then the same for R. Only the stops are held, because they can be felt; partial travel comes from the sweep, since a target like "halfway" can't be hit reliably. Every line carries the current step |
 | Output | A plain-text file in app-specific storage (no permission needed), shared through a `FileProvider` and the share sheet |
 | Optional | A developer toggle for the init mask `0xFF` vs `0x27` (Q5 A/B) |
 

@@ -3,7 +3,7 @@ package com.joegec.joycon2android.connection
 import com.joegec.joycon2android.model.ControllerModel
 import com.joegec.joycon2android.model.Side
 
-/** Which flash reads a model needs at connect, and what each reply adds. docs/protocol.md#spi-reads */
+/** docs/protocol.md#spi-reads */
 object FactoryCalibrationReads {
 
     fun commands(model: ControllerModel): List<ByteArray> = buildList {

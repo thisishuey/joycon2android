@@ -1,6 +1,6 @@
 package com.joegec.joycon2android.connection
 
-/** An SPI-flash read reply on the command-response characteristic: docs/protocol.md#spi-reads */
+/** docs/protocol.md#spi-reads */
 object SpiReadReply {
 
     private const val REPORT_TYPE_SPI = 0x02

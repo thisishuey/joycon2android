@@ -97,7 +97,8 @@ In `JoyconScreen.kt`:
   no gap and content (the Ko-fi banner included) passes behind the status bar. Screens add its
   height plus the status-bar inset as top clearance.
 - **Settings behind a gear.** The app bar's only action opens the settings panel, an `EndDrawer`
-  from the right so it sits under the icon that opened it.
+  from the right so it sits under the icon that opened it. It ends with the app version, whose
+  seven-tap gesture reveals the developer-only controller capture ([capture.md](capture.md)).
 
 ### Landscape
 

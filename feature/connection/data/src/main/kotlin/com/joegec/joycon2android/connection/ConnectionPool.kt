@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 /** Thread-safe: BLE callbacks arrive on binder threads. */
 @SuppressLint("MissingPermission")
-class ConnectionPool(private val context: Context) {
+class ConnectionPool(private val context: Context, private val traffic: TrafficRelay) {
 
     private val connections = ConcurrentHashMap<String, JoyconConnection>()
 
@@ -21,7 +21,7 @@ class ConnectionPool(private val context: Context) {
     /** Null for an address already in the pool (a duplicate scan result). */
     fun connect(result: ScanResult, side: Side, name: String, highPriority: Boolean): JoyconConnection? {
         val address = result.device.address
-        val connection = JoyconConnection(context, side, name) {
+        val connection = JoyconConnection(context, address, side, name, traffic) {
             connections.remove(address)
             onPoolChanged?.invoke()
         }

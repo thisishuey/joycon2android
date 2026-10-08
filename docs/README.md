@@ -10,5 +10,6 @@ Reference for working on Joycon2Android. The player-facing setup guide is the to
 | [protocol.md](protocol.md) | the Joy-Con 2 BLE protocol, stick calibration and Android BLE gotchas |
 | [virtual-gamepad.md](virtual-gamepad.md) | the UHID gamepad, HID report and keycodes, sideways Joy-Cons, device identity |
 | [dsu-motion.md](dsu-motion.md) | the DSU server, slots, motion frames and emulator motion mapping |
+| [capture.md](capture.md) | the hidden controller capture: recording one, its line format, the calibration read |
 | [PRODUCT.md](PRODUCT.md) / [DESIGN.md](DESIGN.md) | who the app is for, and the design system |
 | [../tools/README.md](../tools/README.md) | the DSU debug client and IMU calibration workflow |

@@ -17,7 +17,7 @@ class BleScanner(context: Context) {
 
     companion object {
         private const val TAG = "Joycon2"
-        private const val NINTENDO_MANUFACTURER_ID = 0x0553
+        const val NINTENDO_MANUFACTURER_ID = 0x0553
         private const val SIDE_TYPE_INDEX = 5
         private const val SCAN_TIMEOUT_MS = 15_000L
     }

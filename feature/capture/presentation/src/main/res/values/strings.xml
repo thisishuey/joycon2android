@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="capture_title">Controller capture</string>
+    <string name="capture_description">Records what each connected controller sends, to a file you can share, so a controller the app doesn\'t fully support yet can be mapped. Keep the virtual gamepad off while recording.</string>
+    <string name="capture_start">Start recording</string>
+    <string name="capture_share">Share last capture</string>
+    <string name="capture_share_chooser">Share capture</string>
+    <string name="capture_next">Next</string>
+    <string name="capture_finish">Finish</string>
+    <string name="capture_stop">Stop</string>
+    <string name="capture_step_progress">Step %1$d of %2$d</string>
+    <string name="capture_no_controllers">No controller yet: scan and connect, and each one is recorded as it connects.</string>
+    <plurals name="capture_controllers">
+        <item quantity="one">%d controller recorded</item>
+        <item quantity="other">%d controllers recorded</item>
+    </plurals>
+
+    <string name="capture_step_rest_title">Hands off</string>
+    <string name="capture_step_rest">Put every controller down and leave it untouched for 3 seconds.</string>
+    <string name="capture_step_face_title">Face buttons</string>
+    <string name="capture_step_face">Press A, then B, then X, then Y, one at a time.</string>
+    <string name="capture_step_dpad_title">D-pad</string>
+    <string name="capture_step_dpad">Press up, down, left, then right.</string>
+    <string name="capture_step_shoulders_title">Shoulder buttons</string>
+    <string name="capture_step_shoulders">Press L, R, ZL, then ZR (Z on a GameCube controller). Press L and R all the way in.</string>
+    <string name="capture_step_centre_title">Centre buttons</string>
+    <string name="capture_step_centre">Press −, + (Start), Home, Capture, then C. Skip any your controller doesn\'t have.</string>
+    <string name="capture_step_stick_clicks_title">Stick clicks</string>
+    <string name="capture_step_stick_clicks">Click the left stick, then the right. Skip if your controller has none.</string>
+    <string name="capture_step_back_title">Back buttons</string>
+    <string name="capture_step_back">Press GL, then GR. Skip if your controller has none.</string>
+    <string name="capture_step_left_stick_title">Left stick</string>
+    <string name="capture_step_left_stick">Push it up, down, left and right, each to the edge and back, then roll it once round the edge.</string>
+    <string name="capture_step_right_stick_title">Right stick</string>
+    <string name="capture_step_right_stick">The same with the right stick (the C-stick on a GameCube controller).</string>
+    <string name="capture_step_left_sweep_title">Left trigger: slow press</string>
+    <string name="capture_step_left_sweep">Press L slowly all the way down over about 3 seconds, then let it back up just as slowly. Skip if L only clicks.</string>
+    <string name="capture_step_left_first_title">Left trigger: first stop</string>
+    <string name="capture_step_left_first">Press L to the first stop you can feel and hold it there for 2 seconds.</string>
+    <string name="capture_step_left_second_title">Left trigger: second stop</string>
+    <string name="capture_step_left_second">Press L through to the second stop, hold it for 2 seconds, then let go.</string>
+    <string name="capture_step_right_sweep_title">Right trigger: slow press</string>
+    <string name="capture_step_right_sweep">Press R slowly all the way down over about 3 seconds, then let it back up just as slowly. Skip if R only clicks.</string>
+    <string name="capture_step_right_first_title">Right trigger: first stop</string>
+    <string name="capture_step_right_first">Press R to the first stop you can feel and hold it there for 2 seconds.</string>
+    <string name="capture_step_right_second_title">Right trigger: second stop</string>
+    <string name="capture_step_right_second">Press R through to the second stop, hold it for 2 seconds, then let go.</string>
+    <string name="capture_step_all_title">Every controller</string>
+    <string name="capture_step_all">Use every connected controller at once for a minute, as you would in a game, then tap Finish.</string>
+</resources>

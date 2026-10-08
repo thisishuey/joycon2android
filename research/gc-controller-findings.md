@@ -24,6 +24,51 @@ are a uint32 LE at `0x03`. Converting other projects' offsets:
 Re-read 2026-10-08: still open, `enhancement`, no comments, no linked branches or PRs, no
 timeline events since it was opened (2026-09-27). The handoff's acceptance table stands unchanged.
 
+## Hardware capture, 2026-10-07
+
+One NSO GameCube controller on a Retroid Pocket Nova (Android 13), recorded with the capture tool
+from the `controller-capture` branch through all 16 steps:
+[captures/gc-single-20261007.txt](captures/gc-single-20261007.txt). The "every controller" step had
+only this one connected, so multi-controller behaviour is still untested.
+
+| Question | Result |
+|---|---|
+| Product ID | `mfg=01 00 03 7E 05 73 20 …` → `0x2073`. Unpatched app: `side=UNKNOWN`, name falls back to "Joy-Con 2" (no local name) |
+| Init commands `0C … FF` (Q5) | Harmless: connects, reaches ready, streams 63-byte packets throughout |
+| Trigger bytes (Q1) | **`0x3C` = L, `0x3D` = R**, confirmed |
+| Button bits (Q2) | **Exactly the Q2 table.** Bits seen, all steps: `0xCF72CF00`. Z = ZR `0x8000`, Start = + `0x20000`, Capture `0x200000`, C `0x400000`, L `0x40000000`, R `0x4000`, ZL `0x80000000`. Paddle byte `0x07` and bytes `0x08–0x09` always `00` |
+| IMU | Present, Joy-Con scale and offsets: accel at rest `(624, 3272, 2467)`, magnitude 4145 (4096 = 1 g) |
+| SPI `0x013140` (Q4) | Reply data `21 20 FF…`: **L zero 33, R zero 32**. `0x013142..0x01317F` (including `0x013160`) is all `FF` |
+| Report rate | 28–33 packets/s with the gamepad off (balanced priority, 30 ms) |
+
+Triggers (raw `0x3C`/`0x3D`):
+
+| | Left | Right |
+|---|---|---|
+| Flash zero | 33 | 32 |
+| Rest | 35–37 | 25–31 |
+| Slow sweep max | 196 | 185 |
+| Held at first stop | 191–195 | 182 |
+| Second stop (click bit set) | 233–238 (up to 241 in play) | 226–230 (up to 234) |
+
+- **Analog travel ends at the first stop.** Pushing through to the second stop jumps 200 → 233 within
+  one packet, and that is where the L/R bit sets.
+- **The click bit and the analog value are not in lockstep.** In quick presses the bit can show with
+  the analog value as low as 155 (releasing), and values up to 220 can pass without it (pressing).
+  The click must come from the bit, never from an analog threshold.
+- **The first stop differs per trigger by ~13 counts** (L 195, R 182) on this one unit.
+
+Sticks (raw 12-bit):
+
+| | Rest | X travel | Y travel | Smallest half-span |
+|---|---|---|---|---|
+| Main stick (`0x0A`) | 2073, 2060 | 835..3297 | 799..3277 | 1217 (up) |
+| C-stick (`0x0D`) | 1957, 2080 | 861..3105 | 876..3133 | **1053 (up)**, 1096 (left) |
+
+**C-stick vs `StickCalibrator`:** its spans are seeded at 1150 and only widen, so on this unit the
+C-stick tops out at ~92% up and ~95% left. Seed the C-stick lower (≈1000), or read the factory stick
+calibration (`0x0130E8`, Q4). Check the other two controllers first.
+
 ## Corrections to the handoff report and patch
 
 Things the handoff missed or got wrong. The first two block the goal even if every protocol answer
@@ -207,12 +252,14 @@ units are HW.**
    does (a still window at connect).
 3. Full = 232, widening to the highest value seen, as `StickCalibrator` widens stick spans.
    Measured full travel exceeds 232 on some units (guide: L 234, R 240), so clamp at 255.
-   **Open: which stop is full analog.** The trigger has two stops: a first stop where travel meets
-   resistance, and a second at the bottom after pushing through. BlueRetro scales to 195
-   (≈ the RyanCopley app's "bump ~190", the first stop). SDL and the kernel scale to 232
-   (≈ "max ~230", the second stop). The capture's first-stop and second-stop values, and which stop
-   sets the L/R bit, decide it. Dolphin forces analog to 1.0 while the digital input is held (Q3),
-   so if the bit sets at the second stop, 255 at the first stop loses nothing.
+   **Settled by the [capture](#hardware-capture-2026-10-07): full analog is the first stop.**
+   Analog travel ends there (L ~195, R ~182 on this unit); the second stop is the click and sets the
+   L/R bit. SDL and the kernel scale to 232, the click point, which caps an unclicked trigger at
+   ~80%. BlueRetro's 195 is relative to its neutral 30, so it too is ~225 raw, the click point.
+   Dolphin forces analog to 1.0 while the digital input is held (Q3), so saturating at the first
+   stop loses nothing. Full ≈ 180 saturates both triggers of this unit; widening to "max seen" needs
+   care, because values up to 220 pass without the bit during quick presses. Revisit with the other
+   two controllers.
 4. Output `(raw − zero) × 255 / (full − zero)`, clamped to 0..255, with a small dead zone above zero.
    NS2-Connect uses 35 raw, and BlueRetro's 30 neutral suggests a few counts of noise.
 
@@ -426,12 +473,13 @@ Recorded with the [in-app capture tool](#in-app-capture-tool-separate-upstream-p
 controller through the guided steps, then all three of the user's controllers at once (the goal is
 four; three exercises the same multi-link behaviour):
 
-1. `0x3C`/`0x3D` per trigger at rest, across a slow sweep, held at the first stop and held at the
-   second stop, and at which stop the L/R click bits set (Q1, Q4).
-2. No bits outside the Q2 table (Minus, GL/GR, `0x00800000`, `0x000000FF`).
-3. `Adv` log: `73 20` at bytes 5–6, and the controller address is the same across two SYNC
-   sessions (Q7).
-4. SPI `0x013140` reply versus the sampled rest values (Q4).
+1. ~~Triggers at rest, sweep, first and second stop, and where the click bit sets (Q1, Q4).~~ Done
+   for one controller, 2026-10-07.
+2. ~~No bits outside the Q2 table.~~ Done: none.
+3. `Adv` log: `73 20` at bytes 5–6 (done). The controller address staying the same across two SYNC
+   sessions is still open (Q7): `3C:A9:AB:5E:6A:A6` in the first capture.
+4. ~~SPI `0x013140` reply versus the sampled rest values (Q4).~~ Done: zeros 33/32, rest within a
+   few counts.
 5. Optional A/B: init mask `0xFF` vs `0x27` (Q5).
 6. A Pro Controller's `0x3C`/`0x3D` stay flat, if one is available (Q1).
 7. Several controllers: packets per second each, connect failures; granted intervals need btsnoop

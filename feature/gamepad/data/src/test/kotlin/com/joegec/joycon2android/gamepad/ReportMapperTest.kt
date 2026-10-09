@@ -100,14 +100,14 @@ class ReportMapperTest {
     }
 
     @Test
-    fun `a button bound to an Android key moves from the gamepad to the system byte`() {
+    fun `a button bound to an Android key leaves the gamepad, and Home and Back take the system byte`() {
         val keys = AndroidKeyBindings()
             .bind(AndroidKey.HOME, JoyconButton.Home)
             .bind(AndroidKey.BACK, JoyconButton.Chat)
             .bind(AndroidKey.SCREENSHOT, JoyconButton.Capture)
         val report = ReportMapper.buildReport(proPlayer(JoyconButton.Home, JoyconButton.Chat, JoyconButton.Capture), keys)
 
-        assertEquals(0b111.toByte(), report[14])
+        assertEquals(0b011.toByte(), report[14]) // Screenshot goes through the shell
         assertEquals(0.toByte(), report[0])  // Capture, bit 2
         assertEquals(0.toByte(), report[1])  // Home, bit 12
         assertEquals(0.toByte(), report[13]) // C, overflow bit 1

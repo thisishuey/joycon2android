@@ -248,7 +248,7 @@ class UhidRelay(private val name: String, private val playerIndex: Int) {
             0x81.toByte(), 0x03,      //   Input (Const, Var, Abs)
             0xC0.toByte(),            // End Collection
 
-            // Android's Home, Back and Screenshot keys: docs/virtual-gamepad.md#android-keys
+            // Android's Home and Back keys: docs/virtual-gamepad.md#android-keys
             0x05, 0x0C,               // Usage Page (Consumer)
             0x09, 0x01,               // Usage (Consumer Control)
             0xA1.toByte(), 0x01,      // Collection (Application)
@@ -259,11 +259,7 @@ class UhidRelay(private val name: String, private val playerIndex: Int) {
             0x75, 0x01,               //   Report Size (1)
             0x95.toByte(), 0x02,      //   Report Count (2)
             0x81.toByte(), 0x02,      //   Input (Data, Var, Abs)
-            0x05, 0x07,               //   Usage Page (Keyboard)
-            0x09, 0x46,               //   Usage (Print Screen)
-            0x95.toByte(), 0x01,      //   Report Count (1)
-            0x81.toByte(), 0x02,      //   Input (Data, Var, Abs)
-            0x75, 0x05,               //   Report Size (5) - padding
+            0x75, 0x06,               //   Report Size (6) - padding
             0x95.toByte(), 0x01,      //   Report Count (1)
             0x81.toByte(), 0x03,      //   Input (Const, Var, Abs)
             0xC0.toByte(),            // End Collection

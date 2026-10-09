@@ -34,11 +34,11 @@ object ReportMapper {
         JoyconButton.Chat.id to 1,
     )
 
-    // The trailing system collection's byte: docs/virtual-gamepad.md#android-keys
+    // The trailing system collection's byte. Screenshot goes through the shell instead:
+    // docs/virtual-gamepad.md#android-keys
     private val ANDROID_KEY_BITS: Map<AndroidKey, Int> = mapOf(
         AndroidKey.HOME to 0,
         AndroidKey.BACK to 1,
-        AndroidKey.SCREENSHOT to 2,
     )
 
     private const val HAT_CENTER = 0x0F
@@ -71,7 +71,8 @@ object ReportMapper {
         report[13] = bits(pressed, OVERFLOW_MAP).toByte()
 
         report[14] = androidKeys.pressedKeys(gamepad.pressed)
-            .fold(0) { acc, key -> acc or (1 shl ANDROID_KEY_BITS.getValue(key)) }
+            .mapNotNull(ANDROID_KEY_BITS::get)
+            .fold(0) { acc, bit -> acc or (1 shl bit) }
             .toByte()
 
         return report

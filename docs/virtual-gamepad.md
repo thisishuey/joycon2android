@@ -33,7 +33,7 @@ Emulators address it by enumeration rank instead: with P1, P2 and P4, P4 is the 
 | 11 | left trigger / brake — digital, 0 or 255 |
 | 12 | right trigger / accelerator — digital, 0 or 255 |
 | 13 | overflow buttons, in a trailing vendor-defined collection: bit 0 GR, bit 1 C |
-| 14 | Android keys, in a trailing Consumer Control collection: bit 0 Home, bit 1 Back, bit 2 Screenshot ([below](#android-keys)) |
+| 14 | Android keys, in a trailing Consumer Control collection: bit 0 Home, bit 1 Back ([below](#android-keys)) |
 
 ## Buttons and keycodes
 
@@ -70,14 +70,17 @@ shift:
 ## Android keys
 
 The settings panel's **Android buttons** binds a controller button to Android's Home, Back or
-Screenshot, for every player. `ReportMapper` takes a bound button out of the gamepad bits and sets its
-key in byte 14 instead (`AndroidKeyBindings`).
+Screenshot, for every player. `ReportMapper` takes a bound button out of the gamepad bits
+(`AndroidKeyBindings`).
 
-| Key | HID usage | Linux | Android |
-|---|---|---|---|
-| Home | Consumer `0x223` AC Home | `KEY_HOMEPAGE` | `HOME` |
-| Back | Consumer `0x224` AC Back | `KEY_BACK` | `BACK` |
-| Screenshot | Keyboard `0x46` Print Screen | `KEY_SYSRQ` | `SYSRQ`, which the window manager takes as a screenshot |
+| Key | Sent as | Reaches Android as |
+|---|---|---|
+| Home | byte 14 bit 0: Consumer `0x223` AC Home → `KEY_HOMEPAGE` | `HOME` |
+| Back | byte 14 bit 1: Consumer `0x224` AC Back → `KEY_BACK` | `BACK` |
+| Screenshot | `input keyevent 120` through the privileged shell, on press (`ShellScreenshot`) | `SYSRQ`, which the window manager takes as a screenshot |
+
+- **Screenshot skips the virtual pad.** Retroid Pocket Nova, Android 13, 2026-10-09: a Keyboard
+  `0x46` Print Screen usage on the pad took no screenshot; `input keyevent 120` through the shell did.
 
 - **Only buttons `SidewaysMapper` never moves can be bound** (Home, Capture, C, GL, GR, −, +), so
   a button's id is the same in the player's input and in the report.

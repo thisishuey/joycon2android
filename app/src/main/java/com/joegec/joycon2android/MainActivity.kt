@@ -90,7 +90,13 @@ class MainActivity : ComponentActivity() {
         viewModelFactory {
             initializer {
                 val c = (application as JoyconApplication).container
-                SettingsViewModel(c.observeOutputSettings, c.setFasterUpdates, c.setBlockDeviceMotion)
+                SettingsViewModel(
+                    c.observeOutputSettings,
+                    c.setFasterUpdates,
+                    c.setBlockDeviceMotion,
+                    c.observeAndroidKeyBindings,
+                    c.bindAndroidKey,
+                )
             }
         }
     }
@@ -256,16 +262,23 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun SettingsDrawer(drawerState: DrawerState, content: @Composable () -> Unit) {
         val outputSettings by settingsViewModel.outputSettings.collectAsState()
+        val androidKeys by settingsViewModel.androidKeys.collectAsState()
         val viewMode by viewModel.viewMode.collectAsState()
         val shizukuAvailable by gamepadViewModel.shizukuAvailable.collectAsState()
         EndDrawer(
             drawerState = drawerState,
             drawerContent = {
                 SettingsPanel(
-                    state = SettingsPanelState(viewMode, outputSettings, deviceMotionBlockAvailable = shizukuAvailable),
+                    state = SettingsPanelState(
+                        viewMode,
+                        outputSettings,
+                        deviceMotionBlockAvailable = shizukuAvailable,
+                        androidKeys = androidKeys,
+                    ),
                     onViewModeChange = viewModel::setViewMode,
                     onFasterUpdatesToggle = settingsViewModel::toggleFasterUpdates,
                     onBlockDeviceMotionToggle = settingsViewModel::toggleBlockDeviceMotion,
+                    onBindAndroidKey = settingsViewModel::assignAndroidKey,
                 )
             },
             containerColor = Background,

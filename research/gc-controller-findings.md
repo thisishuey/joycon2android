@@ -520,11 +520,11 @@ four; three exercises the same multi-link behaviour):
 8. Dolphin: `Axis 23+` detected, partial trigger travel works, pulling R doesn't fire Z on the
    target handheld (Q3).
 
-## In-app capture tool (separate upstream PR)
+## In-app capture tool (not sent upstream)
 
-Decided 2026-10-08: the capture is a **hidden developer option in the app**, sent upstream as its own
-PR, independent of the GameCube PR. Test hardware: a Retroid Pocket Nova and three NSO GameCube
-controllers, with no PC attached.
+The captures above were recorded with a **hidden developer option in the app**, built on the
+`controller-capture` branch for a Retroid Pocket Nova and three NSO GameCube controllers with no PC
+attached. It answered the hardware questions, so it isn't being sent upstream.
 
 **Why not the patch's capture.** The patch logs under `J2Raw`, gated by `Log.isLoggable`. Turning it
 on needs `adb shell setprop log.tag.J2Raw DEBUG`, which an app can't run, so it is useless on a

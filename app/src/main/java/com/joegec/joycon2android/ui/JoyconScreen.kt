@@ -82,6 +82,7 @@ import com.joegec.joycon2android.R
 import com.joegec.joycon2android.model.AppUiState
 import com.joegec.joycon2android.model.PlayerNumber
 import com.joegec.joycon2android.model.PlayerState
+import com.joegec.joycon2android.model.Side
 import com.joegec.joycon2android.gamepad.presentation.ShizukuSetupCard
 import com.joegec.joycon2android.assignment.presentation.AssignmentPanel
 import com.joegec.joycon2android.connection.presentation.CompactPlayerRow
@@ -145,6 +146,7 @@ fun JoyconScreen(
     onAssign: (String, PlayerNumber) -> Unit,
     onUnassign: (String) -> Unit,
     onDisconnect: (String) -> Unit,
+    onSetControllerType: (String, Side?) -> Unit,
     onGamepadToggle: (Boolean) -> Unit,
     gamepadEmulators: List<EmulatorOption>,
     selectedGamepadEmulator: String,
@@ -265,6 +267,7 @@ fun JoyconScreen(
                                 gamepadEmulators, selectedGamepadEmulator, onSelectGamepadEmulator,
                                 gamepadSetupPhase, onConfigureGamepad, onOpenGamepadMapping,
                                 onScan, onDisconnectAll, onAssign, unassignController, removePlayer, onDisconnect,
+                                onSetControllerType,
                                 onGamepadToggle, onDsuToggle, onSelectDsuEmulator, onConfigureDsu, onOpenDsuMapping,
                             )
                             else -> ScanningContent(state)
@@ -509,6 +512,7 @@ private fun ConnectedContent(
     onUnassign: (String) -> Unit,
     onRemovePlayer: (PlayerState) -> Unit,
     onDisconnect: (String) -> Unit,
+    onSetControllerType: (String, Side?) -> Unit,
     onGamepadToggle: (Boolean) -> Unit,
     onDsuToggle: (Boolean) -> Unit,
     onSelectDsuEmulator: (String) -> Unit,
@@ -525,6 +529,7 @@ private fun ConnectedContent(
             players = state.players,
             onAssign = onAssign,
             onDisconnect = onDisconnect,
+            onSetType = onSetControllerType,
         )
     }
 

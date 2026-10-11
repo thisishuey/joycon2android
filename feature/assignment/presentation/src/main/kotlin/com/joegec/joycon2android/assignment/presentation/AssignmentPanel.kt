@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.joegec.joycon2android.assignment.presentation.R
 import com.joegec.joycon2android.model.ConnectedJoycon
+import com.joegec.joycon2android.model.ControllerModel
 import com.joegec.joycon2android.model.PlayerNumber
 import com.joegec.joycon2android.model.PlayerState
 import com.joegec.joycon2android.model.Side
@@ -50,6 +51,7 @@ fun AssignmentPanel(
     players: List<PlayerState>,
     onAssign: (String, PlayerNumber) -> Unit,
     onDisconnect: (String) -> Unit,
+    onSetType: (String, Side?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(Dimens.cardCorner)
@@ -70,7 +72,7 @@ fun AssignmentPanel(
         )
 
         unassigned.forEach { joycon ->
-            JoyconAssignmentRow(joycon, players, onAssign, onDisconnect)
+            JoyconAssignmentRow(joycon, players, onAssign, onDisconnect, onSetType)
         }
 
         Text(
@@ -88,12 +90,14 @@ private fun JoyconAssignmentRow(
     players: List<PlayerState>,
     onAssign: (String, PlayerNumber) -> Unit,
     onDisconnect: (String) -> Unit,
+    onSetType: (String, Side?) -> Unit,
 ) {
     val sideColor = joyconBorderColor(joycon.accentColor, JoyconDefaultColor)
     val sideLabel = when (joycon.side) {
         Side.LEFT -> stringResource(R.string.side_left)
         Side.RIGHT -> stringResource(R.string.side_right)
-        Side.PRO -> stringResource(R.string.side_pro)
+        Side.PRO -> if (joycon.model == ControllerModel.GAMECUBE) stringResource(R.string.side_gamecube)
+        else stringResource(R.string.side_pro)
         Side.UNKNOWN -> joycon.deviceName
     }
 
@@ -146,6 +150,11 @@ private fun JoyconAssignmentRow(
                 )
             }
         }
+        ControllerTypeDropdown(
+            joycon,
+            onSetType = { side -> onSetType(joycon.address, side) },
+            modifier = Modifier.padding(horizontal = Dimens.cardPadding),
+        )
         PlayerSelection(joycon, players, onAssign)
     }
 }

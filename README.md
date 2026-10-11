@@ -15,7 +15,8 @@ as an ordinary gamepad.
 
 ## Features
 
-- **Joy-Con 2 and Switch 2 Pro Controller** — connect several at once, GL/GR paddles included.
+- **Joy-Con 2, Switch 2 Pro Controller and NSO GameCube controller** — connect several at once, GL/GR
+  paddles included.
 - **Up to 8 players** — each with a sideways Joy-Con, a pair, or a Pro Controller.
 - **A gamepad per player** — every app sees one standard controller per player, so multiplayer just
   works.
@@ -31,7 +32,7 @@ as an ordinary gamepad.
 ### What you need
 
 - Android 7.0 (API 24) or newer, with Bluetooth LE
-- Joy-Con 2 or a Switch 2 Pro Controller
+- Joy-Con 2, a Switch 2 Pro Controller or an NSO GameCube controller
 - [Shizuku](https://shizuku.rikka.app/), for the virtual gamepad and emulator auto setup — DSU motion
   works without it
 
@@ -54,7 +55,11 @@ as an ordinary gamepad.
 
 1. Hold **SYNC** on the controller and tap **Scan**.
 2. Assign each controller to a player — from the app, or with the Switch combos: **L** on one Joy-Con
-   and **R** on another for a pair, **SL + SR** for a sideways Joy-Con, **L + R** on a Pro Controller.
+   and **R** on another for a pair, **SL + SR** for a sideways Joy-Con, **L + R** on a Pro Controller
+   or GameCube controller.
+3. If a controller shows as the wrong type, pick the right one under **Controller type** on its card
+   before assigning it. The choice is remembered for that controller; **Auto** goes back to what it
+   reports.
 
 ### 3. Turn on the virtual gamepad
 
@@ -92,12 +97,13 @@ the emulator afterwards — it only reads its config when it starts.
 
 | Card | Emulators | What it writes |
 |---|---|---|
-| Virtual Gamepad | Eden, Eden Nightly, Dolphin (GameCube) | buttons and sticks |
+| Virtual Gamepad | Eden, Eden Nightly, Dolphin (GameCube) | buttons and sticks; analog L/R for a GameCube controller |
 | DSU Motion Server | Eden, Eden Nightly, Dolphin (Wii) | buttons, sticks and motion |
 
 The gamepad button beside **Set up** opens the mapping editor, with a card per connected player —
 tap one to open its bindings. A single Joy-Con is set up as a Pro Controller held sideways, so every
 button works in every game ([why](docs/virtual-gamepad.md#why-theyre-set-up-as-pro-controllers)). A
+GameCube controller has layouts of its own, with Z on its Z button and analog L/R in Dolphin. A
 target can take **several sources** — tick as many as you like, and any of them fires it.
 
 - **Layouts.** Each player picks a layout to start from, which resets their changes. The card reads
@@ -227,6 +233,7 @@ shoulder buttons.
 | "Shizuku is not running" | Open Shizuku and start it |
 | "Shizuku permission denied" | Shizuku → Apps → allow Joycon2Android |
 | Controller not found | Hold SYNC again and move closer |
+| Controller shows as the wrong type (stick turned sideways, no right stick) | Set **Controller type** on its card, then assign it |
 | Controller stops responding | Press SYNC and reconnect; wait a moment if it stays silent |
 | Gamepad doesn't show up in games | Check `adb shell getevent -p` lists "Joy-Con Virtual Gamepad" |
 | No DSUClient device in the emulator | Check the server address, restart the emulator and open a mapping screen; `adb logcat -s DsuServer` shows whether it's connecting |

@@ -335,6 +335,7 @@ class MainActivity : ComponentActivity() {
             onAssign = viewModel::assignToPlayer,
             onUnassign = viewModel::unassign,
             onDisconnect = viewModel::disconnect,
+            onSetControllerType = viewModel::setControllerType,
             onGamepadToggle = { enabled ->
                 gamepadViewModel.toggle(enabled, state.activePlayers)
             },

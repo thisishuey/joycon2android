@@ -94,7 +94,8 @@ The gear at the top right opens the settings panel:
   reaches games, and Home always leaves the game for the home screen.
 - **Dolphin → Calibrate sticks** (on by default) — Dolphin setup calibrates the sticks so they stop
   where a real GameCube controller's do; without it, small movements feel twitchy. Run Set up again
-  after changing it.
+  after changing it. A Pro Controller you mapped by hand in Dolphin keeps its mapping and only gains
+  the calibration.
 
 ### 5. Set up your emulator
 

@@ -71,6 +71,8 @@ object DolphinGcpadConfig {
 
     private val STICK_PREFIXES = mapOf(GameCubeStick.MainStick to "Main Stick", GameCubeStick.CStick to "C-Stick")
 
+    private val FULL_CALIBRATION = STICK_PREFIXES.values.associate { "$it/Calibration" to FULL_CIRCLE_CALIBRATION }
+
     // AXIS_BRAKE (23) and AXIS_GAS (22): docs/virtual-gamepad.md#analog-triggers
     private val ANALOG_TRIGGER_LINES = listOf(
         "Triggers/L-Analog = `Axis 23+`",
@@ -83,7 +85,19 @@ object DolphinGcpadConfig {
         controllerNumbers: Map<Int, Int>,
         calibrateSticks: Boolean = true,
         mappingFor: (PlayerBody) -> Map<String, String>,
-    ): String = IniEditor.mergeSections(existing, sections(players, controllerNumbers, mappingFor, calibrateSticks))
+    ): String {
+        val configured = sections(players, controllerNumbers, mappingFor, calibrateSticks)
+        val merged = IniEditor.mergeSections(existing, configured)
+        return if (calibrateSticks) calibrateHandMapped(merged, players) else merged
+    }
+
+    // Setup leaves a Pro Controller's section to the player, so it only adds the calibration, and only
+    // to a section the player has already made.
+    private fun calibrateHandMapped(ini: String, players: List<PlayerState>): String =
+        players.filter { it.hasPro && !it.hasGameCube && it.player.index in 1..4 }
+            .map { "[GCPad${it.player.index}]" }
+            .filter { IniEditor.hasSection(ini, it) }
+            .fold(ini) { result, section -> IniEditor.setKeys(result, section, FULL_CALIBRATION) }
 
     fun mergeCore(existing: String?, players: List<PlayerState>): String {
         val siDevices = players

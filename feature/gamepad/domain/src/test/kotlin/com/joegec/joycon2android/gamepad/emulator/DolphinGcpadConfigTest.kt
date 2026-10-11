@@ -123,6 +123,24 @@ class DolphinGcpadConfigTest {
     }
 
     @Test
+    fun `a pro controller's hand-made section keeps its bindings and gains only the calibration`() {
+        val handMade = "[GCPad1]\nDevice = Android/5/Pro\nButtons/A = `Button A`\n"
+        val result = merge(handMade, listOf(PlayerState(PlayerNumber.P1, left = joycon(Side.PRO))))
+
+        assertTrue(result.contains("Device = Android/5/Pro"))
+        assertTrue(result.contains("Buttons/A = `Button A`"))
+        assertTrue(result.contains("Main Stick/Calibration = 100.00"))
+        assertTrue(result.contains("C-Stick/Calibration = 100.00"))
+    }
+
+    @Test
+    fun `a pro controller with no section of its own gets none`() {
+        val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = joycon(Side.PRO))))
+
+        assertFalse(result.contains("[GCPad1]"))
+    }
+
+    @Test
     fun `pro controllers are skipped`() {
         val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = joycon(Side.PRO))))
 

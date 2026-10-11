@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.joegec.joycon2android.model.ConnectionViewMode
+import com.joegec.joycon2android.model.GamepadStick
+import com.joegec.joycon2android.model.StickResponse
 import com.joegec.joycon2android.ui.components.SettingSwitch
 import com.joegec.joycon2android.ui.theme.Dimens
 
@@ -21,6 +23,7 @@ fun SettingsPanel(
     onViewModeChange: (ConnectionViewMode) -> Unit,
     onFasterUpdatesToggle: (Boolean) -> Unit,
     onBlockDeviceMotionToggle: (Boolean) -> Unit,
+    onStickResponseChange: (GamepadStick, StickResponse) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -56,5 +59,6 @@ fun SettingsPanel(
                 else stringResource(R.string.settings_block_device_motion_needs_shizuku),
             )
         }
+        SettingsSection { StickTuningSetting(state.stickTuning, onStickResponseChange) }
     }
 }

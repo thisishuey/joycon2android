@@ -7,7 +7,9 @@ import com.joegec.joycon2android.assignment.PlayerStateResolver
 import com.joegec.joycon2android.model.AppUiState
 import com.joegec.joycon2android.model.ConnectedJoycon
 import com.joegec.joycon2android.model.PlayerNumber
+import com.joegec.joycon2android.model.StickTuning
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,6 +26,7 @@ class SessionCoordinator(
     private val assignments: AssignmentRepository,
     private val resolver: PlayerStateResolver,
     private val comboDetector: ComboAssignmentDetector,
+    private val stickTuning: Flow<StickTuning>,
     private val onState: (AppUiState) -> Unit,
     private val onPlayerAssigned: (PlayerNumber) -> Unit,
     private val onPlayerUnassigned: (PlayerNumber) -> Unit,
@@ -39,9 +42,10 @@ class SessionCoordinator(
                 controllers.scanning,
                 controllers.error,
                 assignments.assignments,
-            ) { controllerList, scanning, error, assigned ->
+                stickTuning,
+            ) { controllerList, scanning, error, assigned, tuning ->
                 evictDisappeared(controllerList, assigned)
-                build(controllerList, scanning, error, assigned)
+                build(controllerList, scanning, error, assigned, tuning)
             }.collect(::publish)
         }
     }
@@ -84,6 +88,7 @@ class SessionCoordinator(
         scanning: Boolean,
         error: String?,
         assigned: Map<String, PlayerNumber>,
+        tuning: StickTuning,
     ): AppUiState {
         val joycons = controllers.map { it.copy(assignedPlayer = assigned[it.address]) }
         return AppUiState(
@@ -91,7 +96,7 @@ class SessionCoordinator(
             error = error,
             unassignedJoycons = joycons.filter { it.assignedPlayer == null },
             players = PlayerNumber.entries.map { player ->
-                resolver.resolve(player, joycons.filter { it.assignedPlayer == player })
+                resolver.resolve(player, joycons.filter { it.assignedPlayer == player }).copy(stickTuning = tuning)
             },
         )
     }

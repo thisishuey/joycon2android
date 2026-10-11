@@ -10,7 +10,15 @@ data class GamepadState(
     companion object {
         private const val CENTER = 2048
 
-        fun from(state: PlayerState): GamepadState = when {
+        fun from(state: PlayerState): GamepadState = buttonsAndSticks(state).withStickTuning(state.stickTuning)
+
+        private fun GamepadState.withStickTuning(tuning: StickTuning): GamepadState {
+            val (lx, ly) = tuning.left.apply(leftStickX, leftStickY)
+            val (rx, ry) = tuning.right.apply(rightStickX, rightStickY)
+            return copy(leftStickX = lx, leftStickY = ly, rightStickX = rx, rightStickY = ry)
+        }
+
+        private fun buttonsAndSticks(state: PlayerState): GamepadState = when {
             state.hasFullController -> GamepadState(
                 pressed = state.pressed,
                 leftStickX = state.leftStickX,

@@ -9,4 +9,11 @@
     <string name="settings_block_device_motion_title">Ignore this device\'s motion in Eden</string>
     <string name="settings_block_device_motion_description">Eden adds this device\'s gyro to Player 1, which makes controller motion stutter. Lifted when the Virtual Gamepad and DSU are both off.</string>
     <string name="settings_block_device_motion_needs_shizuku">Needs Shizuku running.</string>
+    <string name="settings_stick_tuning_title">Stick response</string>
+    <string name="settings_stick_tuning_description">Makes small stick movements easier to control, for every controller in the Virtual Gamepad and DSU. Precision softens the middle of the stick and still reaches full at the edge; Max tilt caps full deflection.</string>
+    <string name="settings_stick_left">Left stick (GameCube main stick)</string>
+    <string name="settings_stick_right">Right stick (GameCube C-stick)</string>
+    <string name="settings_stick_precision">Precision</string>
+    <string name="settings_stick_max_tilt">Max tilt</string>
+    <string name="settings_percent">%1$d%%</string>
 </resources>

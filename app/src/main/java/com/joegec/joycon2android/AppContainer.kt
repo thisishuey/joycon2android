@@ -55,6 +55,10 @@ import com.joegec.joycon2android.dsu.EnableDsuUseCase
 import com.joegec.joycon2android.dsu.ObserveDsuStatusUseCase
 import com.joegec.joycon2android.dsu.PushDsuPadDataUseCase
 import com.joegec.joycon2android.settings.ObserveOutputSettingsUseCase
+import com.joegec.joycon2android.settings.ObserveStickTuningUseCase
+import com.joegec.joycon2android.settings.SetStickResponseUseCase
+import com.joegec.joycon2android.settings.StickTuningDataStore
+import com.joegec.joycon2android.settings.StickTuningRepository
 import com.joegec.joycon2android.settings.OutputSettingsDataStore
 import com.joegec.joycon2android.settings.OutputSettingsRepository
 import com.joegec.joycon2android.settings.SetBlockDeviceMotionUseCase
@@ -151,6 +155,10 @@ class AppContainer(context: Context) {
     val setFasterUpdates = SetFasterUpdatesUseCase(outputSettings)
     val setBlockDeviceMotion = SetBlockDeviceMotionUseCase(outputSettings)
 
+    private val stickTuning: StickTuningRepository = StickTuningDataStore(appContext)
+    val observeStickTuning = ObserveStickTuningUseCase(stickTuning)
+    val setStickResponse = SetStickResponseUseCase(stickTuning)
+
     // --- Assignment ---
     val assignmentRepository: AssignmentRepository = PlayerAssignmentManager()
 
@@ -200,6 +208,7 @@ class AppContainer(context: Context) {
         assignments = assignmentRepository,
         resolver = PlayerStateResolver(evictConflicting = assignmentRepository::unassign),
         comboDetector = ComboAssignmentDetector(),
+        stickTuning = observeStickTuning(),
         onState = { state ->
             pushGamepadState(state.players)
             pushDsuPadData(state.activePlayers)

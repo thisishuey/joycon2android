@@ -84,6 +84,9 @@ The gear at the top right opens the settings panel:
   quicker buttons, at a battery cost. Applies while the virtual gamepad or DSU is on.
 - **Ignore this device's motion in Eden** (on by default, needs Shizuku) — stops Eden mixing this
   device's gyro into Player 1. Lifted when the virtual gamepad and DSU are both off.
+- **Stick response** — for the left (GameCube main) and right (C-) stick separately. **Precision**
+  makes small movements finer while full tilt still reaches full; **Max tilt** caps how far full
+  deflection goes. Applies to every controller in the virtual gamepad and DSU.
 
 ### 5. Set up your emulator
 

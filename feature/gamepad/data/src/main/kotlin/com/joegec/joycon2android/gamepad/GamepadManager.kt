@@ -3,16 +3,24 @@ import com.joegec.joycon2android.gamepad.privileged.PrivilegedShell
 
 import android.content.Context
 import android.util.Log
+import com.joegec.joycon2android.model.AndroidKey
+import com.joegec.joycon2android.model.AndroidKeyBindings
 import com.joegec.joycon2android.model.PlayerNumber
 import com.joegec.joycon2android.model.PlayerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class GamepadManager(private val scope: CoroutineScope, private val context: Context) {
+class GamepadManager(
+    private val scope: CoroutineScope,
+    private val context: Context,
+    private val androidKeys: StateFlow<AndroidKeyBindings>,
+    private val screenshot: ShellScreenshot = ShellScreenshot(scope),
+) {
 
     private val devices = mutableMapOf<PlayerNumber, UhidRelay>()
     private val reportJobs = mutableMapOf<PlayerNumber, Job>()
@@ -20,6 +28,7 @@ class GamepadManager(private val scope: CoroutineScope, private val context: Con
     val activeCount: Int get() = devices.size
 
     suspend fun createGamepad(player: PlayerNumber, shell: PrivilegedShell): Boolean = withContext(Dispatchers.IO) {
+        screenshot.use(shell)
         if (player in devices) return@withContext true
 
         val device = UhidRelay("Joy-Con Virtual Gamepad", player.index)
@@ -38,9 +47,12 @@ class GamepadManager(private val scope: CoroutineScope, private val context: Con
         reportJobs[player]?.cancel()
         val device = devices[player] ?: return
         reportJobs[player] = scope.launch(Dispatchers.Default) {
-            stateFlow.collect { state ->
-                val report = ReportMapper.buildReport(state)
-                device.sendReport(report)
+            var screenshotHeld = false
+            combine(stateFlow, androidKeys) { state, keys -> state to keys }.collect { (state, keys) ->
+                device.sendReport(ReportMapper.buildReport(state, keys))
+                val held = AndroidKey.SCREENSHOT in keys.pressedKeys(state.gamepad.pressed)
+                if (held && !screenshotHeld) screenshot.take()
+                screenshotHeld = held
             }
         }
     }

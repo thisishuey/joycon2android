@@ -83,6 +83,7 @@ class DolphinGcpadConfigTest {
 
         assertTrue(result.contains("Main Stick/Up = `Axis 1-`"))
         assertTrue(result.contains("Main Stick/Right = `Axis 0+`"))
+        assertTrue(result.contains("Main Stick/Calibration = 100.00"))
         assertFalse(result.contains("C-Stick/"))
     }
 
@@ -98,6 +99,14 @@ class DolphinGcpadConfigTest {
         assertTrue(result.contains("Main Stick/Down = `Axis 1+`")) // the other directions stay analog
         assertTrue(result.contains("Buttons/A = `Axis 14+`"))
         assertFalse(result.contains("C-Stick/Left")) // None leaves it unbound
+    }
+
+    @Test
+    fun `each bound stick is calibrated to a full circle, so Dolphin applies the GameCube gate`() {
+        val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = joycon(Side.LEFT), right = joycon(Side.RIGHT))))
+
+        assertTrue(result.contains("Main Stick/Calibration = 100.00"))
+        assertTrue(result.contains("C-Stick/Calibration = 100.00"))
     }
 
     @Test

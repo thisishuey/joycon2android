@@ -96,6 +96,8 @@ class MainActivity : ComponentActivity() {
                     c.setBlockDeviceMotion,
                     c.observeAndroidKeyBindings,
                     c.bindAndroidKey,
+                    c.observeStickTuning,
+                    c.setStickResponse,
                 )
             }
         }
@@ -263,6 +265,7 @@ class MainActivity : ComponentActivity() {
     private fun SettingsDrawer(drawerState: DrawerState, content: @Composable () -> Unit) {
         val outputSettings by settingsViewModel.outputSettings.collectAsState()
         val androidKeys by settingsViewModel.androidKeys.collectAsState()
+        val stickTuning by settingsViewModel.stickTuning.collectAsState()
         val viewMode by viewModel.viewMode.collectAsState()
         val shizukuAvailable by gamepadViewModel.shizukuAvailable.collectAsState()
         EndDrawer(
@@ -274,11 +277,13 @@ class MainActivity : ComponentActivity() {
                         outputSettings,
                         deviceMotionBlockAvailable = shizukuAvailable,
                         androidKeys = androidKeys,
+                        stickTuning = stickTuning,
                     ),
                     onViewModeChange = viewModel::setViewMode,
                     onFasterUpdatesToggle = settingsViewModel::toggleFasterUpdates,
                     onBlockDeviceMotionToggle = settingsViewModel::toggleBlockDeviceMotion,
                     onBindAndroidKey = settingsViewModel::assignAndroidKey,
+                    onStickResponseChange = settingsViewModel::changeStickResponse,
                 )
             },
             containerColor = Background,

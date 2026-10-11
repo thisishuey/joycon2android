@@ -13,7 +13,8 @@ data class GamepadState(
         private const val CENTER = 2048
         private const val TRIGGER_PULLED = 255
 
-        fun from(state: PlayerState): GamepadState = buttonsAndSticks(state).withTriggers(state)
+        fun from(state: PlayerState): GamepadState =
+            buttonsAndSticks(state).withTriggers(state).withStickTuning(state.stickTuning)
 
         private fun GamepadState.withTriggers(state: PlayerState): GamepadState =
             if (state.hasAnalogTriggers) {
@@ -27,6 +28,12 @@ data class GamepadState(
             }
 
         private fun GamepadState.pulledBy(button: JoyconButton): Int = if (button.id in pressed) TRIGGER_PULLED else 0
+
+        private fun GamepadState.withStickTuning(tuning: StickTuning): GamepadState {
+            val (lx, ly) = tuning.left.apply(leftStickX, leftStickY)
+            val (rx, ry) = tuning.right.apply(rightStickX, rightStickY)
+            return copy(leftStickX = lx, leftStickY = ly, rightStickX = rx, rightStickY = ry)
+        }
 
         private fun buttonsAndSticks(state: PlayerState): GamepadState = when {
             state.hasFullController -> GamepadState(

@@ -14,6 +14,8 @@ import androidx.compose.ui.res.stringResource
 import com.joegec.joycon2android.model.AndroidKey
 import com.joegec.joycon2android.model.ConnectionViewMode
 import com.joegec.joycon2android.model.JoyconButton
+import com.joegec.joycon2android.model.GamepadStick
+import com.joegec.joycon2android.model.StickResponse
 import com.joegec.joycon2android.ui.components.SettingSwitch
 import com.joegec.joycon2android.ui.theme.Dimens
 
@@ -24,6 +26,7 @@ fun SettingsPanel(
     onFasterUpdatesToggle: (Boolean) -> Unit,
     onBlockDeviceMotionToggle: (Boolean) -> Unit,
     onBindAndroidKey: (AndroidKey, JoyconButton?) -> Unit,
+    onStickResponseChange: (GamepadStick, StickResponse) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -60,5 +63,6 @@ fun SettingsPanel(
             )
         }
         SettingsSection { AndroidKeysSetting(state.androidKeys, onBindAndroidKey) }
+        SettingsSection { StickTuningSetting(state.stickTuning, onStickResponseChange) }
     }
 }

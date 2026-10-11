@@ -92,6 +92,9 @@ The gear at the top right opens the settings panel:
 - **Android buttons** (all off by default) — pick a controller button for Android's Home, Back and
   Screenshot, for every player, while the virtual gamepad is on. A button picked here no longer
   reaches games, and Home always leaves the game for the home screen.
+- **Stick response** — for the left (GameCube main) and right (C-) stick separately. **Precision**
+  makes small movements finer while full tilt still reaches full; **Max tilt** caps how far full
+  deflection goes. Applies to every controller in the virtual gamepad and DSU.
 
 ### 5. Set up your emulator
 

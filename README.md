@@ -86,7 +86,8 @@ The gear at the top right opens the settings panel:
   device's gyro into Player 1. Lifted when the virtual gamepad and DSU are both off.
 - **Dolphin → Calibrate sticks** (on by default) — Dolphin setup calibrates the sticks so they stop
   where a real GameCube controller's do; without it, small movements feel twitchy. Run Set up again
-  after changing it.
+  after changing it. A Pro Controller you mapped by hand in Dolphin keeps its mapping and only gains
+  the calibration.
 
 ### 5. Set up your emulator
 

@@ -69,7 +69,9 @@ shift:
 ## Dolphin stick calibration
 
 Dolphin setup writes `Main Stick/Calibration = 100.00` and `C-Stick/Calibration = 100.00` for each
-stick it binds, unless Settings → Dolphin → **Calibrate sticks** is off.
+stick it binds, unless Settings → Dolphin → **Calibrate sticks** is off. Setup leaves a Pro
+Controller player's section to the player, so there it only adds both calibration keys, and only
+to a section that already exists.
 
 - **Uncalibrated, Dolphin passes the stick straight through:** a full ±1.0 tilt becomes GameCube ±127.
   A real pad's gate stops near ±101 (main) and ±92 (C-stick), so every push lands about a quarter

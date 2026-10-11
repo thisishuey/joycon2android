@@ -59,9 +59,6 @@ object DolphinGcpadConfig {
     )
 
     // The D-Pad target reads the hat switch instead: Axis 15 = hat X, Axis 16 = hat Y.
-    // A full circle, so Dolphin shrinks the stick onto its GameCube gate: docs/virtual-gamepad.md#stick-response
-    private const val FULL_CIRCLE_CALIBRATION = "100.00"
-
     private val HAT_NAMES = mapOf(
         JoyconButton.Up to "Axis 16-",
         JoyconButton.Down to "Axis 16+",
@@ -122,15 +119,9 @@ object DolphinGcpadConfig {
         }
         val device = "Device = Android/$deviceId/Joy-Con Virtual Gamepad $index"
         val analogTriggers = if (player.hasAnalogTriggers) ANALOG_TRIGGER_LINES else emptyList()
-        val bindings = lines(side, mappingFor(PlayerBody(player.player, side)))
-        return (listOf(device) + bindings + calibrationLines(bindings) + analogTriggers)
+        return (listOf(device) + lines(side, mappingFor(PlayerBody(player.player, side))) + analogTriggers)
             .joinToString("\n", postfix = "\n")
     }
-
-    private fun calibrationLines(bindings: List<String>): List<String> =
-        STICK_PREFIXES.values
-            .filter { prefix -> bindings.any { it.startsWith("$prefix/") } }
-            .map { prefix -> "$prefix/Calibration = $FULL_CIRCLE_CALIBRATION" }
 
     private fun lines(side: JoyconSide, mapping: Map<String, String>): List<String> {
         val buttonLines = mapping.toSourceMap<GameCubeButton>().mapNotNull { (target, sources) ->

@@ -105,13 +105,6 @@ Left is a GameCube controller's main stick, right its C-stick. Every controller 
 
 At the defaults (0%, 100%) values pass through untouched, square corners included.
 
-Dolphin setup also writes `Main Stick/Calibration = 100.00` and `C-Stick/Calibration = 100.00` for
-each stick it binds. Uncalibrated, Dolphin passes a full ±1.0 tilt through as GameCube ±127; a real pad's
-gate stops near ±101 (main) and ±92 (C-stick), so every push lands about a quarter further than on
-hardware. Calibrated to a full circle, Dolphin maps the rim onto its `Gate Size` octagon (79.37 and
-72.21 by default, averaged from genuine controllers). Dolphin for Android has no Calibrate button,
-and nothing else sets it (`GCPadEmu.h`, `StickGate.cpp`, Dolphin PR #8963).
-
 ## Sideways Joy-Cons
 
 ### Why they're set up as Pro Controllers

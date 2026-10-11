@@ -91,20 +91,6 @@ Screenshot, for every player. `ReportMapper` takes a bound button out of the gam
 - **Emulator configs keep their bindings to a bound button.** It never arrives while bound, and
   unbinding it needs no new Set up.
 
-## Stick response
-
-The settings panel's **Stick response** reshapes each stick after calibration, in
-`GamepadState.from`, so the virtual pad and DSU both send it; the app's own stick display stays raw.
-Left is a GameCube controller's main stick, right its C-stick. Every controller uses the same values
-(`StickTuning`, carried on each `PlayerState`).
-
-| Setting | Effect | Range |
-|---|---|---|
-| Precision | Output = tilt^(1 + 1.5 × precision), along the tilt's own direction, so full tilt still reaches full | 0 (linear) to 100% (tilt^2.5) |
-| Max tilt | Scales the shaped tilt, like Dolphin's per-stick radius | 100% down to 40% |
-
-At the defaults (0%, 100%) values pass through untouched, square corners included.
-
 ## Sideways Joy-Cons
 
 ### Why they're set up as Pro Controllers

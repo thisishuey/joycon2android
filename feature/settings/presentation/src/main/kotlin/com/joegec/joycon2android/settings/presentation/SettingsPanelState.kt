@@ -2,7 +2,6 @@ package com.joegec.joycon2android.settings.presentation
 
 import com.joegec.joycon2android.model.AndroidKeyBindings
 import com.joegec.joycon2android.model.ConnectionViewMode
-import com.joegec.joycon2android.model.StickTuning
 import com.joegec.joycon2android.settings.OutputSettings
 
 data class SettingsPanelState(
@@ -10,5 +9,4 @@ data class SettingsPanelState(
     val outputSettings: OutputSettings = OutputSettings(),
     val deviceMotionBlockAvailable: Boolean = false,
     val androidKeys: AndroidKeyBindings = AndroidKeyBindings(),
-    val stickTuning: StickTuning = StickTuning(),
 )

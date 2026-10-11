@@ -62,10 +62,6 @@ import com.joegec.joycon2android.settings.AndroidKeyBindingsRepository
 import com.joegec.joycon2android.settings.BindAndroidKeyUseCase
 import com.joegec.joycon2android.settings.ObserveAndroidKeyBindingsUseCase
 import com.joegec.joycon2android.settings.ObserveOutputSettingsUseCase
-import com.joegec.joycon2android.settings.ObserveStickTuningUseCase
-import com.joegec.joycon2android.settings.SetStickResponseUseCase
-import com.joegec.joycon2android.settings.StickTuningDataStore
-import com.joegec.joycon2android.settings.StickTuningRepository
 import com.joegec.joycon2android.settings.OutputSettingsDataStore
 import com.joegec.joycon2android.settings.OutputSettingsRepository
 import com.joegec.joycon2android.settings.SetBlockDeviceMotionUseCase
@@ -169,10 +165,6 @@ class AppContainer(context: Context) {
     val bindAndroidKey = BindAndroidKeyUseCase(androidKeyBindings)
     private val androidKeys = observeAndroidKeyBindings().stateIn(scope, SharingStarted.Eagerly, AndroidKeyBindings())
 
-    private val stickTuning: StickTuningRepository = StickTuningDataStore(appContext)
-    val observeStickTuning = ObserveStickTuningUseCase(stickTuning)
-    val setStickResponse = SetStickResponseUseCase(stickTuning)
-
     // --- Assignment ---
     val assignmentRepository: AssignmentRepository = PlayerAssignmentManager()
 
@@ -222,7 +214,6 @@ class AppContainer(context: Context) {
         assignments = assignmentRepository,
         resolver = PlayerStateResolver(evictConflicting = assignmentRepository::unassign),
         comboDetector = ComboAssignmentDetector(),
-        stickTuning = observeStickTuning(),
         onState = { state ->
             pushGamepadState(state.players)
             pushDsuPadData(state.activePlayers)

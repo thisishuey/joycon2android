@@ -7,12 +7,10 @@ import com.joegec.joycon2android.connection.ControllerRepository
 import com.joegec.joycon2android.model.ConnectedJoycon
 import com.joegec.joycon2android.model.PlayerNumber
 import com.joegec.joycon2android.model.Side
-import com.joegec.joycon2android.model.StickTuning
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -28,7 +26,6 @@ class SessionCoordinatorTypeTest {
         assignments = assignments,
         resolver = PlayerStateResolver(evictConflicting = {}),
         comboDetector = ComboAssignmentDetector(),
-        stickTuning = flowOf(StickTuning()),
         onState = {},
         onPlayerAssigned = {},
         onPlayerUnassigned = { unassignedPlayers += it },

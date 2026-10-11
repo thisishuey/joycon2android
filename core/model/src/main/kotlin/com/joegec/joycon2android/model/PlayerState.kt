@@ -4,7 +4,6 @@ data class PlayerState(
     val player: PlayerNumber,
     val left: ConnectedJoycon? = null,
     val right: ConnectedJoycon? = null,
-    val stickTuning: StickTuning = StickTuning(),
 ) {
     val hasPro: Boolean get() = left != null && left.side == Side.PRO
     val hasController: Boolean get() = left != null || right != null

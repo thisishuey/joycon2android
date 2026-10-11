@@ -92,6 +92,10 @@ The gear at the top right opens the settings panel:
 - **Android buttons** (all off by default) — pick a controller button for Android's Home, Back and
   Screenshot, for every player, while the virtual gamepad is on. A button picked here no longer
   reaches games, and Home always leaves the game for the home screen.
+- **Dolphin → Calibrate sticks** (on by default) — Dolphin setup calibrates the sticks so they stop
+  where a real GameCube controller's do; without it, small movements feel twitchy. Run Set up again
+  after changing it. A Pro Controller you mapped by hand in Dolphin keeps its mapping and only gains
+  the calibration.
 
 ### 5. Set up your emulator
 
@@ -244,6 +248,7 @@ shoulder buttons.
 | Motion aiming stutters | Settings (gear, top right): keep **Ignore this device's motion in Eden** on, and try **Faster controller updates** |
 | Tilting the device moves the aim in Eden | Turn on **Ignore this device's motion in Eden** |
 | Pointer drifts or starts off-screen | Rest the controller for ~2 s, then press Recenter |
+| Sticks feel twitchy in Dolphin (hard to walk or aim) | Keep Settings → Dolphin → **Calibrate sticks** on and tap **Set up** for Dolphin again. A Pro Controller: map it in Dolphin first, then tap **Set up** once to add the calibration |
 | MotionPlus tutorial replays every boot (Dolphin) | Set `MPLS.MOVIE` in `Wii/shared2/sys/SYSCONF` with Dolphin closed ([why](docs/dsu-motion.md#motionplus-tutorial-replays)) |
 
 ## Roadmap and feedback

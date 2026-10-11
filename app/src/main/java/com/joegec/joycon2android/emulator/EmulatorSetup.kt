@@ -37,6 +37,7 @@ class EmulatorSetup(
     private val gamepadControllerNumbers: () -> Map<Int, Int>,
     private val getControllerMapping: GetEffectiveControllerMappingUseCase,
     private val getSidewaysRemote: GetSidewaysRemoteUseCase,
+    private val calibrateDolphinSticks: suspend () -> Boolean,
 ) {
 
     // Read up front: the generators are synchronous.
@@ -162,7 +163,8 @@ class EmulatorSetup(
                     shell.readText(DolphinGcpadConfig.path),
                     players,
                     gamepadControllerNumbers(),
-                    mappingLookup(Console.GAMECUBE, players),
+                    calibrateSticks = calibrateDolphinSticks(),
+                    mappingFor = mappingLookup(Console.GAMECUBE, players),
                 )
                 val mappingsOk = shell.writeText(DolphinGcpadConfig.path, mappings)
                 // Dolphin's GameCube ports default to None.

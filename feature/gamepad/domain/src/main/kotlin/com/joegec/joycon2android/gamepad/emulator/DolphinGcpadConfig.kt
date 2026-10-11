@@ -59,6 +59,9 @@ object DolphinGcpadConfig {
     )
 
     // The D-Pad target reads the hat switch instead: Axis 15 = hat X, Axis 16 = hat Y.
+    // A full circle, so Dolphin shrinks the stick onto its GameCube gate: docs/virtual-gamepad.md#dolphin-stick-calibration
+    private const val FULL_CIRCLE_CALIBRATION = "100.00"
+
     private val HAT_NAMES = mapOf(
         JoyconButton.Up to "Axis 16-",
         JoyconButton.Down to "Axis 16+",
@@ -67,6 +70,8 @@ object DolphinGcpadConfig {
     )
 
     private val STICK_PREFIXES = mapOf(GameCubeStick.MainStick to "Main Stick", GameCubeStick.CStick to "C-Stick")
+
+    private val FULL_CALIBRATION = STICK_PREFIXES.values.associate { "$it/Calibration" to FULL_CIRCLE_CALIBRATION }
 
     // AXIS_BRAKE (23) and AXIS_GAS (22): docs/virtual-gamepad.md#analog-triggers
     private val ANALOG_TRIGGER_LINES = listOf(
@@ -78,8 +83,21 @@ object DolphinGcpadConfig {
         existing: String?,
         players: List<PlayerState>,
         controllerNumbers: Map<Int, Int>,
+        calibrateSticks: Boolean = true,
         mappingFor: (PlayerBody) -> Map<String, String>,
-    ): String = IniEditor.mergeSections(existing, sections(players, controllerNumbers, mappingFor))
+    ): String {
+        val configured = sections(players, controllerNumbers, mappingFor, calibrateSticks)
+        val merged = IniEditor.mergeSections(existing, configured)
+        return if (calibrateSticks) calibrateHandMapped(merged, players) else merged
+    }
+
+    // Setup leaves a Pro Controller's section to the player, so it only adds the calibration, and only
+    // to a section the player has already made.
+    private fun calibrateHandMapped(ini: String, players: List<PlayerState>): String =
+        players.filter { it.hasPro && !it.hasGameCube && it.player.index in 1..4 }
+            .map { "[GCPad${it.player.index}]" }
+            .filter { IniEditor.hasSection(ini, it) }
+            .fold(ini) { result, section -> IniEditor.setKeys(result, section, FULL_CALIBRATION) }
 
     fun mergeCore(existing: String?, players: List<PlayerState>): String {
         val siDevices = players
@@ -93,6 +111,7 @@ object DolphinGcpadConfig {
         players: List<PlayerState>,
         controllerNumbers: Map<Int, Int>,
         mappingFor: (PlayerBody) -> Map<String, String>,
+        calibrateSticks: Boolean,
     ): Map<String, String> =
         players.filter { it.hasController }
             .sortedBy { it.player.index }
@@ -100,7 +119,7 @@ object DolphinGcpadConfig {
                 val index = player.player.index
                 if (index !in 1..4) return@mapNotNull null
                 val deviceId = controllerNumbers[index] ?: return@mapNotNull null
-                bodyFor(player, index, deviceId, mappingFor)?.let { "[GCPad$index]" to it }
+                bodyFor(player, index, deviceId, mappingFor, calibrateSticks)?.let { "[GCPad$index]" to it }
             }.toMap()
 
     private fun bodyFor(
@@ -108,6 +127,7 @@ object DolphinGcpadConfig {
         index: Int,
         deviceId: Int,
         mappingFor: (PlayerBody) -> Map<String, String>,
+        calibrateSticks: Boolean,
     ): String? {
         val side = when {
             player.hasGameCube -> JoyconSide.GAMECUBE
@@ -119,9 +139,15 @@ object DolphinGcpadConfig {
         }
         val device = "Device = Android/$deviceId/Joy-Con Virtual Gamepad $index"
         val analogTriggers = if (player.hasAnalogTriggers) ANALOG_TRIGGER_LINES else emptyList()
-        return (listOf(device) + lines(side, mappingFor(PlayerBody(player.player, side))) + analogTriggers)
-            .joinToString("\n", postfix = "\n")
+        val bindings = lines(side, mappingFor(PlayerBody(player.player, side)))
+        val calibration = if (calibrateSticks) calibrationLines(bindings) else emptyList()
+        return (listOf(device) + bindings + calibration + analogTriggers).joinToString("\n", postfix = "\n")
     }
+
+    private fun calibrationLines(bindings: List<String>): List<String> =
+        STICK_PREFIXES.values
+            .filter { prefix -> bindings.any { it.startsWith("$prefix/") } }
+            .map { prefix -> "$prefix/Calibration = $FULL_CIRCLE_CALIBRATION" }
 
     private fun lines(side: JoyconSide, mapping: Map<String, String>): List<String> {
         val buttonLines = mapping.toSourceMap<GameCubeButton>().mapNotNull { (target, sources) ->

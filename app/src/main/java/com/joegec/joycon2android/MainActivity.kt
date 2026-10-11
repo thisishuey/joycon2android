@@ -96,6 +96,7 @@ class MainActivity : ComponentActivity() {
                     c.setBlockDeviceMotion,
                     c.observeAndroidKeyBindings,
                     c.bindAndroidKey,
+                    c.setCalibrateDolphinSticks,
                 )
             }
         }
@@ -279,6 +280,7 @@ class MainActivity : ComponentActivity() {
                     onFasterUpdatesToggle = settingsViewModel::toggleFasterUpdates,
                     onBlockDeviceMotionToggle = settingsViewModel::toggleBlockDeviceMotion,
                     onBindAndroidKey = settingsViewModel::assignAndroidKey,
+                    onCalibrateDolphinSticksToggle = settingsViewModel::toggleCalibrateDolphinSticks,
                 )
             },
             containerColor = Background,

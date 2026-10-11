@@ -15,4 +15,7 @@
     <string name="settings_android_key_back">Back</string>
     <string name="settings_android_key_screenshot">Screenshot</string>
     <string name="settings_android_key_none">None</string>
+    <string name="settings_dolphin_title">Dolphin</string>
+    <string name="settings_dolphin_calibrate_sticks_title">Calibrate sticks</string>
+    <string name="settings_dolphin_calibrate_sticks_description">Stops each stick where a real GameCube controller\'s does, so small movements feel like the original. Takes effect the next time you Set up Dolphin.</string>
 </resources>

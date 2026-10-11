@@ -59,6 +59,9 @@ object DolphinGcpadConfig {
     )
 
     // The D-Pad target reads the hat switch instead: Axis 15 = hat X, Axis 16 = hat Y.
+    // A full circle, so Dolphin shrinks the stick onto its GameCube gate: docs/virtual-gamepad.md#dolphin-stick-calibration
+    private const val FULL_CIRCLE_CALIBRATION = "100.00"
+
     private val HAT_NAMES = mapOf(
         JoyconButton.Up to "Axis 16-",
         JoyconButton.Down to "Axis 16+",
@@ -78,8 +81,9 @@ object DolphinGcpadConfig {
         existing: String?,
         players: List<PlayerState>,
         controllerNumbers: Map<Int, Int>,
+        calibrateSticks: Boolean = true,
         mappingFor: (PlayerBody) -> Map<String, String>,
-    ): String = IniEditor.mergeSections(existing, sections(players, controllerNumbers, mappingFor))
+    ): String = IniEditor.mergeSections(existing, sections(players, controllerNumbers, mappingFor, calibrateSticks))
 
     fun mergeCore(existing: String?, players: List<PlayerState>): String {
         val siDevices = players
@@ -93,6 +97,7 @@ object DolphinGcpadConfig {
         players: List<PlayerState>,
         controllerNumbers: Map<Int, Int>,
         mappingFor: (PlayerBody) -> Map<String, String>,
+        calibrateSticks: Boolean,
     ): Map<String, String> =
         players.filter { it.hasController }
             .sortedBy { it.player.index }
@@ -100,7 +105,7 @@ object DolphinGcpadConfig {
                 val index = player.player.index
                 if (index !in 1..4) return@mapNotNull null
                 val deviceId = controllerNumbers[index] ?: return@mapNotNull null
-                bodyFor(player, index, deviceId, mappingFor)?.let { "[GCPad$index]" to it }
+                bodyFor(player, index, deviceId, mappingFor, calibrateSticks)?.let { "[GCPad$index]" to it }
             }.toMap()
 
     private fun bodyFor(
@@ -108,6 +113,7 @@ object DolphinGcpadConfig {
         index: Int,
         deviceId: Int,
         mappingFor: (PlayerBody) -> Map<String, String>,
+        calibrateSticks: Boolean,
     ): String? {
         val side = when {
             player.hasGameCube -> JoyconSide.GAMECUBE
@@ -119,9 +125,15 @@ object DolphinGcpadConfig {
         }
         val device = "Device = Android/$deviceId/Joy-Con Virtual Gamepad $index"
         val analogTriggers = if (player.hasAnalogTriggers) ANALOG_TRIGGER_LINES else emptyList()
-        return (listOf(device) + lines(side, mappingFor(PlayerBody(player.player, side))) + analogTriggers)
-            .joinToString("\n", postfix = "\n")
+        val bindings = lines(side, mappingFor(PlayerBody(player.player, side)))
+        val calibration = if (calibrateSticks) calibrationLines(bindings) else emptyList()
+        return (listOf(device) + bindings + calibration + analogTriggers).joinToString("\n", postfix = "\n")
     }
+
+    private fun calibrationLines(bindings: List<String>): List<String> =
+        STICK_PREFIXES.values
+            .filter { prefix -> bindings.any { it.startsWith("$prefix/") } }
+            .map { prefix -> "$prefix/Calibration = $FULL_CIRCLE_CALIBRATION" }
 
     private fun lines(side: JoyconSide, mapping: Map<String, String>): List<String> {
         val buttonLines = mapping.toSourceMap<GameCubeButton>().mapNotNull { (target, sources) ->

@@ -24,6 +24,7 @@ fun SettingsPanel(
     onFasterUpdatesToggle: (Boolean) -> Unit,
     onBlockDeviceMotionToggle: (Boolean) -> Unit,
     onBindAndroidKey: (AndroidKey, JoyconButton?) -> Unit,
+    onCalibrateDolphinSticksToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -60,5 +61,8 @@ fun SettingsPanel(
             )
         }
         SettingsSection { AndroidKeysSetting(state.androidKeys, onBindAndroidKey) }
+        SettingsSection {
+            DolphinSetting(state.outputSettings.calibrateDolphinSticks, onCalibrateDolphinSticksToggle)
+        }
     }
 }

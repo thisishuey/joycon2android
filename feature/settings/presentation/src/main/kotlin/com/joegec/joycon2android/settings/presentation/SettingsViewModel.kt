@@ -10,6 +10,7 @@ import com.joegec.joycon2android.settings.ObserveAndroidKeyBindingsUseCase
 import com.joegec.joycon2android.settings.ObserveOutputSettingsUseCase
 import com.joegec.joycon2android.settings.OutputSettings
 import com.joegec.joycon2android.settings.SetBlockDeviceMotionUseCase
+import com.joegec.joycon2android.settings.SetCalibrateDolphinSticksUseCase
 import com.joegec.joycon2android.settings.SetFasterUpdatesUseCase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +23,7 @@ class SettingsViewModel(
     private val setBlockDeviceMotion: SetBlockDeviceMotionUseCase,
     observeAndroidKeyBindings: ObserveAndroidKeyBindingsUseCase,
     private val bindAndroidKey: BindAndroidKeyUseCase,
+    private val setCalibrateDolphinSticks: SetCalibrateDolphinSticksUseCase,
 ) : ViewModel() {
 
     val outputSettings: StateFlow<OutputSettings> = observeOutputSettings()
@@ -40,6 +42,10 @@ class SettingsViewModel(
 
     fun assignAndroidKey(key: AndroidKey, button: JoyconButton?) {
         viewModelScope.launch { bindAndroidKey(key, button) }
+    }
+
+    fun toggleCalibrateDolphinSticks(enabled: Boolean) {
+        viewModelScope.launch { setCalibrateDolphinSticks(enabled) }
     }
 
     private companion object {

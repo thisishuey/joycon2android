@@ -91,6 +91,21 @@ Screenshot, for every player. `ReportMapper` takes a bound button out of the gam
 - **Emulator configs keep their bindings to a bound button.** It never arrives while bound, and
   unbinding it needs no new Set up.
 
+## Dolphin stick calibration
+
+Dolphin setup writes `Main Stick/Calibration = 100.00` and `C-Stick/Calibration = 100.00` for each
+stick it binds, unless Settings → Dolphin → **Calibrate sticks** is off.
+
+- **Uncalibrated, Dolphin passes the stick straight through:** a full ±1.0 tilt becomes GameCube ±127.
+  A real pad's gate stops near ±101 (main) and ±92 (C-stick), so every push lands about a quarter
+  further than on hardware, and walking or fine aiming is hard.
+- **Calibrated to a full circle,** Dolphin maps the rim onto its `Gate Size` octagon: 79.37 (main)
+  and 72.21 (C-stick) by default, averaged from genuine controllers.
+- Dolphin for Android has no Calibrate button, and nothing else sets it. Sources: Dolphin's
+  `GCPadEmu.h` and `StickGate.cpp`, and Dolphin PR #8963.
+- Confirmed on a Retroid Pocket Nova with NSO GameCube controllers, 2026-10-11: walking and scope
+  aiming feel like an original controller.
+
 ## Sideways Joy-Cons
 
 ### Why they're set up as Pro Controllers

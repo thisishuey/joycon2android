@@ -84,6 +84,9 @@ The gear at the top right opens the settings panel:
   quicker buttons, at a battery cost. Applies while the virtual gamepad or DSU is on.
 - **Ignore this device's motion in Eden** (on by default, needs Shizuku) — stops Eden mixing this
   device's gyro into Player 1. Lifted when the virtual gamepad and DSU are both off.
+- **Dolphin → Calibrate sticks** (on by default) — Dolphin setup calibrates the sticks so they stop
+  where a real GameCube controller's do; without it, small movements feel twitchy. Run Set up again
+  after changing it.
 
 ### 5. Set up your emulator
 

@@ -8,6 +8,8 @@ pluginManagement {
                 includeGroupByRegex("androidx.*")
             }
         }
+        // Order: docs/architecture.md#repositories
+        maven("https://maven-central.storage-download.googleapis.com/maven2") { name = "GoogleMavenCentralMirror" }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -19,6 +21,8 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
+        // Order: docs/architecture.md#repositories
+        maven("https://maven-central.storage-download.googleapis.com/maven2") { name = "GoogleMavenCentralMirror" }
         mavenCentral()
     }
 }

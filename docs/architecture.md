@@ -171,6 +171,23 @@ The gamepad and DSU outputs ride the coordinator's **synchronous** `onState` cal
 conflated `StateFlow`, which would drop motion samples. Hardware detail:
 [virtual-gamepad.md](virtual-gamepad.md), [dsu-motion.md](dsu-motion.md).
 
+## Repositories
+
+Declared in `settings.gradle.kts` and `build-logic/settings.gradle.kts`, tried in this order:
+
+| Repository | Serves |
+|---|---|
+| `google()` | AGP, AndroidX, Google libraries |
+| `GoogleMavenCentralMirror` | Google's Cloud Storage mirror of Maven Central: every other library |
+| `mavenCentral()` | Artifacts too new to have reached the mirror |
+| `gradlePluginPortal()` | Plugins not published to Maven (`pluginManagement` and `build-logic` only) |
+
+- The mirror goes **before** Maven Central because Gradle only moves to the next repository on a
+  404. A timeout or 5xx, after Gradle's retries, fails the build, so a mirror listed after Central
+  would never be reached when Central is down.
+- The order has no fallback for a mirror outage. If the mirror is down, put `mavenCentral()` first
+  for that build.
+
 ## Build & test
 
 ```bash

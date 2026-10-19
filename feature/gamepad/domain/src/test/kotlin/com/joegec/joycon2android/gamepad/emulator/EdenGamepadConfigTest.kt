@@ -248,7 +248,7 @@ class EdenGamepadConfigTest {
     }
 
     @Test
-    fun `a gamecube controller's ZL and Z bind to the bumpers and its trigger clicks to the trigger buttons`() {
+    fun `a gamecube controller's ZL and Z bind to the bumpers and its trigger clicks to full travel on the trigger axes`() {
         val gameCube = joycon(Side.PRO).copy(model = ControllerModel.GAMECUBE)
         val players = listOf(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube))
 
@@ -256,8 +256,8 @@ class EdenGamepadConfigTest {
 
         assertTrue(result.contains("player_0_button_zl=\"$DEVICE,button:102,display:Joy-Con Virtual Gamepad 1 0\"")) // BUTTON_L1
         assertTrue(result.contains("player_0_button_zr=\"$DEVICE,button:103,display:Joy-Con Virtual Gamepad 1 0\"")) // BUTTON_R1
-        assertTrue(result.contains("player_0_button_l=\"$DEVICE,button:104,display:Joy-Con Virtual Gamepad 1 0\"")) // BUTTON_L2
-        assertTrue(result.contains("player_0_button_r=\"$DEVICE,button:105,display:Joy-Con Virtual Gamepad 1 0\"")) // BUTTON_R2
+        assertTrue(result.contains("player_0_button_l=\"$DEVICE,axis:23,threshold:0.99,invert:+,display:Joy-Con Virtual Gamepad 1 0\"")) // AXIS_BRAKE
+        assertTrue(result.contains("player_0_button_r=\"$DEVICE,axis:22,threshold:0.99,invert:+,display:Joy-Con Virtual Gamepad 1 0\"")) // AXIS_GAS
         assertFalse(result.contains("player_0_button_lstick"))
         assertFalse(result.contains("player_0_button_rstick"))
     }

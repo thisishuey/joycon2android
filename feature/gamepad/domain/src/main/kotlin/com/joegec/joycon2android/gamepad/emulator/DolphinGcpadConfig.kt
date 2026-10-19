@@ -1,10 +1,12 @@
 package com.joegec.joycon2android.gamepad.emulator
 
+import com.joegec.joycon2android.buttonmapping.AnalogTrigger
 import com.joegec.joycon2android.buttonmapping.JoyconSide
 import com.joegec.joycon2android.buttonmapping.MappingSource
 import com.joegec.joycon2android.buttonmapping.PlayerBody
 import com.joegec.joycon2android.buttonmapping.StickDirection
 import com.joegec.joycon2android.buttonmapping.StickSource
+import com.joegec.joycon2android.buttonmapping.clickedTrigger
 import com.joegec.joycon2android.buttonmapping.emittedFor
 import com.joegec.joycon2android.buttonmapping.joyconSide
 import com.joegec.joycon2android.buttonmapping.emittedStick
@@ -73,9 +75,13 @@ object DolphinGcpadConfig {
     private val STICK_PREFIXES = mapOf(GameCubeStick.MainStick to "Main Stick", GameCubeStick.CStick to "C-Stick")
 
     // AXIS_BRAKE (23) and AXIS_GAS (22): docs/virtual-gamepad.md#analog-triggers
+    private val TRIGGER_AXES = mapOf(AnalogTrigger.LEFT to "Axis 23+", AnalogTrigger.RIGHT to "Axis 22+")
+
+    private const val CLICK_THRESHOLD = "0.99"
+
     private val ANALOG_TRIGGER_LINES = listOf(
-        "Triggers/L-Analog = `Axis 23+`",
-        "Triggers/R-Analog = `Axis 22+`",
+        "Triggers/L-Analog = `${TRIGGER_AXES.getValue(AnalogTrigger.LEFT)}`",
+        "Triggers/R-Analog = `${TRIGGER_AXES.getValue(AnalogTrigger.RIGHT)}`",
     )
 
     fun merge(
@@ -163,14 +169,19 @@ object DolphinGcpadConfig {
     }
 
     private fun expressionFor(side: JoyconSide, sources: List<MappingSource>): String? =
-        sources.mapNotNull { specFor(side, it) }
+        sources.mapNotNull { termFor(side, it) }
             .takeIf { it.isNotEmpty() }
-            ?.joinToString(" | ") { "`$it`" }
+            ?.joinToString(" | ")
 
-    private fun specFor(side: JoyconSide, source: MappingSource): String? = when (source) {
-        is MappingSource.Button -> source.button.emittedFor(side)?.let { ANDROID_NAMES[it] ?: HAT_NAMES[it] }
-        is MappingSource.Stick -> tiltSpec(source.emittedStick(side), source.direction)
+    private fun termFor(side: JoyconSide, source: MappingSource): String? = when (source) {
+        is MappingSource.Button -> source.button.clickedTrigger(side)?.let(::clickTerm)
+            ?: source.button.emittedFor(side)?.let { ANDROID_NAMES[it] ?: HAT_NAMES[it] }?.let(::inputTerm)
+        is MappingSource.Stick -> inputTerm(tiltSpec(source.emittedStick(side), source.direction))
     }
+
+    private fun inputTerm(name: String) = "`$name`"
+
+    private fun clickTerm(trigger: AnalogTrigger) = "(${inputTerm(TRIGGER_AXES.getValue(trigger))} > $CLICK_THRESHOLD)"
 
     // Android's Y axis grows downward.
     private fun tiltSpec(stick: StickSource, direction: StickDirection): String {

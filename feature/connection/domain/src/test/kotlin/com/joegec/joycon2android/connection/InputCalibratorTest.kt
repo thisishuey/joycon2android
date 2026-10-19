@@ -31,6 +31,6 @@ class InputCalibratorTest {
     fun `a gamecube controller's triggers are calibrated`() {
         val calibrator = InputCalibrator(ControllerModel.GAMECUBE)
             .apply { useFactory(FactoryCalibration(triggerZeroLeft = 33, triggerZeroRight = 32)) }
-        assertEquals(255, calibrator.calibrate(JoyconInput(triggerLeft = 180)).triggerLeft)
+        assertEquals(250, calibrator.calibrate(JoyconInput(triggerLeft = 180)).triggerLeft) // top of travel, short of the click
     }
 }

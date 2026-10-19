@@ -182,23 +182,36 @@ The Eden mapping card's **Pro Controller** switch (off by default) sets up the s
 ### Analog triggers
 
 A controller with analog triggers (`ControllerModel.hasAnalogTriggers`, the NSO GameCube controller)
-drives bytes 11/12 with its calibrated L/R travel instead of ZL/ZR
-([calibration](protocol.md#analog-triggers)). `AnalogTriggerMapper` moves its other shoulder buttons
-so each lands where Android expects that control:
+drives bytes 11/12 with its trigger travel instead of ZL/ZR, and the click past that travel reads
+as full:
+
+| Trigger | Byte 11 / 12 |
+|---|---|
+| Rest to first stop | 0–250, scaled to the learned first stop ([calibration](protocol.md#analog-triggers)) |
+| Clicked | 255, whatever the travel |
+
+Emulators read the click as the axis above 0.99, which only 255 reaches: Dolphin's `Triggers/L` is
+``(`Axis 23+` > 0.99)``, Eden's `button_l` is `axis:23,threshold:0.99,invert:+`, and `R` the same on
+22. `clickedTrigger` gives both generators the axis for a click, wherever the mapping binds it.
+
+- **The click bit can't carry it on every device.** Retroid Pocket Nova, Android 13, 2026-10-19:
+  Dolphin's `Button L2` is held for the whole sweep while the pad sets its L2 bit only on the click;
+  on 2026-10-08, with Z on the R2 bit, Z fired nothing. Dolphin passes key events through as they
+  arrive, so the Nova adds L2/R2 from the trigger axes.
+- **The axis is free of that.** Dolphin's analog trigger on the Nova stops at the first stop and
+  steps up on the click.
+
+`AnalogTriggerMapper` moves its other shoulder buttons so each lands where Android expects that
+control:
 
 | Button | Bits | Keycodes |
 |---|---|---|
 | ZL / Z (the ZR bit) | 6 / 7 | `BUTTON_L1` / `BUTTON_R1` |
-| L / R click past the analog travel | 8 / 9 | `BUTTON_L2` / `BUTTON_R2` |
+| L / R click | 8 / 9 | `BUTTON_L2` / `BUTTON_R2` |
 
 ZL/Z on the bumpers is confirmed in Dolphin on a Retroid Pocket Nova (Android 13) with an NSO
-GameCube controller, 2026-10-13, when the clicks were still on the stick clicks. The clicks on L2/R2
-and Eden are untested on hardware.
+GameCube controller, 2026-10-13. The click on the axis, and Eden, are untested on hardware.
 
-- **Re-publishing firmware synthesises `BUTTON_L2`/`BUTTON_R2` from the trigger axes and drops the
-  bits.** Retroid Pocket Nova, Android 13, 2026-10-08, with Z on the R2 bit: pulling R fired Dolphin's
-  `Button R2` and Z fired nothing. The Nova's L2/R2 setting wasn't the cause. So Z stays off those
-  bits, and on such a device the click reaches a game only as the end of the analog travel.
 - **Nothing lands on the stick-click bits:** the controller has no stick clicks. So no binding of
   its can use LS/RS: `emittedFor` resolves them to nothing for it, and its Switch Pro layout leaves
   the stick-click targets unbound.
@@ -209,8 +222,7 @@ and Eden are untested on hardware.
 
 For such a player, Dolphin setup adds ``Triggers/L-Analog = `Axis 23+` `` and
 ``Triggers/R-Analog = `Axis 22+` ``. Dolphin names Android axes by number, and a trigger has only a `+`
-half. Those two ids exist on every Android version the app supports. `Triggers/L`/`R` stay on the
-click: while it is held, Dolphin reports the analog value as full.
+half. Those two ids exist on every Android version the app supports.
 
 ## Emulator config
 

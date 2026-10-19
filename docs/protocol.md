@@ -183,10 +183,12 @@ Retroid Pocket Nova, 2026-10-07:
 
 - **The click is the bit, never an analog threshold.** In quick presses the bit can show with the
   analog value at 155, and values up to 220 pass without it.
-- `TriggerCalibrator` maps factory zero plus a 5-count dead zone to 0 and the first stop to 255.
-  Full starts at 170 and widens to a value **held** still for 5 packets without the click, up to 205,
-  so quick presses through to the click don't move it. Without a factory zero, the lowest value seen
-  stands in.
+- `TriggerCalibrator` maps factory zero plus a 5-count dead zone to 0 and the first stop to 250,
+  and reports 255 only while the click bit is set ([why](virtual-gamepad.md#analog-triggers)). The
+  first stop starts at 170 and widens to a value **held** still for 5 packets without the click, up
+  to 205, so quick presses through to the click don't move it. Without a factory zero, the lowest
+  value seen stands in.
+- Flash holds only the zero. SDL and Linux read the same `0x013140` and assume the top.
 - Other drivers (Linux, SDL, BlueRetro) scale to ~225–232, the click point, which caps an unclicked
   trigger at ~80%.
 

@@ -4,7 +4,7 @@ import com.joegec.joycon2android.model.JoyconButton
 import com.joegec.joycon2android.model.JoyconInput
 import kotlin.math.abs
 
-/** Raw trigger bytes onto 0..255, full at the first stop: docs/protocol.md#analog-triggers */
+/** Raw trigger bytes onto 0..250 up to the first stop, and 255 only while clicked: docs/protocol.md#analog-triggers */
 class TriggerCalibrator(
     seedFull: Int = DEFAULT_SEED_FULL,
     deadZone: Int = DEFAULT_DEAD_ZONE,
@@ -31,10 +31,11 @@ class TriggerCalibrator(
 
         fun rescale(raw: Int, clicked: Boolean): Int {
             lowestSeen = minOf(lowestSeen, raw)
-            if (!clicked) learnFull(raw)
+            if (clicked) return CLICKED
+            learnFull(raw)
             val start = (factoryZero ?: lowestSeen) + deadZone
             if (raw <= start) return 0
-            return ((raw - start) * MAX / (full - start).coerceAtLeast(1)).coerceAtMost(MAX)
+            return ((raw - start) * TRAVEL_MAX / (full - start).coerceAtLeast(1)).coerceAtMost(TRAVEL_MAX)
         }
 
         // Only a held value counts: a quick press passes far beyond the first stop on its way to the click.
@@ -48,7 +49,9 @@ class TriggerCalibrator(
     }
 
     companion object {
-        private const val MAX = 255
+        // Kept under the emulators' 0.99 click threshold: docs/virtual-gamepad.md#analog-triggers
+        private const val TRAVEL_MAX = 250
+        private const val CLICKED = 255
 
         // Measured on three units (2026-10-07): first stops 170-196, rest up to 4 above the factory zero.
         private const val DEFAULT_SEED_FULL = 170

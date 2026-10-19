@@ -1,10 +1,12 @@
 package com.joegec.joycon2android.gamepad.emulator
 
+import com.joegec.joycon2android.buttonmapping.AnalogTrigger
 import com.joegec.joycon2android.buttonmapping.JoyconSide
 import com.joegec.joycon2android.buttonmapping.MappingSource
 import com.joegec.joycon2android.buttonmapping.PlayerBody
 import com.joegec.joycon2android.buttonmapping.StickDirection
 import com.joegec.joycon2android.buttonmapping.StickSource
+import com.joegec.joycon2android.buttonmapping.clickedTrigger
 import com.joegec.joycon2android.buttonmapping.emittedFor
 import com.joegec.joycon2android.buttonmapping.emittedStick
 import com.joegec.joycon2android.buttonmapping.joyconSide
@@ -43,6 +45,12 @@ object EdenGamepadConfig {
 
     private const val HAT_X = 15
     private const val HAT_Y = 16
+
+    // AXIS_BRAKE (23) and AXIS_GAS (22), past the calibrated travel: docs/virtual-gamepad.md#analog-triggers
+    private val TRIGGER_CLICKS = mapOf(
+        AnalogTrigger.LEFT to Axis(23, '+', threshold = 0.99),
+        AnalogTrigger.RIGHT to Axis(22, '+', threshold = 0.99),
+    )
 
     private val KEY_CODES = mapOf(
         JoyconButton.A to A, JoyconButton.B to B, JoyconButton.X to X, JoyconButton.Y to Y,
@@ -135,7 +143,8 @@ object EdenGamepadConfig {
         sources.firstNotNullOfOrNull { inputFor(side, single, it) }
 
     private fun inputFor(side: JoyconSide, single: Boolean, source: MappingSource): Input? = when (source) {
-        is MappingSource.Button -> source.button.emittedFor(side, single)?.let(::inputOf)
+        is MappingSource.Button -> source.button.clickedTrigger(side)?.let(TRIGGER_CLICKS::getValue)
+            ?: source.button.emittedFor(side, single)?.let(::inputOf)
         is MappingSource.Stick -> tiltOf(source.emittedStick(side, single), source.direction)
     }
 
@@ -163,8 +172,8 @@ object EdenGamepadConfig {
         override fun spec() = "button:$code"
     }
 
-    private data class Axis(val axis: Int, val invert: Char) : Input {
-        override fun spec() = "axis:$axis,threshold:0.5,invert:$invert"
+    private data class Axis(val axis: Int, val invert: Char, val threshold: Double = 0.5) : Input {
+        override fun spec() = "axis:$axis,threshold:$threshold,invert:$invert"
     }
 
     private sealed interface Stick

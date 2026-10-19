@@ -33,6 +33,14 @@ class PlayerBodyTest {
     }
 
     @Test
+    fun `only a gamecube controller's trigger clicks are read from their trigger axes`() {
+        assertEquals(AnalogTrigger.LEFT, JoyconButton.L.clickedTrigger(JoyconSide.GAMECUBE))
+        assertEquals(AnalogTrigger.RIGHT, JoyconButton.R.clickedTrigger(JoyconSide.GAMECUBE))
+        assertEquals(null, JoyconButton.ZR.clickedTrigger(JoyconSide.GAMECUBE))
+        assertEquals(null, JoyconButton.L.clickedTrigger(JoyconSide.DUAL))
+    }
+
+    @Test
     fun `a gamecube controller's stick clicks emit nothing, so they can't fire with a trigger click`() {
         assertEquals(null, JoyconButton.LS.emittedFor(JoyconSide.GAMECUBE))
         assertEquals(null, JoyconButton.RS.emittedFor(JoyconSide.GAMECUBE))

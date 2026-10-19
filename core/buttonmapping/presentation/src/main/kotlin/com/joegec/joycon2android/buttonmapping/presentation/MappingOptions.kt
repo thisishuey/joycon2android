@@ -7,8 +7,10 @@ import com.joegec.joycon2android.buttonmapping.JoyconSide
 import com.joegec.joycon2android.buttonmapping.MappingSource
 import com.joegec.joycon2android.buttonmapping.StickDirection
 import com.joegec.joycon2android.buttonmapping.StickSource
+import com.joegec.joycon2android.buttonmapping.TriggerSource
 import com.joegec.joycon2android.buttonmapping.targetKey
 import com.joegec.joycon2android.buttonmapping.directionKey
+import com.joegec.joycon2android.buttonmapping.target.GameCubeAnalogTrigger
 import com.joegec.joycon2android.buttonmapping.target.GameCubeButton
 import com.joegec.joycon2android.buttonmapping.target.GameCubeStick
 import com.joegec.joycon2android.buttonmapping.target.SwitchProTargets
@@ -38,6 +40,7 @@ internal object MappingOptions {
         singleJoycon: Boolean,
     ): List<Pair<String, String>> = when (section) {
         MappingSection.BUTTONS -> buttonTargets(console, side, singleJoycon)
+        MappingSection.TRIGGERS -> analogTriggerTargets(console)
         MappingSection.STICKS -> stickDirectionTargets(console, side, singleJoycon)
         MappingSection.MOTION -> motionTargets(console)
         MappingSection.ANDROID -> AndroidKey.entries.map { it.targetKey to it.label() }
@@ -50,6 +53,10 @@ internal object MappingOptions {
             Console.WIIMOTE_NUNCHUK -> (WiimoteButton.entries - MOTION_TARGETS).map { it.name to it.label() }
             Console.SWITCH_PRO -> SwitchProTargets.buttons(side, singleJoycon).map { it.name to it.label() }
         }
+
+    @Composable
+    private fun analogTriggerTargets(console: Console): List<Pair<String, String>> =
+        if (console == Console.GAMECUBE) GameCubeAnalogTrigger.entries.map { it.name to it.label() } else emptyList()
 
     // Not buttons on the remote, so they get their own section.
     private val MOTION_TARGETS = setOf(WiimoteButton.Shake, WiimoteButton.Recenter)
@@ -72,12 +79,18 @@ internal object MappingOptions {
         }
     }
 
-    // An Android key fires on a button press, so it offers no stick directions.
+    // An Android key fires on a button press, so it offers no stick directions; an analog trigger
+    // takes a trigger's travel or a button, which pulls it fully.
     @Composable
     fun sources(side: JoyconSide, section: MappingSection): List<Pair<String, String>> =
         listOf(NONE_ID to stringResource(R.string.source_none)) +
+            (if (section == MappingSection.TRIGGERS) triggerTravels(side) else emptyList()) +
             physicalButtons(side).map { it.name to it.markingOn(side) } +
-            if (section == MappingSection.ANDROID) emptyList() else stickDirections(side)
+            if (section == MappingSection.ANDROID || section == MappingSection.TRIGGERS) emptyList() else stickDirections(side)
+
+    @Composable
+    private fun triggerTravels(side: JoyconSide): List<Pair<String, String>> =
+        if (side == JoyconSide.GAMECUBE) TriggerSource.entries.map { it.name to it.label() } else emptyList()
 
     // A lone Joy-Con has one stick, so its directions need no "Left"/"Right" to tell them apart.
     @Composable

@@ -2,9 +2,12 @@ package com.joegec.joycon2android.buttonmapping.preset
 
 import com.joegec.joycon2android.buttonmapping.Console
 import com.joegec.joycon2android.buttonmapping.JoyconSide
+import com.joegec.joycon2android.buttonmapping.MappingSource
+import com.joegec.joycon2android.buttonmapping.TriggerSource
 import com.joegec.joycon2android.buttonmapping.StickSource.LEFT_STICK
 import com.joegec.joycon2android.buttonmapping.StickSource.RIGHT_STICK
 import com.joegec.joycon2android.buttonmapping.StickSource
+import com.joegec.joycon2android.buttonmapping.target.GameCubeAnalogTrigger
 import com.joegec.joycon2android.buttonmapping.target.GameCubeButton
 import com.joegec.joycon2android.buttonmapping.target.GameCubeStick
 import com.joegec.joycon2android.model.JoyconButton
@@ -34,7 +37,15 @@ object GameCubeMapping : MappingPreset {
     override val id = "STANDARD"
     override val console = Console.GAMECUBE
 
-    override fun entries(side: JoyconSide) = buttons(side).buttonEntries() + sticks(side).stickEntries()
+    override fun entries(side: JoyconSide) =
+        buttons(side).buttonEntries() + sticks(side).stickEntries() + analogTriggers(side).sourceEntries()
+
+    private fun analogTriggers(side: JoyconSide): Map<GameCubeAnalogTrigger, List<MappingSource>> =
+        if (side != JoyconSide.GAMECUBE) emptyMap()
+        else mapOf(
+            GameCubeAnalogTrigger.TriggerLAnalog to listOf(MappingSource.Trigger(TriggerSource.LEFT_TRIGGER)),
+            GameCubeAnalogTrigger.TriggerRAnalog to listOf(MappingSource.Trigger(TriggerSource.RIGHT_TRIGGER)),
+        )
 
     private fun buttons(side: JoyconSide): Map<GameCubeButton, JoyconButton> = when (side) {
         JoyconSide.DUAL -> mapOf(

@@ -194,6 +194,17 @@ class DolphinGcpadConfigTest {
     }
 
     @Test
+    fun `a pair's analog trigger can be pulled fully by a button, but not by a trigger it lacks`() {
+        val pair = listOf(PlayerState(PlayerNumber.P1, left = joycon(Side.LEFT), right = joycon(Side.RIGHT)))
+        val result = DolphinGcpadConfig.merge(null, pair, mapOf(1 to 1)) {
+            mapOf("TriggerLAnalog" to "ZL", "TriggerRAnalog" to "RIGHT_TRIGGER")
+        }
+
+        assertTrue(result.contains("Triggers/L-Analog = `Button L2`"))
+        assertFalse(result.contains("R-Analog"))
+    }
+
+    @Test
     fun `controllers with digital triggers bind no analog axis`() {
         val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = joycon(Side.LEFT), right = joycon(Side.RIGHT))))
 

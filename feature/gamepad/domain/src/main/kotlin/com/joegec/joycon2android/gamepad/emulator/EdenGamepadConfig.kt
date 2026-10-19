@@ -5,6 +5,7 @@ import com.joegec.joycon2android.buttonmapping.MappingSource
 import com.joegec.joycon2android.buttonmapping.PlayerBody
 import com.joegec.joycon2android.buttonmapping.StickDirection
 import com.joegec.joycon2android.buttonmapping.StickSource
+import com.joegec.joycon2android.buttonmapping.TriggerSource
 import com.joegec.joycon2android.buttonmapping.emittedFor
 import com.joegec.joycon2android.buttonmapping.emittedStick
 import com.joegec.joycon2android.buttonmapping.joyconSide
@@ -52,6 +53,12 @@ object EdenGamepadConfig {
         JoyconButton.Home to HOME, JoyconButton.Capture to CAPTURE,
         JoyconButton.GL to PADDLE_LEFT, JoyconButton.GR to PADDLE_RIGHT,
         JoyconButton.Chat to CHAT,
+    )
+
+    // AXIS_BRAKE (23) and AXIS_GAS (22), pressed from half travel.
+    private val TRIGGER_AXES = mapOf(
+        TriggerSource.LEFT_TRIGGER to Axis(23, '+'),
+        TriggerSource.RIGHT_TRIGGER to Axis(22, '+'),
     )
 
     private val HAT_AXES = mapOf(
@@ -137,6 +144,7 @@ object EdenGamepadConfig {
     private fun inputFor(side: JoyconSide, single: Boolean, source: MappingSource): Input? = when (source) {
         is MappingSource.Button -> source.button.emittedFor(side, single)?.let(::inputOf)
         is MappingSource.Stick -> tiltOf(source.emittedStick(side, single), source.direction)
+        is MappingSource.Trigger -> TRIGGER_AXES[source.trigger]?.takeIf { side == JoyconSide.GAMECUBE }
     }
 
     private fun inputOf(button: JoyconButton): Input? = KEY_CODES[button]?.let(::Key) ?: HAT_AXES[button]

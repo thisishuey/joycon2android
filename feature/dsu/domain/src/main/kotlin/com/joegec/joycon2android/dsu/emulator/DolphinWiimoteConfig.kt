@@ -291,6 +291,8 @@ object DolphinWiimoteConfig {
     private fun specFor(side: JoyconSide, sidewaysRemote: Boolean, source: MappingSource): String? = when (source) {
         is MappingSource.Button -> source.button.emittedFor(side)?.let { DS4_NAMES[it] ?: PAD_NAMES[it] }
         is MappingSource.Stick -> tiltSpec(source.emittedStick(side), source.emittedDirection(side, sidewaysRemote))
+        // DSU carries no trigger travel: docs/virtual-gamepad.md#analog-triggers
+        is MappingSource.Trigger -> null
     }
 
     // DSU sticks report up as a positive Y, unlike Android's axes.

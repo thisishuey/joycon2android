@@ -7,6 +7,8 @@ import com.joegec.joycon2android.buttonmapping.GlobalLayout
 import com.joegec.joycon2android.buttonmapping.JoyconSide
 import com.joegec.joycon2android.buttonmapping.StickDirection
 import com.joegec.joycon2android.buttonmapping.StickSource
+import com.joegec.joycon2android.buttonmapping.TriggerSource
+import com.joegec.joycon2android.buttonmapping.target.GameCubeAnalogTrigger
 import com.joegec.joycon2android.buttonmapping.target.GameCubeButton
 import com.joegec.joycon2android.buttonmapping.target.GameCubeStick
 import com.joegec.joycon2android.buttonmapping.target.SwitchProButton
@@ -65,6 +67,18 @@ internal fun GameCubeButton.label(): String = when (this) {
     GameCubeButton.DPadDown -> stringResource(R.string.button_dpad_down)
     GameCubeButton.DPadLeft -> stringResource(R.string.button_dpad_left)
     GameCubeButton.DPadRight -> stringResource(R.string.button_dpad_right)
+}
+
+@Composable
+internal fun GameCubeAnalogTrigger.label(): String = when (this) {
+    GameCubeAnalogTrigger.TriggerLAnalog -> stringResource(R.string.trigger_l_analog)
+    GameCubeAnalogTrigger.TriggerRAnalog -> stringResource(R.string.trigger_r_analog)
+}
+
+@Composable
+internal fun TriggerSource.label(): String = when (this) {
+    TriggerSource.LEFT_TRIGGER -> stringResource(R.string.trigger_l_travel)
+    TriggerSource.RIGHT_TRIGGER -> stringResource(R.string.trigger_r_travel)
 }
 
 @Composable
@@ -130,6 +144,7 @@ internal fun SwitchProStick.label(): String = when (this) {
 @Composable
 internal fun MappingSection.label(): String = when (this) {
     MappingSection.BUTTONS -> stringResource(R.string.section_buttons)
+    MappingSection.TRIGGERS -> stringResource(R.string.section_triggers)
     MappingSection.STICKS -> stringResource(R.string.section_sticks)
     MappingSection.MOTION -> stringResource(R.string.section_motion)
     MappingSection.ANDROID -> stringResource(R.string.section_android)

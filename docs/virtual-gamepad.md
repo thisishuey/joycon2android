@@ -222,10 +222,12 @@ Its layouts put Dolphin's digital L/R and Eden's L/R on GL/GR.
 ZL/Z on the bumpers is confirmed in Dolphin on a Retroid Pocket Nova (Android 13) with an NSO
 GameCube controller, 2026-10-13. GL/GR, and Eden, are untested on hardware.
 
-For such a player, Dolphin setup adds ``Triggers/L-Analog = `Axis 23+` `` and
+The travel is a mapping source of its own (`MappingSource.Trigger`), offered only on this body, and
+Dolphin's analog L/R are mapping targets (`GameCubeAnalogTrigger`). Its GameCube layout binds them to
+the travel, which Dolphin setup writes as ``Triggers/L-Analog = `Axis 23+` `` and
 ``Triggers/R-Analog = `Axis 22+` ``. Dolphin names Android axes by number, and a trigger has only a `+`
-half. Those two ids exist on every Android version the app supports. Dolphin's name for `BUTTON_1`,
-GR's key, is `Button 1`, from its Android keycode table.
+half. Those two ids exist on every Android version the app supports. A button bound there pulls the
+trigger fully. Dolphin's name for `BUTTON_1`, GR's key, is `Button 1`, from its Android keycode table.
 
 ## Emulator config
 

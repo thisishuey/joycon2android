@@ -5,9 +5,11 @@ import com.joegec.joycon2android.buttonmapping.MappingSource
 import com.joegec.joycon2android.buttonmapping.PlayerBody
 import com.joegec.joycon2android.buttonmapping.StickDirection
 import com.joegec.joycon2android.buttonmapping.StickSource
+import com.joegec.joycon2android.buttonmapping.TriggerSource
 import com.joegec.joycon2android.buttonmapping.emittedFor
 import com.joegec.joycon2android.buttonmapping.joyconSide
 import com.joegec.joycon2android.buttonmapping.emittedStick
+import com.joegec.joycon2android.buttonmapping.target.GameCubeAnalogTrigger
 import com.joegec.joycon2android.buttonmapping.target.GameCubeButton
 import com.joegec.joycon2android.buttonmapping.target.GameCubeStick
 import com.joegec.joycon2android.buttonmapping.toSourceMap
@@ -73,11 +75,13 @@ object DolphinGcpadConfig {
 
     private val STICK_PREFIXES = mapOf(GameCubeStick.MainStick to "Main Stick", GameCubeStick.CStick to "C-Stick")
 
-    // AXIS_BRAKE (23) and AXIS_GAS (22): docs/virtual-gamepad.md#analog-triggers
-    private val ANALOG_TRIGGER_LINES = listOf(
-        "Triggers/L-Analog = `Axis 23+`",
-        "Triggers/R-Analog = `Axis 22+`",
+    private val ANALOG_KEYS = mapOf(
+        GameCubeAnalogTrigger.TriggerLAnalog to "Triggers/L-Analog",
+        GameCubeAnalogTrigger.TriggerRAnalog to "Triggers/R-Analog",
     )
+
+    // AXIS_BRAKE (23) and AXIS_GAS (22): docs/virtual-gamepad.md#analog-triggers
+    private val TRIGGER_AXES = mapOf(TriggerSource.LEFT_TRIGGER to "Axis 23+", TriggerSource.RIGHT_TRIGGER to "Axis 22+")
 
     fun merge(
         existing: String?,
@@ -145,8 +149,7 @@ object DolphinGcpadConfig {
         val boundSticks = STICK_PREFIXES.values.filter { prefix -> bindings.any { it.startsWith("$prefix/") } }
         val calibration = calibrationFor(existing, sectionFor(index), boundSticks)
             .map { (key, value) -> "$key = $value" }
-        val analogTriggers = if (player.hasAnalogTriggers) ANALOG_TRIGGER_LINES else emptyList()
-        return (listOf(device) + bindings + calibration + analogTriggers).joinToString("\n", postfix = "\n")
+        return (listOf(device) + bindings + calibration).joinToString("\n", postfix = "\n")
     }
 
     private fun lines(side: JoyconSide, mapping: Map<String, String>): List<String> {
@@ -160,7 +163,10 @@ object DolphinGcpadConfig {
                 }
             }
         }
-        return buttonLines + stickLines
+        val analogLines = mapping.toSourceMap<GameCubeAnalogTrigger>().mapNotNull { (target, sources) ->
+            expressionFor(side, sources)?.let { expression -> "${ANALOG_KEYS.getValue(target)} = $expression" }
+        }
+        return buttonLines + stickLines + analogLines
     }
 
     private fun expressionFor(side: JoyconSide, sources: List<MappingSource>): String? =
@@ -171,6 +177,7 @@ object DolphinGcpadConfig {
     private fun termFor(side: JoyconSide, source: MappingSource): String? = when (source) {
         is MappingSource.Button -> source.button.emittedFor(side)?.let { ANDROID_NAMES[it] ?: HAT_NAMES[it] }?.let(::inputTerm)
         is MappingSource.Stick -> inputTerm(tiltSpec(source.emittedStick(side), source.direction))
+        is MappingSource.Trigger -> TRIGGER_AXES[source.trigger]?.takeIf { side == JoyconSide.GAMECUBE }?.let(::inputTerm)
     }
 
     private fun inputTerm(name: String) = "`$name`"

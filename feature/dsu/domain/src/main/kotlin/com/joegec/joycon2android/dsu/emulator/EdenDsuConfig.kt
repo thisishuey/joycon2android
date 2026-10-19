@@ -160,6 +160,8 @@ object EdenDsuConfig {
     private fun inputFor(side: JoyconSide, single: Boolean, source: MappingSource): String? = when (source) {
         is MappingSource.Button -> source.button.emittedFor(side, single)?.let(DS4_BITS::get)?.let { "button:$it" }
         is MappingSource.Stick -> tiltOf(source.emittedStick(side, single), source.direction)
+        // DSU carries no trigger travel: docs/virtual-gamepad.md#analog-triggers
+        is MappingSource.Trigger -> null
     }
 
     // Eden reads a cemuhook stick byte as (v - 127) / 127, so up and right are the positive ends.

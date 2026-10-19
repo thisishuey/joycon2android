@@ -83,8 +83,13 @@
     <string name="button_dpad_left">D-Pad Left</string>
     <string name="button_dpad_right">D-Pad Right</string>
     <string name="source_none">None</string>
+    <string name="trigger_l_analog">L analog</string>
+    <string name="trigger_r_analog">R analog</string>
+    <string name="trigger_l_travel">L travel</string>
+    <string name="trigger_r_travel">R travel</string>
     <string name="source_direction">%1$s %2$s</string>
     <string name="section_buttons">Buttons</string>
+    <string name="section_triggers">Analog triggers</string>
     <string name="section_sticks">Sticks</string>
     <string name="section_motion">Motion</string>
     <string name="section_android">Android</string>

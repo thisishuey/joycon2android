@@ -49,7 +49,7 @@ class TriggerCalibrator(
     }
 
     companion object {
-        // Kept under the emulators' 0.99 click threshold: docs/virtual-gamepad.md#analog-triggers
+        // Full travel only on the click: docs/virtual-gamepad.md#analog-triggers
         private const val TRAVEL_MAX = 250
         private const val CLICKED = 255
 

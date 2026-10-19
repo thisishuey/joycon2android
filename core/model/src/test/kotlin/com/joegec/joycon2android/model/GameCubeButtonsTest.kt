@@ -3,15 +3,17 @@ package com.joegec.joycon2android.model
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GameCubeButtonsTest {
 
     @Test
-    fun `a gamecube controller has no minus, stick clicks or back paddles`() {
-        listOf(JoyconButton.Minus, JoyconButton.LS, JoyconButton.RS, JoyconButton.GL, JoyconButton.GR).forEach {
+    fun `a gamecube controller has no minus or stick clicks, and offers GL and GR for its trigger clicks`() {
+        listOf(JoyconButton.Minus, JoyconButton.LS, JoyconButton.RS).forEach {
             assertFalse("$it", it in GameCubeButtons.present)
         }
+        assertTrue(JoyconButton.GL in GameCubeButtons.present && JoyconButton.GR in GameCubeButtons.present)
     }
 
     @Test
@@ -21,18 +23,19 @@ class GameCubeButtonsTest {
     }
 
     @Test
-    fun `its trigger clicks press the back-button keys`() {
-        assertEquals(
-            setOf(JoyconButton.GL.id, JoyconButton.GR.id),
-            GameCubeButtons.backButtonsClickedBy(setOf(JoyconButton.L.id, JoyconButton.R.id, JoyconButton.A.id)),
-        )
-        assertEquals(emptySet<String>(), GameCubeButtons.backButtonsClickedBy(setOf(JoyconButton.ZL.id)))
+    fun `a trigger's first travel presses L or R`() {
+        val input = GameCubeButtons.withTriggerPresses(JoyconInput(triggerLeft = 1, pressed = setOf(JoyconButton.A.id)))
+        assertEquals(setOf(JoyconButton.A.id, JoyconButton.L.id), input.pressed)
     }
 
     @Test
-    fun `its triggers count as pressed from the first travel or the click`() {
-        assertEquals(setOf(JoyconButton.L.id), GameCubeButtons.triggersPulledBy(JoyconInput(triggerLeft = 1)))
-        assertEquals(setOf(JoyconButton.R.id), GameCubeButtons.triggersPulledBy(JoyconInput(pressed = setOf(JoyconButton.R.id))))
-        assertEquals(emptySet<String>(), GameCubeButtons.triggersPulledBy(JoyconInput()))
+    fun `a trigger's click presses GL or GR as well as L or R`() {
+        val input = GameCubeButtons.withTriggerPresses(JoyconInput(pressed = setOf(JoyconButton.R.id)))
+        assertEquals(setOf(JoyconButton.R.id, JoyconButton.GR.id), input.pressed)
+    }
+
+    @Test
+    fun `a trigger at rest presses nothing`() {
+        assertEquals(emptySet<String>(), GameCubeButtons.withTriggerPresses(JoyconInput()).pressed)
     }
 }

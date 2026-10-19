@@ -1,12 +1,10 @@
 package com.joegec.joycon2android.gamepad.emulator
 
-import com.joegec.joycon2android.buttonmapping.AnalogTrigger
 import com.joegec.joycon2android.buttonmapping.JoyconSide
 import com.joegec.joycon2android.buttonmapping.MappingSource
 import com.joegec.joycon2android.buttonmapping.PlayerBody
 import com.joegec.joycon2android.buttonmapping.StickDirection
 import com.joegec.joycon2android.buttonmapping.StickSource
-import com.joegec.joycon2android.buttonmapping.clickedTrigger
 import com.joegec.joycon2android.buttonmapping.emittedFor
 import com.joegec.joycon2android.buttonmapping.joyconSide
 import com.joegec.joycon2android.buttonmapping.emittedStick
@@ -45,7 +43,7 @@ object DolphinGcpadConfig {
         GameCubeButton.DPadRight to "D-Pad/Right",
     )
 
-    // GR and Chat are absent: a GameCube pad has no target left for them.
+    // Chat is absent: a GameCube pad has no target left for it.
     private val ANDROID_NAMES = mapOf(
         JoyconButton.A to "Button A",
         JoyconButton.B to "Button B",
@@ -62,6 +60,7 @@ object DolphinGcpadConfig {
         JoyconButton.Plus to "Start",
         JoyconButton.Minus to "Select",
         JoyconButton.Home to "Mode",
+        JoyconButton.GR to "Button 1",
     )
 
     // The D-Pad target reads the hat switch instead: Axis 15 = hat X, Axis 16 = hat Y.
@@ -75,13 +74,9 @@ object DolphinGcpadConfig {
     private val STICK_PREFIXES = mapOf(GameCubeStick.MainStick to "Main Stick", GameCubeStick.CStick to "C-Stick")
 
     // AXIS_BRAKE (23) and AXIS_GAS (22): docs/virtual-gamepad.md#analog-triggers
-    private val TRIGGER_AXES = mapOf(AnalogTrigger.LEFT to "Axis 23+", AnalogTrigger.RIGHT to "Axis 22+")
-
-    private const val CLICK_THRESHOLD = "0.99"
-
     private val ANALOG_TRIGGER_LINES = listOf(
-        "Triggers/L-Analog = `${TRIGGER_AXES.getValue(AnalogTrigger.LEFT)}`",
-        "Triggers/R-Analog = `${TRIGGER_AXES.getValue(AnalogTrigger.RIGHT)}`",
+        "Triggers/L-Analog = `Axis 23+`",
+        "Triggers/R-Analog = `Axis 22+`",
     )
 
     fun merge(
@@ -174,14 +169,11 @@ object DolphinGcpadConfig {
             ?.joinToString(" | ")
 
     private fun termFor(side: JoyconSide, source: MappingSource): String? = when (source) {
-        is MappingSource.Button -> source.button.clickedTrigger(side)?.let(::clickTerm)
-            ?: source.button.emittedFor(side)?.let { ANDROID_NAMES[it] ?: HAT_NAMES[it] }?.let(::inputTerm)
+        is MappingSource.Button -> source.button.emittedFor(side)?.let { ANDROID_NAMES[it] ?: HAT_NAMES[it] }?.let(::inputTerm)
         is MappingSource.Stick -> inputTerm(tiltSpec(source.emittedStick(side), source.direction))
     }
 
     private fun inputTerm(name: String) = "`$name`"
-
-    private fun clickTerm(trigger: AnalogTrigger) = "(${inputTerm(TRIGGER_AXES.getValue(trigger))} > $CLICK_THRESHOLD)"
 
     // Android's Y axis grows downward.
     private fun tiltSpec(stick: StickSource, direction: StickDirection): String {

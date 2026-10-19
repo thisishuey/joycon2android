@@ -13,14 +13,6 @@ fun JoyconButton.emittedFor(side: JoyconSide, singleJoycon: Boolean = false): Jo
     return JoyconButton.entries.firstOrNull { it.id == emittedId }
 }
 
-/** A GameCube trigger click reaches emulators as full travel on its axis: docs/virtual-gamepad.md#analog-triggers */
-fun JoyconButton.clickedTrigger(side: JoyconSide): AnalogTrigger? = when {
-    side != JoyconSide.GAMECUBE -> null
-    this == JoyconButton.L -> AnalogTrigger.LEFT
-    this == JoyconButton.R -> AnalogTrigger.RIGHT
-    else -> null
-}
-
 private fun JoyconButton.emittedId(side: JoyconSide): String? = when (side) {
     JoyconSide.DUAL -> id
     JoyconSide.GAMECUBE -> AnalogTriggerMapper.emittedId(id)

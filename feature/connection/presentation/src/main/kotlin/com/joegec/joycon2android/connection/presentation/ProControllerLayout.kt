@@ -21,7 +21,7 @@ internal fun ProControllerLayout(
     onUnassign: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val pressed = if (state.hasGameCube) gameCubePressed(state) else state.pressed
+    val pressed = state.pressed
     val buttons = if (state.hasGameCube) GameCubeButtons.present else JoyconButton.entries.toSet()
     val marking = { button: JoyconButton ->
         (if (state.hasGameCube) GameCubeButtons.marking(button) else null) ?: button.label
@@ -39,11 +39,7 @@ internal fun ProControllerLayout(
     }
 }
 
-// Lit as the pad sends them: L/R from the first travel, GL/GR on the click.
-private fun gameCubePressed(state: PlayerState): Set<String> = state.pressed +
-    GameCubeButtons.triggersPulledBy(state.leftInput) + GameCubeButtons.backButtonsClickedBy(state.pressed)
-
-// A GameCube controller's L and R are its triggers, so they sit above ZL and Z; GL and GR show its clicks.
+// A GameCube controller's L and R are its triggers, so they sit above ZL and Z; GL and GR are their clicks.
 private fun shoulders(gameCube: Boolean): Pair<List<JoyconButton>, List<JoyconButton>> =
     if (gameCube) listOf(JoyconButton.L, JoyconButton.ZL, JoyconButton.GL) to listOf(JoyconButton.R, JoyconButton.ZR, JoyconButton.GR)
     else listOf(JoyconButton.ZL, JoyconButton.L, JoyconButton.GL) to listOf(JoyconButton.ZR, JoyconButton.R, JoyconButton.GR)

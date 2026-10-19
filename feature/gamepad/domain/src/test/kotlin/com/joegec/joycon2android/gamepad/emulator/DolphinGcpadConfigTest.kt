@@ -159,7 +159,7 @@ class DolphinGcpadConfigTest {
 
         assertTrue(result.contains("[GCPad1]"))
         assertTrue(result.contains("Buttons/Z = `Button R1`")) // the bumper Z travels on
-        assertTrue(result.contains("Triggers/R = (`Axis 22+` > 0.99)"))
+        assertTrue(result.contains("Triggers/R = `Button 1`")) // GR, its R click
         assertTrue(result.contains("C-Stick/Up = `Axis 14-`"))
     }
 
@@ -175,22 +175,22 @@ class DolphinGcpadConfigTest {
     }
 
     @Test
-    fun `a gamecube controller's analog triggers bind to the brake and gas axes, and their clicks to full travel`() {
+    fun `a gamecube controller's analog triggers bind to the brake and gas axes, and their clicks to the back-button keys`() {
         val gameCube = joycon(Side.PRO).copy(model = ControllerModel.GAMECUBE)
         val result = merge(null, listOf(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube)))
 
         assertTrue(result.contains("Triggers/L-Analog = `Axis 23+`"))
         assertTrue(result.contains("Triggers/R-Analog = `Axis 22+`"))
-        assertTrue(result.contains("Triggers/L = (`Axis 23+` > 0.99)"))
+        assertTrue(result.contains("Triggers/L = `Button Z`")) // GL, its L click
     }
 
     @Test
-    fun `a gamecube trigger click bound beside another button is read from its axis in the same expression`() {
+    fun `a gamecube trigger's pull binds to its trigger button and its click to its back-button key`() {
         val gameCube = joycon(Side.PRO).copy(model = ControllerModel.GAMECUBE)
         val players = listOf(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube))
-        val result = DolphinGcpadConfig.merge(null, players, mapOf(1 to 1)) { mapOf("A" to "R|Capture") }
+        val result = DolphinGcpadConfig.merge(null, players, mapOf(1 to 1)) { mapOf("A" to "R|GR") }
 
-        assertTrue(result.contains("Buttons/A = (`Axis 22+` > 0.99) | `Button C`"))
+        assertTrue(result.contains("Buttons/A = `Button R2` | `Button 1`"))
     }
 
     @Test

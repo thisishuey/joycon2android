@@ -1,6 +1,7 @@
 package com.joegec.joycon2android.connection
 
 import com.joegec.joycon2android.model.ControllerModel
+import com.joegec.joycon2android.model.JoyconButton
 import com.joegec.joycon2android.model.JoyconInput
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -32,5 +33,17 @@ class InputCalibratorTest {
         val calibrator = InputCalibrator(ControllerModel.GAMECUBE)
             .apply { useFactory(FactoryCalibration(triggerZeroLeft = 33, triggerZeroRight = 32)) }
         assertEquals(250, calibrator.calibrate(JoyconInput(triggerLeft = 180)).triggerLeft) // top of travel, short of the click
+    }
+
+    @Test
+    fun `a gamecube controller reports its trigger pull as L and its click as GL`() {
+        val calibrator = InputCalibrator(ControllerModel.GAMECUBE)
+            .apply { useFactory(FactoryCalibration(triggerZeroLeft = 33, triggerZeroRight = 32)) }
+        val pulled = calibrator.calibrate(JoyconInput(triggerLeft = 120))
+        val clicked = calibrator.calibrate(JoyconInput(triggerLeft = 220, pressed = setOf(JoyconButton.L.id)))
+
+        assertEquals(setOf(JoyconButton.L.id), pulled.pressed)
+        assertEquals(setOf(JoyconButton.L.id, JoyconButton.GL.id), clicked.pressed)
+        assertEquals(255, clicked.triggerLeft)
     }
 }

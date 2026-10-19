@@ -16,11 +16,13 @@ private const val PLAYER = "player"
 private const val ENTRIES = "entries"
 private const val FORMAT = "format"
 
-// Format 2 stores the Pro Controller switch among the bindings; older documents predate it.
+// Format 2 stores the Pro Controller switch among the bindings; format 3 a GameCube controller's
+// trigger clicks as GL/GR. Older documents predate them.
 private const val GRIP_FORMAT = 2
+private const val CLICK_FORMAT = 3
 
 internal fun SavedLayout.toJson(): String = JSONObject()
-    .put(FORMAT, GRIP_FORMAT)
+    .put(FORMAT, CLICK_FORMAT)
     .put(NAME, name)
     .put(CONSOLE, console.name)
     .put(SIDE, side.name)
@@ -48,7 +50,7 @@ internal fun savedLayoutOf(id: String, json: String): SavedLayout? = runCatching
 }.getOrNull()
 
 internal fun GlobalLayout.toJson(): String = JSONObject()
-    .put(FORMAT, GRIP_FORMAT)
+    .put(FORMAT, CLICK_FORMAT)
     .put(NAME, name)
     .put(CONSOLE, console.name)
     .put(BODIES, JSONArray(bodies.map { it.toJson() }))
@@ -88,8 +90,11 @@ private fun JSONObject.motion() = RemoteMotion(
     sensitivityPercent = optInt(SENSITIVITY_PERCENT, RemoteMotion.DEFAULT_SENSITIVITY_PERCENT),
 )
 
-private fun Map<String, String>.upgraded(document: JSONObject, console: Console, side: JoyconSide) =
-    if (document.optInt(FORMAT) < GRIP_FORMAT) withLegacyGrip(console, side) else this
+private fun Map<String, String>.upgraded(document: JSONObject, console: Console, side: JoyconSide): Map<String, String> {
+    val format = document.optInt(FORMAT)
+    val gripped = if (format < GRIP_FORMAT) withLegacyGrip(console, side) else this
+    return if (format < CLICK_FORMAT) gripped.withLegacyGameCubeClicks(console, side) else gripped
+}
 
 private fun JSONObject.toStringMap(): Map<String, String> =
     keys().asSequence().associateWith { getString(it) }

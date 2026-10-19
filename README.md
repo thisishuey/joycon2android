@@ -114,8 +114,9 @@ tap one to open its bindings. On Eden a single Joy-Con is set up as a real left 
 with **Pro Controller** (below) turned on, or on Dolphin, it's a Pro Controller held sideways, so every
 button works in every game ([why](docs/virtual-gamepad.md#why-theyre-set-up-as-pro-controllers)). A
 GameCube controller has layouts of its own, with Z on its Z button and analog L/R in Dolphin; Android
-sees its ZL and Z as L1 and R1, and its L and R as analog triggers that press L2 and R2 while pulled,
-read just short of full at the first stop, and read full and press the GL and GR keys once clicked. A target can take **several sources** — tick as many as you
+sees its ZL and Z as L1 and R1, and its L and R as analog triggers that press L2 and R2 while pulled
+and read just short of full at the first stop. Clicking a trigger through reads as full and presses
+GL or GR, which you can bind like any other button; its layouts put Dolphin's and Eden's L and R there. A target can take **several sources** — tick as many as you
 like, and any of them fires it.
 
 - **Layouts.** Each player picks a layout to start from, which resets their changes. The card reads

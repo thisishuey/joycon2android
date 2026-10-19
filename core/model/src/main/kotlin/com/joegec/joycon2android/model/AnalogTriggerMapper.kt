@@ -9,7 +9,7 @@ object AnalogTriggerMapper {
     /** Null for a stick click: no button of this controller lands on those bits. */
     fun emittedId(id: String): String? = REMAP[id] ?: id.takeUnless { it in STICK_CLICKS }
 
-    // ZL/Z are its bumpers; the click past each trigger's analog travel is its trigger button.
+    // ZL/Z are its bumpers and a pulled trigger its trigger button; GL/GR, its clicks, keep their own keys.
     private val REMAP = mapOf(
         JoyconButton.ZL.id to JoyconButton.L.id,
         JoyconButton.ZR.id to JoyconButton.R.id,

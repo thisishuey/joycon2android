@@ -24,7 +24,7 @@ class PlayerBodyTest {
     }
 
     @Test
-    fun `a gamecube controller's ZL and Z are reported as the bumpers and its trigger clicks as the trigger buttons`() {
+    fun `a gamecube controller's ZL and Z are reported as the bumpers and its pulled triggers as the trigger buttons`() {
         assertEquals(JoyconButton.R, JoyconButton.ZR.emittedFor(JoyconSide.GAMECUBE))
         assertEquals(JoyconButton.L, JoyconButton.ZL.emittedFor(JoyconSide.GAMECUBE))
         assertEquals(JoyconButton.ZR, JoyconButton.R.emittedFor(JoyconSide.GAMECUBE))
@@ -33,11 +33,9 @@ class PlayerBodyTest {
     }
 
     @Test
-    fun `only a gamecube controller's trigger clicks are read from their trigger axes`() {
-        assertEquals(AnalogTrigger.LEFT, JoyconButton.L.clickedTrigger(JoyconSide.GAMECUBE))
-        assertEquals(AnalogTrigger.RIGHT, JoyconButton.R.clickedTrigger(JoyconSide.GAMECUBE))
-        assertEquals(null, JoyconButton.ZR.clickedTrigger(JoyconSide.GAMECUBE))
-        assertEquals(null, JoyconButton.L.clickedTrigger(JoyconSide.DUAL))
+    fun `a gamecube controller's trigger clicks are reported as GL and GR`() {
+        assertEquals(JoyconButton.GL, JoyconButton.GL.emittedFor(JoyconSide.GAMECUBE))
+        assertEquals(JoyconButton.GR, JoyconButton.GR.emittedFor(JoyconSide.GAMECUBE))
     }
 
     @Test

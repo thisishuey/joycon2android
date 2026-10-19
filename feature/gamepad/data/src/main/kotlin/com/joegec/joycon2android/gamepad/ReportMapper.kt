@@ -43,7 +43,7 @@ object ReportMapper {
     fun buildReport(frame: GamepadFrame): ByteArray {
         val gamepad = frame.state.gamepad
         val report = ByteArray(REPORT_SIZE)
-        val pressed = if (frame.state.hasAnalogTriggers) AnalogTriggerKeys.pressedOnPad(frame.state) else gamepad.pressed
+        val pressed = gamepad.pressed
 
         // Bytes 0-1: 15 button bits (little-endian) then one padding bit
         val buttons = bits(pressed, BUTTON_MAP)

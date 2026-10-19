@@ -12,6 +12,8 @@ import com.joegec.joycon2android.model.JoyconButton.A
 import com.joegec.joycon2android.model.JoyconButton.B
 import com.joegec.joycon2android.model.JoyconButton.Capture
 import com.joegec.joycon2android.model.JoyconButton.Down
+import com.joegec.joycon2android.model.JoyconButton.GL
+import com.joegec.joycon2android.model.JoyconButton.GR
 import com.joegec.joycon2android.model.JoyconButton.Home
 import com.joegec.joycon2android.model.JoyconButton.L
 import com.joegec.joycon2android.model.JoyconButton.LS
@@ -61,7 +63,9 @@ object SwitchProMapping : MappingPreset {
 
     private fun buttons(side: JoyconSide): Map<SwitchProButton, JoyconButton> = when (side) {
         JoyconSide.DUAL -> PAIR_BUTTONS
-        JoyconSide.GAMECUBE -> PAIR_BUTTONS - SwitchProButton.LStickClick - SwitchProButton.RStickClick
+        // L/R on its trigger clicks, which it reports as GL/GR.
+        JoyconSide.GAMECUBE -> PAIR_BUTTONS - SwitchProButton.LStickClick - SwitchProButton.RStickClick +
+            mapOf(SwitchProButton.L to GL, SwitchProButton.R to GR)
         JoyconSide.LEFT -> mapOf(
             SwitchProButton.DPadUp to Up,
             SwitchProButton.DPadDown to Down,

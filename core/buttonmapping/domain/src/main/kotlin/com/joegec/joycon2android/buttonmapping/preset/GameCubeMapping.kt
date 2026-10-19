@@ -12,6 +12,8 @@ import com.joegec.joycon2android.model.JoyconButton.A
 import com.joegec.joycon2android.model.JoyconButton.B
 import com.joegec.joycon2android.model.JoyconButton.Capture
 import com.joegec.joycon2android.model.JoyconButton.Down
+import com.joegec.joycon2android.model.JoyconButton.GL
+import com.joegec.joycon2android.model.JoyconButton.GR
 import com.joegec.joycon2android.model.JoyconButton.Home
 import com.joegec.joycon2android.model.JoyconButton.L
 import com.joegec.joycon2android.model.JoyconButton.Left
@@ -49,7 +51,7 @@ object GameCubeMapping : MappingPreset {
             GameCubeButton.DPadLeft to Left,
             GameCubeButton.DPadRight to Right,
         )
-        // Its Z button reports as ZR.
+        // Its Z button reports as ZR, and its trigger clicks as GL/GR.
         JoyconSide.GAMECUBE -> mapOf(
             GameCubeButton.A to A,
             GameCubeButton.B to B,
@@ -57,8 +59,8 @@ object GameCubeMapping : MappingPreset {
             GameCubeButton.Y to Y,
             GameCubeButton.Z to ZR,
             GameCubeButton.Start to Plus,
-            GameCubeButton.TriggerL to L,
-            GameCubeButton.TriggerR to R,
+            GameCubeButton.TriggerL to GL,
+            GameCubeButton.TriggerR to GR,
             GameCubeButton.DPadUp to Up,
             GameCubeButton.DPadDown to Down,
             GameCubeButton.DPadLeft to Left,

@@ -114,16 +114,28 @@ class ReportMapperTest {
     }
 
     @Test
-    fun `a gamecube controller's trigger clicks travel on the trigger-button bits`() {
-        assertEquals((1 shl 8) or (1 shl 9), gameCubeButtonWord(JoyconButton.L, JoyconButton.R)) // BUTTON_L2, BUTTON_R2
+    fun `a gamecube controller's trigger pull presses L2 and R2 without the click`() {
+        val report = gameCubeReport(JoyconInput(triggerLeft = 40, triggerRight = 1))
+        assertEquals((1 shl 8) or (1 shl 9), buttonWord(report)) // BUTTON_L2, BUTTON_R2
+        assertEquals(0, report[13].toInt())
     }
 
-    private fun gameCubeButtonWord(vararg pressed: JoyconButton): Int {
-        val input = JoyconInput(pressed = pressed.map { it.id }.toSet())
+    @Test
+    fun `a gamecube controller's trigger clicks press the back-button keys as well as L2 and R2`() {
+        val report = gameCubeReport(JoyconInput(pressed = setOf(JoyconButton.L.id, JoyconButton.R.id)))
+        assertEquals((1 shl 5) or (1 shl 8) or (1 shl 9), buttonWord(report)) // BUTTON_Z for GL, BUTTON_L2, BUTTON_R2
+        assertEquals(1, report[13].toInt()) // GR
+    }
+
+    private fun gameCubeButtonWord(vararg pressed: JoyconButton): Int =
+        buttonWord(gameCubeReport(JoyconInput(pressed = pressed.map { it.id }.toSet())))
+
+    private fun gameCubeReport(input: JoyconInput): ByteArray {
         val gameCube = ConnectedJoycon(
             address = "gc", side = Side.PRO, model = ControllerModel.GAMECUBE, deviceName = "Joy-Con 2", input = input,
         )
-        val report = ReportMapper.buildReport(GamepadFrame(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube)))
-        return (report[0].toInt() and 0xFF) or ((report[1].toInt() and 0xFF) shl 8)
+        return ReportMapper.buildReport(GamepadFrame(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube)))
     }
+
+    private fun buttonWord(report: ByteArray): Int = (report[0].toInt() and 0xFF) or ((report[1].toInt() and 0xFF) shl 8)
 }

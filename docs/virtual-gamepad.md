@@ -54,8 +54,8 @@ shift:
 | R | 7 | 103 `BUTTON_R1` | | | |
 
 - **Capture and GL** take `BUTTON_C` / `BUTTON_Z`, the two slots with no Switch equivalent.
-- **A controller with analog triggers moves its shoulders:** ZL/ZR onto L1/R1, the trigger clicks onto
-  L2/R2 ([below](#analog-triggers)).
+- **A controller with analog triggers moves its shoulders:** ZL/ZR onto L1/R1, the trigger pull onto
+  L2/R2 and the clicks onto GL/GR's keys ([below](#analog-triggers)).
 - **GR and C overflow.** One gamepad collection carries 15 buttons — a 16th lands on `0x13F`, which
   no key layout names — and the Switch 2 controllers have 17. For a Button usage outside a
   pointer/joystick/gamepad collection Linux falls back to `BTN_MISC + n - 1`, which key layouts name
@@ -201,13 +201,18 @@ Emulators read the click as the axis above 0.99, which only 255 reaches: Dolphin
 - **The axis is free of that.** Dolphin's analog trigger on the Nova stops at the first stop and
   steps up on the click.
 
-`AnalogTriggerMapper` moves its other shoulder buttons so each lands where Android expects that
-control:
+`AnalogTriggerMapper` moves its other shoulder buttons onto L1/R1 and its clicks onto ZL/ZR's ids,
+which DSU sends as L2/R2. On the pad, `AnalogTriggerKeys` then makes L2/R2 follow the pull, as the
+Nova does anyway, and gives each click a key of its own:
 
-| Button | Bits | Keycodes |
+| Control | Pad bits | Keycodes |
 |---|---|---|
 | ZL / Z (the ZR bit) | 6 / 7 | `BUTTON_L1` / `BUTTON_R1` |
-| L / R click | 8 / 9 | `BUTTON_L2` / `BUTTON_R2` |
+| L / R off rest | 8 / 9 | `BUTTON_L2` / `BUTTON_R2` |
+| L / R click | 5 / overflow bit 0 | `BUTTON_Z` / `BUTTON_1` (GL / GR) |
+
+- **GR's key can be dropped** by firmware that re-publishes pads ([above](#buttons-and-keycodes)).
+  Emulators read the click from the axis, so they don't depend on it.
 
 ZL/Z on the bumpers is confirmed in Dolphin on a Retroid Pocket Nova (Android 13) with an NSO
 GameCube controller, 2026-10-13. The click on the axis, and Eden, are untested on hardware.
@@ -217,8 +222,8 @@ GameCube controller, 2026-10-13. The click on the axis, and Eden, are untested o
   the stick-click targets unbound.
 - **DSU carries no trigger travel.** Its packet has analog L2/R2 bytes, but `DsuPacketEncoder` fills
   each analog byte from its button, 0 or 255, and this controller's ZL/ZR bits carry the clicks, so
-  L2/R2 read full only while a trigger is clicked. Its buttons reach DSU as they reach the pad: ZL/Z
-  as L1/R1, the clicks as L2/R2.
+  L2/R2 read full only while a trigger is clicked. Over DSU, ZL/Z arrive as L1/R1 and the clicks as
+  L2/R2, so the Wii layouts that bind a click keep it.
 
 For such a player, Dolphin setup adds ``Triggers/L-Analog = `Axis 23+` `` and
 ``Triggers/R-Analog = `Axis 22+` ``. Dolphin names Android axes by number, and a trigger has only a `+`

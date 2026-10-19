@@ -109,13 +109,13 @@ class ReportMapperTest {
     }
 
     @Test
-    fun `a gamecube controller's ZL and Z travel on the bumper bits, clear of L2 and R2`() {
+    fun `a gamecube controller's ZL and Z travel on the bumper bits`() {
         assertEquals((1 shl 6) or (1 shl 7), gameCubeButtonWord(JoyconButton.ZL, JoyconButton.ZR)) // BUTTON_L1, BUTTON_R1
     }
 
     @Test
-    fun `a gamecube controller's trigger clicks travel on the stick-click bits`() {
-        assertEquals((1 shl 13) or (1 shl 14), gameCubeButtonWord(JoyconButton.L, JoyconButton.R)) // BUTTON_THUMBL, BUTTON_THUMBR
+    fun `a gamecube controller's trigger clicks travel on the trigger-button bits`() {
+        assertEquals((1 shl 8) or (1 shl 9), gameCubeButtonWord(JoyconButton.L, JoyconButton.R)) // BUTTON_L2, BUTTON_R2
     }
 
     private fun gameCubeButtonWord(vararg pressed: JoyconButton): Int {

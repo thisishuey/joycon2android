@@ -55,7 +55,7 @@ shift:
 
 - **Capture and GL** take `BUTTON_C` / `BUTTON_Z`, the two slots with no Switch equivalent.
 - **A controller with analog triggers moves its shoulders:** ZL/ZR onto L1/R1, the trigger clicks onto
-  the stick clicks ([below](#analog-triggers)).
+  L2/R2 ([below](#analog-triggers)).
 - **GR and C overflow.** One gamepad collection carries 15 buttons — a 16th lands on `0x13F`, which
   no key layout names — and the Switch 2 controllers have 17. For a Button usage outside a
   pointer/joystick/gamepad collection Linux falls back to `BTN_MISC + n - 1`, which key layouts name
@@ -189,20 +189,23 @@ so each lands where Android expects that control:
 | Button | Bits | Keycodes |
 |---|---|---|
 | ZL / Z (the ZR bit) | 6 / 7 | `BUTTON_L1` / `BUTTON_R1` |
-| L / R click at the bottom | 13 / 14 | `BUTTON_THUMBL` / `BUTTON_THUMBR` |
+| L / R click past the analog travel | 8 / 9 | `BUTTON_L2` / `BUTTON_R2` |
 
-Confirmed in Dolphin on a Retroid Pocket Nova (Android 13) with an NSO GameCube controller,
-2026-10-13. Eden is untested on hardware.
+ZL/Z on the bumpers is confirmed in Dolphin on a Retroid Pocket Nova (Android 13) with an NSO
+GameCube controller, 2026-10-13, when the clicks were still on the stick clicks. The clicks on L2/R2
+and Eden are untested on hardware.
 
-- **Nothing goes on `BUTTON_L2`/`BUTTON_R2`:** they can follow the trigger axes. Retroid Pocket Nova,
-  Android 13, 2026-10-08: with Z on R2, pulling R fired Dolphin's `Button R2` and Z fired nothing.
-  The Nova's L2/R2 setting wasn't the cause.
-- **The stick-click bits are free to reuse:** the controller has no stick clicks. So no binding of
+- **Re-publishing firmware synthesises `BUTTON_L2`/`BUTTON_R2` from the trigger axes and drops the
+  bits.** Retroid Pocket Nova, Android 13, 2026-10-08, with Z on the R2 bit: pulling R fired Dolphin's
+  `Button R2` and Z fired nothing. The Nova's L2/R2 setting wasn't the cause. So Z stays off those
+  bits, and on such a device the click reaches a game only as the end of the analog travel.
+- **Nothing lands on the stick-click bits:** the controller has no stick clicks. So no binding of
   its can use LS/RS: `emittedFor` resolves them to nothing for it, and its Switch Pro layout leaves
   the stick-click targets unbound.
 - **DSU carries no trigger travel.** Its packet has analog L2/R2 bytes, but `DsuPacketEncoder` fills
-  each analog byte from its button, 0 or 255, and this controller's ZL/ZR bits are moved, so L2/R2
-  stay 0. Its buttons reach DSU as they reach the pad: ZL/Z as L1/R1, the clicks as L3/R3.
+  each analog byte from its button, 0 or 255, and this controller's ZL/ZR bits carry the clicks, so
+  L2/R2 read full only while a trigger is clicked. Its buttons reach DSU as they reach the pad: ZL/Z
+  as L1/R1, the clicks as L2/R2.
 
 For such a player, Dolphin setup adds ``Triggers/L-Analog = `Axis 23+` `` and
 ``Triggers/R-Analog = `Axis 22+` ``. Dolphin names Android axes by number, and a trigger has only a `+`

@@ -113,8 +113,10 @@ The gamepad button beside **Set up** opens the mapping editor, with a card per c
 tap one to open its bindings. On Eden a single Joy-Con is set up as a real left or right Joy-Con;
 with **Pro Controller** (below) turned on, or on Dolphin, it's a Pro Controller held sideways, so every
 button works in every game ([why](docs/virtual-gamepad.md#why-theyre-set-up-as-pro-controllers)). A
-GameCube controller has layouts of its own, with Z on its Z button and analog L/R in Dolphin. A
-target can take **several sources** — tick as many as you like, and any of them fires it.
+GameCube controller has layouts of its own, with Z on its Z button and analog L/R in Dolphin; Android
+sees its ZL and Z as L1 and R1, its trigger travel as the analog triggers, and the click past each
+trigger's travel as L2 and R2. A target can take **several sources** — tick as many as you like, and
+any of them fires it.
 
 - **Layouts.** Each player picks a layout to start from, which resets their changes. The card reads
   **Custom** once you change a binding, and the layout's name again if you change it back.

@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import com.joegec.joycon2android.connection.presentation.R
+import com.joegec.joycon2android.model.JoyconButton
 import com.joegec.joycon2android.model.JoyconInput
 import com.joegec.joycon2android.ui.theme.AppType
 import com.joegec.joycon2android.ui.theme.Dimens
@@ -20,11 +21,38 @@ import com.joegec.joycon2android.ui.theme.TextBright
 import com.joegec.joycon2android.ui.theme.TextDim
 
 @Composable
-internal fun SidewaysImuDisplay(input: JoyconInput, modifier: Modifier = Modifier) {
+internal fun SidewaysImuDisplay(input: JoyconInput, modifier: Modifier = Modifier, analogTriggers: Boolean = false) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(Dimens.imuRowSpacing)) {
         SensorRow(input)
         if (!input.motionSupport.measuresRotation) NoGyroNote()
+        if (analogTriggers) TriggerRow(input)
         PacketRow(input)
+    }
+}
+
+/** What the pad sends, 0–250 for travel and 255 once clicked: docs/virtual-gamepad.md#analog-triggers */
+@Composable
+private fun TriggerRow(input: JoyconInput) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.cardPadding),
+    ) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Dimens.imuTitleGap)) {
+            ImuText(stringResource(R.string.imu_triggers), bold = true)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                TriggerValue(JoyconButton.L.label, input.triggerLeft)
+                TriggerValue(JoyconButton.R.label, input.triggerRight)
+            }
+        }
+        Spacer(Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun TriggerValue(trigger: String, value: Int) {
+    Row(horizontalArrangement = Arrangement.spacedBy(Dimens.imuAxisGap)) {
+        ImuText(trigger, dimmed = true)
+        ImuText("%3d".format(value))
     }
 }
 

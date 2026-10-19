@@ -110,6 +110,9 @@ In `JoyconScreen.kt`:
 - **A GameCube controller is named and drawn as itself.** Its card, compact row and mapping card
   say GameCube, and its detailed view is the Pro layout without the buttons it lacks, with ZR marked
   Z and its triggers, L and R, above ZL and Z. `GameCubeButtons` is the one list of what it has, which the mapping editor offers too.
+- **Its card shows what the pad sends for the triggers.** L and R light from the first travel, as
+  L2/R2 do. GL and GR sit under ZL and Z and light with each trigger's click, the keys the pad sends
+  for it. A **Triggers** row under the motion values reads each trigger's 0–255 axis.
 
 ### Landscape
 

@@ -77,7 +77,6 @@ class DolphinGcpadConfigTest {
 
         assertTrue(result.contains("Buttons/A = `Button A`")) // Down rotates onto A
         assertTrue(result.contains("Buttons/Start = `Select`")) // Minus
-        assertTrue(result.contains("Buttons/Z = `Button C`")) // Capture, on the key it borrows from GL
     }
 
     @Test

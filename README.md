@@ -134,8 +134,8 @@ like, and any of them fires it.
 - **Android.** Below the emulator's buttons, sticks and motion, each card has Android's **Home**,
   **Back** and **Screenshot**. A button picked here works as the device's own and never reaches the
   game; Home always leaves it. Like the rest of the mapping it's per player and console, and saved in
-  layouts. Over DSU alone it needs Shizuku running. Capture has no key of its own on the virtual
-  gamepad, except on a lone Joy-Con, so Screenshot is a good use for it.
+  layouts. Over DSU alone it needs Shizuku running. A GameCube controller's Capture has no key on the
+  virtual gamepad, so Screenshot is a good use for it.
 - **Pro Controller.** On Eden, a lone Joy-Con also gets this switch, off by default. Off, Eden sees
   a real left or right Joy-Con and the game handles the grip and motion itself, which games such as
   Super Mario Party Jamboree's motion games need; you map its own buttons, plus SL and SR. If a game

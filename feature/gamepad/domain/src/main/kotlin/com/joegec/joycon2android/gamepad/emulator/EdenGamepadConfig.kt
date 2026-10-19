@@ -26,10 +26,10 @@ object EdenGamepadConfig {
     // Keycodes the relay emits: docs/virtual-gamepad.md#buttons-and-keycodes
     private const val A = 96
     private const val B = 97
-    private const val PADDLE_LEFT = 98
+    private const val CAPTURE = 98
     private const val X = 99
     private const val Y = 100
-    private const val PADDLE_RIGHT = 101
+    private const val PADDLE_LEFT = 101
     private const val L = 102
     private const val R = 103
     private const val ZL = 104
@@ -39,6 +39,7 @@ object EdenGamepadConfig {
     private const val PLUS = 108
     private const val MINUS = 109
     private const val HOME = 110
+    private const val PADDLE_RIGHT = 188
     private const val CHAT = 189
 
     private const val HAT_X = 15
@@ -49,7 +50,7 @@ object EdenGamepadConfig {
         JoyconButton.L to L, JoyconButton.R to R, JoyconButton.ZL to ZL, JoyconButton.ZR to ZR,
         JoyconButton.Minus to MINUS, JoyconButton.Plus to PLUS,
         JoyconButton.LS to LS_CLICK, JoyconButton.RS to RS_CLICK,
-        JoyconButton.Home to HOME,
+        JoyconButton.Home to HOME, JoyconButton.Capture to CAPTURE,
         JoyconButton.GL to PADDLE_LEFT, JoyconButton.GR to PADDLE_RIGHT,
         JoyconButton.Chat to CHAT,
     )

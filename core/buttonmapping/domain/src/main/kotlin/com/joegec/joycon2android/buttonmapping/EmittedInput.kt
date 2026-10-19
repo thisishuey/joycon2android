@@ -2,8 +2,8 @@ package com.joegec.joycon2android.buttonmapping
 
 import com.joegec.joycon2android.model.GameCubeButtons
 import com.joegec.joycon2android.model.GameCubeOutputMapper
+import com.joegec.joycon2android.model.GameCubePadKeys
 import com.joegec.joycon2android.model.JoyconButton
-import com.joegec.joycon2android.model.LoneCaptureKey
 import com.joegec.joycon2android.model.SidewaysMapper
 import com.joegec.joycon2android.model.SingleJoyconMapper
 
@@ -15,9 +15,9 @@ fun JoyconButton.emittedFor(side: JoyconSide, singleJoycon: Boolean = false): Jo
     return JoyconButton.entries.firstOrNull { it.id == emittedId }
 }
 
-/** As [emittedFor], with a lone Joy-Con's Capture on the key the virtual pad lends it. */
+/** As [emittedFor], as the button whose virtual-pad key it sends: a GameCube controller's differ. */
 fun JoyconButton.emittedOnPadFor(side: JoyconSide, singleJoycon: Boolean = false): JoyconButton? =
-    emittedFor(side, singleJoycon)?.let { LoneCaptureKey.onPad(it, side.isLone) }
+    emittedFor(side, singleJoycon)?.let { if (side == JoyconSide.GAMECUBE) GameCubePadKeys.onPad(it) else it }
 
 /** As [emittedFor], with a GameCube controller's clicks on the slots DSU has for them. */
 fun JoyconButton.emittedOnDsuFor(side: JoyconSide, singleJoycon: Boolean = false): JoyconButton? =

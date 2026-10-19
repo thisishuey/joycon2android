@@ -41,14 +41,14 @@ class ReportMapperTest {
     }
 
     @Test
-    fun `each button takes its bit in the gamepad collection`() {
+    fun `each button takes the bit whose keycode carries its name`() {
         val expected = mapOf(
             JoyconButton.A to 0,        // BUTTON_A 96
             JoyconButton.B to 1,        // BUTTON_B 97
-            JoyconButton.GL to 2,       // BUTTON_C 98
+            JoyconButton.Capture to 2,  // BUTTON_C 98
             JoyconButton.X to 3,        // BUTTON_X 99
             JoyconButton.Y to 4,        // BUTTON_Y 100
-            JoyconButton.GR to 5,       // BUTTON_Z 101
+            JoyconButton.GL to 5,       // BUTTON_Z 101
             JoyconButton.L to 6,        // BUTTON_L1 102
             JoyconButton.R to 7,        // BUTTON_R1 103
             JoyconButton.ZL to 8,       // BUTTON_L2 104
@@ -63,26 +63,10 @@ class ReportMapperTest {
     }
 
     @Test
-    fun `the button the gamepad collection cannot carry rides the overflow byte`() {
+    fun `the two buttons the gamepad collection cannot carry ride the overflow byte`() {
+        assertEquals(0b01, report(JoyconButton.GR)[13].toInt())
         assertEquals(0b10, report(JoyconButton.Chat)[13].toInt())
-        assertEquals(0, report(JoyconButton.Chat)[1].toInt() and 0x80) // never bit 15, the pad bit
-    }
-
-    @Test
-    fun `a body with its own GL sends no key for Capture`() {
-        val report = report(JoyconButton.Capture)
-        assertEquals(0, buttonWord(report))
-        assertEquals(0, report[13].toInt())
-    }
-
-    @Test
-    fun `a lone Joy-Con's Capture takes GL's key`() {
-        val left = ConnectedJoycon(
-            address = "l", side = Side.LEFT, deviceName = "Joy-Con (L)",
-            input = JoyconInput(pressed = setOf(JoyconButton.Capture.id)),
-        )
-        val report = ReportMapper.buildReport(GamepadFrame(PlayerState(PlayerNumber.P1, left = left)))
-        assertEquals(1 shl 2, buttonWord(report)) // BUTTON_C
+        assertEquals(0, report(JoyconButton.GR)[1].toInt() and 0x80) // never bit 15, the pad bit
     }
 
     @Test
@@ -137,9 +121,16 @@ class ReportMapperTest {
     }
 
     @Test
-    fun `a gamecube controller's trigger clicks travel on the back-button bits`() {
+    fun `a gamecube controller's trigger clicks take Capture's and GL's bits`() {
         val report = gameCubeReport(JoyconInput(pressed = setOf(JoyconButton.GL.id, JoyconButton.GR.id)))
         assertEquals((1 shl 2) or (1 shl 5), buttonWord(report)) // BUTTON_C, BUTTON_Z
+        assertEquals(0, report[13].toInt())
+    }
+
+    @Test
+    fun `a gamecube controller's own Capture sends no key`() {
+        val report = gameCubeReport(JoyconInput(pressed = setOf(JoyconButton.Capture.id)))
+        assertEquals(0, buttonWord(report))
         assertEquals(0, report[13].toInt())
     }
 

@@ -39,41 +39,36 @@ Emulators address it by enumeration rank instead: with P1, P2 and P4, P4 is the 
 
 Linux maps HID `Button n` in a Game Pad collection to `BTN_GAMEPAD + n - 1` (`BTN_A, BTN_B, BTN_C,
 BTN_X, BTN_Y, BTN_Z, BTN_TL…`), and Android's key layout names that fixed sequence. `ReportMapper`
-gives each button its bit, so nothing downstream deals in a shift:
+gives each button the bit whose keycode carries its own name, so nothing downstream deals in a
+shift:
 
 | Button | Bit | Keycode | Button | Bit | Keycode |
 |---|---|---|---|---|---|
 | A | 0 | 96 `BUTTON_A` | ZL | 8 | 104 `BUTTON_L2` |
 | B | 1 | 97 `BUTTON_B` | ZR | 9 | 105 `BUTTON_R2` |
-| GL | 2 | 98 `BUTTON_C` | − | 10 | 109 `BUTTON_SELECT` |
+| Capture | 2 | 98 `BUTTON_C` | − | 10 | 109 `BUTTON_SELECT` |
 | X | 3 | 99 `BUTTON_X` | + | 11 | 108 `BUTTON_START` |
 | Y | 4 | 100 `BUTTON_Y` | Home | 12 | 110 `BUTTON_MODE` |
-| GR | 5 | 101 `BUTTON_Z` | LS | 13 | 106 `BUTTON_THUMBL` |
+| GL | 5 | 101 `BUTTON_Z` | LS | 13 | 106 `BUTTON_THUMBL` |
 | L | 6 | 102 `BUTTON_L1` | RS | 14 | 107 `BUTTON_THUMBR` |
 | R | 7 | 103 `BUTTON_R1` | | | |
 
-- **GL and GR** take `BUTTON_C` / `BUTTON_Z`, the two slots with no Switch equivalent, as a pair of
-  extra buttons.
-- **Capture has no key on the pad.** The collection's 15 are taken, and Retroid Pocket Nova, Android
-  13, 2026-10-19: Dolphin reads `BUTTON_1` (the first overflow key) as B, so the overflow can't hold it.
-  A lone Joy-Con has no GL, so it lends Capture GL's key (`LoneCaptureKey`, applied by `ReportMapper`
-  and, through `emittedOnPadFor`, both pad setups). Capture still works as an Android key and over
-  DSU, as the touchpad click.
-- **A GameCube controller moves its shoulders and C:** ZL/ZR onto L1/R1, the trigger pull onto L2/R2,
-  the clicks reported as GL/GR, and C onto − ([below](#analog-triggers)).
-- **C overflows.** One gamepad collection carries 15 buttons — a 16th lands on `0x13F`, which
+- **Capture and GL** take `BUTTON_C` / `BUTTON_Z`, the two slots with no Switch equivalent.
+- **A GameCube controller's keys differ:** ZL/ZR onto L1/R1, the trigger pull onto L2/R2, the clicks
+  onto Capture's and GL's keys, and C onto − ([below](#analog-triggers)).
+- **GR and C overflow.** One gamepad collection carries 15 buttons — a 16th lands on `0x13F`, which
   no key layout names — and the Switch 2 controllers have 17. For a Button usage outside a
   pointer/joystick/gamepad collection Linux falls back to `BTN_MISC + n - 1`, which key layouts name
-  `BUTTON_1..16`: C is **189**, `BUTTON_2`; bit 0, `BUTTON_1`, is left empty (above). The
-  collection is vendor-defined so nothing interprets it. Firmware that re-publishes pads (see
-  [Device identity](#device-identity)) forwards only keys it knows, so it may drop C.
+  `BUTTON_1..16`: GR is **188**, C is **189**. The collection is vendor-defined so nothing
+  interprets it. Firmware that re-publishes pads (see
+  [Device identity](#device-identity)) forwards only keys it knows, so it may drop these two.
 - **Triggers are Brake (left) and Accelerator (right)**, never reversed. On Android 14+ these arrive
   as `AXIS_LTRIGGER`/`AXIS_RTRIGGER` with compat copies as `AXIS_BRAKE` (23) and `AXIS_GAS` (22);
   Android 7–13 report only 23 and 22. Re-publishing firmware synthesises `L2`/`R2` from those axes —
   reversed, a ZR pull arrives as L2.
 - **D-pad** is the hat (`AXIS_HAT_X` 15, `AXIS_HAT_Y` 16). Sticks are axes 0/1 (left) and 11/14
   (right). Eden's config uses numeric keycodes; Dolphin's uses names (`Button L2` = ZL,
-  `Select` = −, `Button 2` = C from Dolphin's keycode table, …).
+  `Select` = −, …).
 
 ## Android keys
 
@@ -204,10 +199,17 @@ where Android expects them:
 |---|---|---|
 | ZL / Z (the ZR bit) | 6 / 7 | `BUTTON_L1` / `BUTTON_R1` |
 | L / R, pulled | 8 / 9 | `BUTTON_L2` / `BUTTON_R2` |
-| GL / GR, clicked | 2 / 5 | `BUTTON_C` / `BUTTON_Z` |
+| GL / GR, clicked | 2 / 5 | `BUTTON_C` / `BUTTON_Z`, Capture's and GL's keys |
 | C | 10 | `BUTTON_SELECT`, as it has no − |
+| Capture | — | none |
 
 Its layouts put Dolphin's digital L/R and Eden's L/R on GL/GR.
+
+- **Its clicks don't use GL/GR's own keys.** Retroid Pocket Nova, Android 13, 2026-10-19: Dolphin reads
+  `BUTTON_1`, GR's overflow key, as B. So on the pad `GameCubePadKeys` gives its clicks the keys
+  Capture and GL use on other controllers, and its own Capture none; Dolphin and Eden setup follow
+  through `emittedOnPadFor`. C moves onto − in `GameCubeOutputMapper`, so it is Select on the pad and
+  Share over DSU. Other controllers keep the keys above.
 
 - **L2/R2 can't carry the click.** Retroid Pocket Nova, Android 13, 2026-10-19: Dolphin's `Button L2`
   is held for the whole sweep while the pad sets its L2 bit only on the click; on 2026-10-08, with Z

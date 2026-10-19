@@ -45,13 +45,14 @@ object DolphinGcpadConfig {
         GameCubeButton.DPadRight to "D-Pad/Right",
     )
 
+    // GR and Chat are absent: a GameCube pad has no target left for them.
     private val ANDROID_NAMES = mapOf(
         JoyconButton.A to "Button A",
         JoyconButton.B to "Button B",
-        JoyconButton.GL to "Button C",
+        JoyconButton.Capture to "Button C",
         JoyconButton.X to "Button X",
         JoyconButton.Y to "Button Y",
-        JoyconButton.GR to "Button Z",
+        JoyconButton.GL to "Button Z",
         JoyconButton.L to "Button L1",
         JoyconButton.R to "Button R1",
         JoyconButton.ZL to "Button L2",
@@ -61,7 +62,6 @@ object DolphinGcpadConfig {
         JoyconButton.Plus to "Start",
         JoyconButton.Minus to "Select",
         JoyconButton.Home to "Mode",
-        JoyconButton.Chat to "Button 2",
     )
 
     // The D-Pad target reads the hat switch instead: Axis 15 = hat X, Axis 16 = hat Y.

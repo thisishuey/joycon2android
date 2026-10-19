@@ -3,6 +3,7 @@ import com.joegec.joycon2android.dsu.motion.MotionConverter
 
 import com.joegec.joycon2android.model.BatteryCharge
 import com.joegec.joycon2android.model.ConnectedJoycon
+import com.joegec.joycon2android.model.ControllerModel
 import com.joegec.joycon2android.model.JoyconButton
 import com.joegec.joycon2android.model.JoyconInput
 import com.joegec.joycon2android.model.PlayerNumber
@@ -84,6 +85,18 @@ class DsuPacketEncoderTest {
         assertEquals(0xFF, packet[47].toInt() and 0xFF) // analog D-Pad Up
         assertEquals(0xFF, packet[50].toInt() and 0xFF) // analog A
         assertEquals(0xFF, packet[54].toInt() and 0xFF) // analog R2
+    }
+
+    @Test
+    fun `a gamecube controller's trigger clicks ride the stick-click bits`() {
+        val gameCube = ConnectedJoycon(
+            address = "gc", side = Side.PRO, model = ControllerModel.GAMECUBE, deviceName = "Joy-Con 2",
+            input = JoyconInput(pressed = setOf(JoyconButton.L.id, JoyconButton.GL.id)),
+        )
+        val packet = encoder.padData(buffer(), stream(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube)), 1, 0)
+
+        assertEquals(0x02, packet[36].toInt()) // L3
+        assertEquals(0x01, packet[37].toInt()) // L2, the pull
     }
 
     @Test

@@ -3,6 +3,7 @@ import com.joegec.joycon2android.dsu.motion.DsuMotion
 import com.joegec.joycon2android.dsu.motion.MotionConverter
 import com.joegec.joycon2android.dsu.motion.SidewaysMotion
 
+import com.joegec.joycon2android.model.GameCubeButtons
 import com.joegec.joycon2android.model.GamepadState
 import com.joegec.joycon2android.model.MotionSupport
 import com.joegec.joycon2android.model.JoyconButton
@@ -41,9 +42,10 @@ class DsuPacketEncoder(
         putControllerHeader(packet, stream.slot, state)
         packet.put(1)
         packet.putInt(packetNumber.toInt())
-        putButtons(packet, state.gamepad)
+        val pressed = if (state.hasGameCube) GameCubeButtons.onDsu(state.gamepad.pressed) else state.gamepad.pressed
+        putButtons(packet, pressed)
         putSticks(packet, state.gamepad)
-        putAnalogButtons(packet, state.gamepad)
+        putAnalogButtons(packet, pressed)
         packet.position(packet.position() + TOUCH_BYTES)
         putMotion(packet, stream, motionTimestampMicros)
         return seal(packet)
@@ -105,12 +107,12 @@ class DsuPacketEncoder(
         }
     }
 
-    private fun putButtons(packet: ByteBuffer, gamepad: GamepadState) {
-        packet.put(bitmask(gamepad.pressed, BUTTON_MASKS_1))
-        packet.put(bitmask(gamepad.pressed, BUTTON_MASKS_2))
-        packet.put(if (JoyconButton.Home.id in gamepad.pressed) 1 else 0)
+    private fun putButtons(packet: ByteBuffer, pressed: Set<String>) {
+        packet.put(bitmask(pressed, BUTTON_MASKS_1))
+        packet.put(bitmask(pressed, BUTTON_MASKS_2))
+        packet.put(if (JoyconButton.Home.id in pressed) 1 else 0)
         // Capture stands in for the DS4 touchpad click — no other DSU slot fits it
-        packet.put(if (JoyconButton.Capture.id in gamepad.pressed) 1 else 0)
+        packet.put(if (JoyconButton.Capture.id in pressed) 1 else 0)
     }
 
     private fun bitmask(pressed: Set<String>, masks: Map<String, Int>): Byte {
@@ -129,9 +131,9 @@ class DsuPacketEncoder(
 
     private fun stickByte(value: Int): Byte = (value / 16).coerceIn(0, 255).toByte()
 
-    private fun putAnalogButtons(packet: ByteBuffer, gamepad: GamepadState) {
+    private fun putAnalogButtons(packet: ByteBuffer, pressed: Set<String>) {
         for (button in ANALOG_BUTTON_ORDER) {
-            packet.put(if (button.id in gamepad.pressed) 0xFF.toByte() else 0)
+            packet.put(if (button.id in pressed) 0xFF.toByte() else 0)
         }
     }
 

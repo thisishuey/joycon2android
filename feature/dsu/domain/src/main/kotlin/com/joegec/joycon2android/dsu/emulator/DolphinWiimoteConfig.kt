@@ -7,7 +7,7 @@ import com.joegec.joycon2android.buttonmapping.RemoteMotion
 import com.joegec.joycon2android.buttonmapping.StickDirection
 import com.joegec.joycon2android.buttonmapping.StickSource
 import com.joegec.joycon2android.buttonmapping.emittedDirection
-import com.joegec.joycon2android.buttonmapping.emittedFor
+import com.joegec.joycon2android.buttonmapping.emittedOnDsuFor
 import com.joegec.joycon2android.buttonmapping.emittedStick
 import com.joegec.joycon2android.buttonmapping.target.WiimoteButton
 import com.joegec.joycon2android.buttonmapping.target.WiimoteStick
@@ -289,7 +289,7 @@ object DolphinWiimoteConfig {
             ?.joinToString(" | ") { "`$it`" }
 
     private fun specFor(side: JoyconSide, sidewaysRemote: Boolean, source: MappingSource): String? = when (source) {
-        is MappingSource.Button -> source.button.emittedFor(side)?.let { DS4_NAMES[it] ?: PAD_NAMES[it] }
+        is MappingSource.Button -> source.button.emittedOnDsuFor(side)?.let { DS4_NAMES[it] ?: PAD_NAMES[it] }
         is MappingSource.Stick -> tiltSpec(source.emittedStick(side), source.emittedDirection(side, sidewaysRemote))
         // DSU carries no trigger travel: docs/virtual-gamepad.md#analog-triggers
         is MappingSource.Trigger -> null

@@ -23,5 +23,14 @@ object GameCubeButtons {
         return input.copy(pressed = input.pressed - triggerIds + (pulled + clicks.values).map { it.id })
     }
 
+    /** DSU has no back-button slots and this controller no stick clicks, so its clicks ride L3/R3 there. */
+    fun onDsu(button: JoyconButton): JoyconButton = DSU_SLOTS[button] ?: button
+
+    fun onDsu(pressed: Set<String>): Set<String> = pressed.mapTo(mutableSetOf()) { DSU_SLOT_IDS[it] ?: it }
+
     private val CLICKS = mapOf(JoyconButton.L to JoyconButton.GL, JoyconButton.R to JoyconButton.GR)
+
+    private val DSU_SLOTS = mapOf(JoyconButton.GL to JoyconButton.LS, JoyconButton.GR to JoyconButton.RS)
+
+    private val DSU_SLOT_IDS = DSU_SLOTS.entries.associate { (click, slot) -> click.id to slot.id }
 }

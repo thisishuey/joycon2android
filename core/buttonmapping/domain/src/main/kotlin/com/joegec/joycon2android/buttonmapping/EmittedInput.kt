@@ -1,6 +1,7 @@
 package com.joegec.joycon2android.buttonmapping
 
 import com.joegec.joycon2android.model.AnalogTriggerMapper
+import com.joegec.joycon2android.model.GameCubeButtons
 import com.joegec.joycon2android.model.JoyconButton
 import com.joegec.joycon2android.model.SidewaysMapper
 import com.joegec.joycon2android.model.SingleJoyconMapper
@@ -12,6 +13,10 @@ fun JoyconButton.emittedFor(side: JoyconSide, singleJoycon: Boolean = false): Jo
             ?: return null
     return JoyconButton.entries.firstOrNull { it.id == emittedId }
 }
+
+/** As [emittedFor], with a GameCube controller's clicks on the slots DSU has for them. */
+fun JoyconButton.emittedOnDsuFor(side: JoyconSide, singleJoycon: Boolean = false): JoyconButton? =
+    emittedFor(side, singleJoycon)?.let { if (side == JoyconSide.GAMECUBE) GameCubeButtons.onDsu(it) else it }
 
 private fun JoyconButton.emittedId(side: JoyconSide): String? = when (side) {
     JoyconSide.DUAL -> id

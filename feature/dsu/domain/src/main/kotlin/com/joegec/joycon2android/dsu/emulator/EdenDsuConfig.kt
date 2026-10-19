@@ -5,7 +5,7 @@ import com.joegec.joycon2android.buttonmapping.MappingSource
 import com.joegec.joycon2android.buttonmapping.PlayerBody
 import com.joegec.joycon2android.buttonmapping.StickDirection
 import com.joegec.joycon2android.buttonmapping.StickSource
-import com.joegec.joycon2android.buttonmapping.emittedFor
+import com.joegec.joycon2android.buttonmapping.emittedOnDsuFor
 import com.joegec.joycon2android.buttonmapping.emittedStick
 import com.joegec.joycon2android.buttonmapping.joyconSide
 import com.joegec.joycon2android.buttonmapping.target.SwitchProButton
@@ -158,7 +158,7 @@ object EdenDsuConfig {
         sources.firstNotNullOfOrNull { inputFor(side, single, it) }
 
     private fun inputFor(side: JoyconSide, single: Boolean, source: MappingSource): String? = when (source) {
-        is MappingSource.Button -> source.button.emittedFor(side, single)?.let(DS4_BITS::get)?.let { "button:$it" }
+        is MappingSource.Button -> source.button.emittedOnDsuFor(side, single)?.let(DS4_BITS::get)?.let { "button:$it" }
         is MappingSource.Stick -> tiltOf(source.emittedStick(side, single), source.direction)
         // DSU carries no trigger travel: docs/virtual-gamepad.md#analog-triggers
         is MappingSource.Trigger -> null

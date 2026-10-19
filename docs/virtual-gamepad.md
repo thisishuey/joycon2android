@@ -211,13 +211,14 @@ Its layouts put Dolphin's digital L/R and Eden's L/R on GL/GR.
 - **Nothing lands on the stick-click bits:** the controller has no stick clicks. So no binding of
   its can use LS/RS: `emittedFor` resolves them to nothing for it, and its Switch Pro layout leaves
   the stick-click targets unbound.
-- **DSU has no slot for GL/GR**, so a click bound there doesn't reach DSU, and Eden's DSU setup
-  leaves a GameCube controller's L/R unbound. Its pulled L/R arrive as L2/R2, and `DsuPacketEncoder`
-  fills each analog byte from its button, 0 or 255, so DSU carries no trigger travel. The Wii layouts
-  bind L/R, so over DSU they fire on the pull.
+- **Over DSU, GL/GR ride L3/R3.** DSU has no back-button slots and the controller has no stick clicks
+  (`GameCubeButtons.onDsu`, used by `DsuPacketEncoder` and, through `emittedOnDsuFor`, both DSU
+  setups). Its pulled L/R arrive as L2/R2, and `DsuPacketEncoder` fills each analog byte from its
+  button, 0 or 255, so DSU carries no trigger travel. The Wii layouts bind L/R, so they fire on the
+  pull.
 - **Stored bindings from before GL/GR** meant the click by L/R. `GameCubeClickMigration` (stored
   bindings) and `LayoutJson` (layouts before format 3) move them to GL/GR on the GameCube and Switch
-  Pro consoles. The Wii console keeps L/R, since DSU can't carry GL/GR.
+  Pro consoles. The Wii console keeps L/R, as its layouts do, so they still match.
 
 ZL/Z on the bumpers is confirmed in Dolphin on a Retroid Pocket Nova (Android 13) with an NSO
 GameCube controller, 2026-10-13. GL/GR, and Eden, are untested on hardware.

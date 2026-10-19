@@ -38,4 +38,11 @@ class GameCubeButtonsTest {
     fun `a trigger at rest presses nothing`() {
         assertEquals(emptySet<String>(), GameCubeButtons.withTriggerPresses(JoyconInput()).pressed)
     }
+
+    @Test
+    fun `its trigger clicks ride the stick-click slots over DSU`() {
+        assertEquals(JoyconButton.LS, GameCubeButtons.onDsu(JoyconButton.GL))
+        assertEquals(JoyconButton.A, GameCubeButtons.onDsu(JoyconButton.A))
+        assertEquals(setOf(JoyconButton.RS.id, JoyconButton.L.id), GameCubeButtons.onDsu(setOf(JoyconButton.GR.id, JoyconButton.L.id)))
+    }
 }

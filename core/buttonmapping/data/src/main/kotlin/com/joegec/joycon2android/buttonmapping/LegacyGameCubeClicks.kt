@@ -4,7 +4,7 @@ import com.joegec.joycon2android.model.JoyconButton
 
 /**
  * Before a GameCube controller reported its trigger clicks as GL/GR, its L/R were the clicks. On the Wii
- * console they stay L/R: DSU has no slot for GL/GR. docs/virtual-gamepad.md#analog-triggers
+ * console they stay L/R, as its layouts bind them. docs/virtual-gamepad.md#analog-triggers
  */
 internal fun Map<String, String>.withLegacyGameCubeClicks(console: Console, side: JoyconSide): Map<String, String> =
     if (side == JoyconSide.GAMECUBE && console in PAD_CONSOLES) mapValues { (_, value) -> value.withClickSources() }

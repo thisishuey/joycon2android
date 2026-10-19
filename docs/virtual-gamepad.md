@@ -54,8 +54,8 @@ shift:
 | R | 7 | 103 `BUTTON_R1` | | | |
 
 - **Capture and GL** take `BUTTON_C` / `BUTTON_Z`, the two slots with no Switch equivalent.
-- **A GameCube controller's keys differ:** ZL/ZR onto L1/R1, the trigger pull onto L2/R2, the clicks
-  onto Capture's and GL's keys, and C onto − ([below](#analog-triggers)).
+- **A GameCube controller's keys differ:** ZL/ZR onto L1/R1, the trigger pull onto L2/R2, the R click
+  onto Capture's key, and C onto − ([below](#analog-triggers)).
 - **GR and C overflow.** One gamepad collection carries 15 buttons — a 16th lands on `0x13F`, which
   no key layout names — and the Switch 2 controllers have 17. For a Button usage outside a
   pointer/joystick/gamepad collection Linux falls back to `BTN_MISC + n - 1`, which key layouts name
@@ -199,16 +199,16 @@ where Android expects them:
 |---|---|---|
 | ZL / Z (the ZR bit) | 6 / 7 | `BUTTON_L1` / `BUTTON_R1` |
 | L / R, pulled | 8 / 9 | `BUTTON_L2` / `BUTTON_R2` |
-| GL / GR, clicked | 2 / 5 | `BUTTON_C` / `BUTTON_Z`, Capture's and GL's keys |
+| GL / GR, clicked | 5 / 2 | `BUTTON_Z` / `BUTTON_C`, GR on Capture's key |
 | C | 10 | `BUTTON_SELECT`, as it has no − |
 | Capture | — | none |
 
 Its layouts put Dolphin's digital L/R and Eden's L/R on GL/GR.
 
-- **Its clicks don't use GL/GR's own keys.** Retroid Pocket Nova, Android 13, 2026-10-19: Dolphin reads
-  `BUTTON_1`, GR's overflow key, as B. So on the pad `GameCubePadKeys` gives its clicks the keys
-  Capture and GL use on other controllers, and its own Capture none; Dolphin and Eden setup follow
-  through `emittedOnPadFor`. C moves onto − in `GameCubeOutputMapper`, so it is Select on the pad and
+- **Its R click doesn't use GR's own key.** Retroid Pocket Nova, Android 13, 2026-10-19: Dolphin reads
+  `BUTTON_1`, GR's overflow key, as B. So on the pad `GameCubePadKeys` gives GR Capture's key, and its
+  own Capture none; Dolphin and Eden setup follow through `emittedOnPadFor`. Right to left
+  alphabetically, as Nintendo letters A and B: R on C, L on Z. C moves onto − in `GameCubeOutputMapper`, so it is Select on the pad and
   Share over DSU. Other controllers keep the keys above.
 
 - **L2/R2 can't carry the click.** Retroid Pocket Nova, Android 13, 2026-10-19: Dolphin's `Button L2`

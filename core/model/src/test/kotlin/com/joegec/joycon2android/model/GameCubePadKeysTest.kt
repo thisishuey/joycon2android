@@ -7,11 +7,11 @@ import org.junit.Test
 class GameCubePadKeysTest {
 
     @Test
-    fun `its trigger clicks take Capture's and GL's keys`() {
-        assertEquals(JoyconButton.Capture, GameCubePadKeys.onPad(JoyconButton.GL))
-        assertEquals(JoyconButton.GL, GameCubePadKeys.onPad(JoyconButton.GR))
+    fun `its L click keeps GL's key and its R click takes Capture's`() {
+        assertEquals(JoyconButton.GL, GameCubePadKeys.onPad(JoyconButton.GL))
+        assertEquals(JoyconButton.Capture, GameCubePadKeys.onPad(JoyconButton.GR))
         assertEquals(
-            setOf(JoyconButton.Capture.id, JoyconButton.GL.id, JoyconButton.A.id),
+            setOf(JoyconButton.GL.id, JoyconButton.Capture.id, JoyconButton.A.id),
             GameCubePadKeys.onPad(setOf(JoyconButton.GL.id, JoyconButton.GR.id, JoyconButton.A.id)),
         )
     }

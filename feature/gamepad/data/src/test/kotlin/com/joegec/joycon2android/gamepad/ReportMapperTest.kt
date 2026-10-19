@@ -121,10 +121,11 @@ class ReportMapperTest {
     }
 
     @Test
-    fun `a gamecube controller's trigger clicks take Capture's and GL's bits`() {
-        val report = gameCubeReport(JoyconInput(pressed = setOf(JoyconButton.GL.id, JoyconButton.GR.id)))
-        assertEquals((1 shl 2) or (1 shl 5), buttonWord(report)) // BUTTON_C, BUTTON_Z
-        assertEquals(0, report[13].toInt())
+    fun `a gamecube controller's L click takes GL's bit and its R click Capture's`() {
+        assertEquals(1 shl 5, buttonWord(gameCubeReport(JoyconInput(pressed = setOf(JoyconButton.GL.id))))) // BUTTON_Z
+        val right = gameCubeReport(JoyconInput(pressed = setOf(JoyconButton.GR.id)))
+        assertEquals(1 shl 2, buttonWord(right)) // BUTTON_C
+        assertEquals(0, right[13].toInt())
     }
 
     @Test

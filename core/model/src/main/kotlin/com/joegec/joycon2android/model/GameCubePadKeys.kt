@@ -1,8 +1,8 @@
 package com.joegec.joycon2android.model
 
 /**
- * On the virtual pad a GameCube controller's trigger clicks take the keys Capture and GL use on other
- * controllers, `BUTTON_C` and `BUTTON_Z`, and its own Capture has none: docs/virtual-gamepad.md#analog-triggers
+ * On the virtual pad a GameCube controller's R click (GR) takes Capture's key, `BUTTON_C`, and its own
+ * Capture has none: docs/virtual-gamepad.md#analog-triggers
  */
 object GameCubePadKeys {
 
@@ -19,7 +19,6 @@ object GameCubePadKeys {
     // Each button to the one whose key it takes.
     private val KEYS: Map<JoyconButton, JoyconButton?> = mapOf(
         JoyconButton.Capture to null,
-        JoyconButton.GL to JoyconButton.Capture,
-        JoyconButton.GR to JoyconButton.GL,
+        JoyconButton.GR to JoyconButton.Capture,
     )
 }

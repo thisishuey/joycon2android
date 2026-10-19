@@ -77,6 +77,7 @@ class DolphinGcpadConfigTest {
 
         assertTrue(result.contains("Buttons/A = `Button A`")) // Down rotates onto A
         assertTrue(result.contains("Buttons/Start = `Select`")) // Minus
+        assertTrue(result.contains("Buttons/Z = `Button C`")) // Capture, on the key it borrows from GL
     }
 
     @Test
@@ -159,7 +160,7 @@ class DolphinGcpadConfigTest {
 
         assertTrue(result.contains("[GCPad1]"))
         assertTrue(result.contains("Buttons/Z = `Button R1`")) // the bumper Z travels on
-        assertTrue(result.contains("Triggers/R = `Button 1`")) // GR, its R click
+        assertTrue(result.contains("Triggers/R = `Button Z`")) // GR, its R click
         assertTrue(result.contains("C-Stick/Up = `Axis 14-`"))
     }
 
@@ -181,7 +182,7 @@ class DolphinGcpadConfigTest {
 
         assertTrue(result.contains("Triggers/L-Analog = `Axis 23+`"))
         assertTrue(result.contains("Triggers/R-Analog = `Axis 22+`"))
-        assertTrue(result.contains("Triggers/L = `Button Z`")) // GL, its L click
+        assertTrue(result.contains("Triggers/L = `Button C`")) // GL, its L click
     }
 
     @Test
@@ -190,7 +191,7 @@ class DolphinGcpadConfigTest {
         val players = listOf(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube))
         val result = DolphinGcpadConfig.merge(null, players, mapOf(1 to 1)) { mapOf("A" to "R|GR") }
 
-        assertTrue(result.contains("Buttons/A = `Button R2` | `Button 1`"))
+        assertTrue(result.contains("Buttons/A = `Button R2` | `Button Z`"))
     }
 
     @Test
@@ -202,6 +203,15 @@ class DolphinGcpadConfigTest {
 
         assertTrue(result.contains("Triggers/L-Analog = `Button L2`"))
         assertFalse(result.contains("R-Analog"))
+    }
+
+    @Test
+    fun `a gamecube controller's C binds as Select`() {
+        val gameCube = joycon(Side.PRO).copy(model = ControllerModel.GAMECUBE)
+        val players = listOf(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube))
+        val result = DolphinGcpadConfig.merge(null, players, mapOf(1 to 1)) { mapOf("Start" to "Chat") }
+
+        assertTrue(result.contains("Buttons/Start = `Select`"))
     }
 
     @Test

@@ -6,7 +6,7 @@ import com.joegec.joycon2android.buttonmapping.PlayerBody
 import com.joegec.joycon2android.buttonmapping.StickDirection
 import com.joegec.joycon2android.buttonmapping.StickSource
 import com.joegec.joycon2android.buttonmapping.TriggerSource
-import com.joegec.joycon2android.buttonmapping.emittedFor
+import com.joegec.joycon2android.buttonmapping.emittedOnPadFor
 import com.joegec.joycon2android.buttonmapping.joyconSide
 import com.joegec.joycon2android.buttonmapping.emittedStick
 import com.joegec.joycon2android.buttonmapping.target.GameCubeAnalogTrigger
@@ -45,14 +45,13 @@ object DolphinGcpadConfig {
         GameCubeButton.DPadRight to "D-Pad/Right",
     )
 
-    // Chat is absent: a GameCube pad has no target left for it.
     private val ANDROID_NAMES = mapOf(
         JoyconButton.A to "Button A",
         JoyconButton.B to "Button B",
-        JoyconButton.Capture to "Button C",
+        JoyconButton.GL to "Button C",
         JoyconButton.X to "Button X",
         JoyconButton.Y to "Button Y",
-        JoyconButton.GL to "Button Z",
+        JoyconButton.GR to "Button Z",
         JoyconButton.L to "Button L1",
         JoyconButton.R to "Button R1",
         JoyconButton.ZL to "Button L2",
@@ -62,7 +61,7 @@ object DolphinGcpadConfig {
         JoyconButton.Plus to "Start",
         JoyconButton.Minus to "Select",
         JoyconButton.Home to "Mode",
-        JoyconButton.GR to "Button 1",
+        JoyconButton.Chat to "Button 2",
     )
 
     // The D-Pad target reads the hat switch instead: Axis 15 = hat X, Axis 16 = hat Y.
@@ -175,7 +174,7 @@ object DolphinGcpadConfig {
             ?.joinToString(" | ")
 
     private fun termFor(side: JoyconSide, source: MappingSource): String? = when (source) {
-        is MappingSource.Button -> source.button.emittedFor(side)?.let { ANDROID_NAMES[it] ?: HAT_NAMES[it] }?.let(::inputTerm)
+        is MappingSource.Button -> source.button.emittedOnPadFor(side)?.let { ANDROID_NAMES[it] ?: HAT_NAMES[it] }?.let(::inputTerm)
         is MappingSource.Stick -> inputTerm(tiltSpec(source.emittedStick(side), source.direction))
         is MappingSource.Trigger -> TRIGGER_AXES[source.trigger]?.takeIf { side == JoyconSide.GAMECUBE }?.let(::inputTerm)
     }

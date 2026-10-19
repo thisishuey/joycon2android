@@ -2,19 +2,20 @@ package com.joegec.joycon2android.gamepad
 
 import com.joegec.joycon2android.model.AndroidKey
 import com.joegec.joycon2android.model.JoyconButton
+import com.joegec.joycon2android.model.LoneCaptureKey
 
 object ReportMapper {
 
     private const val REPORT_SIZE = 15
 
-    // Each bit's keycode carries the button's own name: docs/virtual-gamepad.md#buttons-and-keycodes
+    // Each button's bit and keycode: docs/virtual-gamepad.md#buttons-and-keycodes
     private val BUTTON_MAP: Map<String, Int> = mapOf(
         JoyconButton.A.id to 0,
         JoyconButton.B.id to 1,
-        JoyconButton.Capture.id to 2,
+        JoyconButton.GL.id to 2,
         JoyconButton.X.id to 3,
         JoyconButton.Y.id to 4,
-        JoyconButton.GL.id to 5,
+        JoyconButton.GR.id to 5,
         JoyconButton.L.id to 6,
         JoyconButton.R.id to 7,
         JoyconButton.ZL.id to 8,
@@ -26,9 +27,8 @@ object ReportMapper {
         JoyconButton.RS.id to 14,
     )
 
-    // The two that overflow the gamepad collection, in its trailing vendor collection's byte.
+    // The one that overflows the gamepad collection, in its trailing vendor collection's byte.
     private val OVERFLOW_MAP: Map<String, Int> = mapOf(
-        JoyconButton.GR.id to 0,
         JoyconButton.Chat.id to 1,
     )
 
@@ -43,7 +43,7 @@ object ReportMapper {
     fun buildReport(frame: GamepadFrame): ByteArray {
         val gamepad = frame.state.gamepad
         val report = ByteArray(REPORT_SIZE)
-        val pressed = gamepad.pressed
+        val pressed = LoneCaptureKey.onPad(gamepad.pressed, frame.state.isLone)
 
         // Bytes 0-1: 15 button bits (little-endian) then one padding bit
         val buttons = bits(pressed, BUTTON_MAP)

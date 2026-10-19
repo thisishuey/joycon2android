@@ -256,8 +256,8 @@ class EdenGamepadConfigTest {
 
         assertTrue(result.contains("player_0_button_zl=\"$DEVICE,button:102,display:Joy-Con Virtual Gamepad 1 0\"")) // BUTTON_L1
         assertTrue(result.contains("player_0_button_zr=\"$DEVICE,button:103,display:Joy-Con Virtual Gamepad 1 0\"")) // BUTTON_R1
-        assertTrue(result.contains("player_0_button_l=\"$DEVICE,button:101,display:Joy-Con Virtual Gamepad 1 0\"")) // BUTTON_Z, GL
-        assertTrue(result.contains("player_0_button_r=\"$DEVICE,button:188,display:Joy-Con Virtual Gamepad 1 0\"")) // BUTTON_1, GR
+        assertTrue(result.contains("player_0_button_l=\"$DEVICE,button:98,display:Joy-Con Virtual Gamepad 1 0\"")) // BUTTON_C, GL
+        assertTrue(result.contains("player_0_button_r=\"$DEVICE,button:101,display:Joy-Con Virtual Gamepad 1 0\"")) // BUTTON_Z, GR
         assertFalse(result.contains("player_0_button_lstick"))
         assertFalse(result.contains("player_0_button_rstick"))
     }

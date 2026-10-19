@@ -118,7 +118,8 @@ sees its ZL and Z as L1 and R1, and its L and R as analog triggers that press L2
 and read just short of full at the first stop. Clicking a trigger through reads as full and presses
 GL or GR, which you can bind like any other button; its layouts put Dolphin's and Eden's L and R there.
 On Dolphin, its card's **Analog triggers** section sets what drives the analog L and R: the trigger's
-own travel by default, or any button, which pulls it fully. A target can take **several sources** — tick as many as you
+own travel by default, or any button, which pulls it fully. It has no −, so its C button is Select,
+in Android games and emulators alike. A target can take **several sources** — tick as many as you
 like, and any of them fires it.
 
 - **Layouts.** Each player picks a layout to start from, which resets their changes. The card reads
@@ -133,7 +134,8 @@ like, and any of them fires it.
 - **Android.** Below the emulator's buttons, sticks and motion, each card has Android's **Home**,
   **Back** and **Screenshot**. A button picked here works as the device's own and never reaches the
   game; Home always leaves it. Like the rest of the mapping it's per player and console, and saved in
-  layouts. Over DSU alone it needs Shizuku running.
+  layouts. Over DSU alone it needs Shizuku running. Capture has no key of its own on the virtual
+  gamepad, except on a lone Joy-Con, so Screenshot is a good use for it.
 - **Pro Controller.** On Eden, a lone Joy-Con also gets this switch, off by default. Off, Eden sees
   a real left or right Joy-Con and the game handles the grip and motion itself, which games such as
   Super Mario Party Jamboree's motion games need; you map its own buttons, plus SL and SR. If a game

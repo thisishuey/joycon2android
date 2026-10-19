@@ -88,14 +88,14 @@ class DsuPacketEncoderTest {
     }
 
     @Test
-    fun `a gamecube controller's trigger clicks ride the stick-click bits`() {
+    fun `a gamecube controller's trigger clicks ride the stick-click bits and its C the share bit`() {
         val gameCube = ConnectedJoycon(
             address = "gc", side = Side.PRO, model = ControllerModel.GAMECUBE, deviceName = "Joy-Con 2",
-            input = JoyconInput(pressed = setOf(JoyconButton.L.id, JoyconButton.GL.id)),
+            input = JoyconInput(pressed = setOf(JoyconButton.L.id, JoyconButton.GL.id, JoyconButton.Chat.id)),
         )
         val packet = encoder.padData(buffer(), stream(PlayerState(PlayerNumber.P1, left = gameCube, right = gameCube)), 1, 0)
 
-        assertEquals(0x02, packet[36].toInt()) // L3
+        assertEquals(0x03, packet[36].toInt()) // L3, Share
         assertEquals(0x01, packet[37].toInt()) // L2, the pull
     }
 

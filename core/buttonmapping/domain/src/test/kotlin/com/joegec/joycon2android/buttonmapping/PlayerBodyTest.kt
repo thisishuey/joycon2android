@@ -39,6 +39,12 @@ class PlayerBodyTest {
     }
 
     @Test
+    fun `a gamecube controller's C is reported as minus, which it lacks`() {
+        assertEquals(JoyconButton.Minus, JoyconButton.Chat.emittedFor(JoyconSide.GAMECUBE))
+        assertEquals(JoyconButton.Chat, JoyconButton.Chat.emittedFor(JoyconSide.DUAL))
+    }
+
+    @Test
     fun `a gamecube controller's stick clicks emit nothing, so they can't fire with a trigger click`() {
         assertEquals(null, JoyconButton.LS.emittedFor(JoyconSide.GAMECUBE))
         assertEquals(null, JoyconButton.RS.emittedFor(JoyconSide.GAMECUBE))
